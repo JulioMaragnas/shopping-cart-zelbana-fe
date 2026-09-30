@@ -28,8 +28,8 @@ sync:
 
 build: sync
 	@for app in $(APPS); do \
-		echo "🔍 Verificando si el TAG $(TAG) ya existe para $$app..."; \
-		ssh $(SERVER) "if [ -n \"\$$$$(docker images -q $$app:$(TAG))\" ]; then echo '❌ Error: El TAG $(TAG) ya existe. Usa un tag nuevo.'; exit 1; fi" || exit 1; \
+		echo "🔍 Verificando si el TAG $(TAG) ya existe para $$app en el registry..."; \
+		ssh $(SERVER) "curl -s http://$(REGISTRY)/v2/$$app/tags/list | grep -q '\"$(TAG)\"' && echo '❌ Error: El TAG $(TAG) ya existe. Usa un tag nuevo.' && exit 1 || echo '✅ Tag validado.'" || exit 1; \
 		echo "🔨 Construyendo $$app..."; \
 		ssh $(SERVER) "cd $(REMOTE_APP) && \
 			docker build -t $$app:$(TAG) ." || exit 1; \
