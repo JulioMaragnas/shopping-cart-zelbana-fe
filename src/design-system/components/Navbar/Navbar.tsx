@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
 
@@ -9,7 +10,7 @@ export function Navbar() {
   return (
     <header className={styles.navbar}>
       <div className={styles.leftSection}>
-        <div className={styles.logo}>[ LOGO ]</div>
+        <Link to="/" className={styles.logo} style={{textDecoration: 'none'}}>[ LOGO ]</Link>
         <span className={styles.navLink}>Categorías ▾</span>
       </div>
 
@@ -26,12 +27,14 @@ export function Navbar() {
         <span className={styles.navLink}>Hola, Julio Cano</span>
         <span className={styles.navLink}>Ayuda</span>
         <span className={styles.navLink}>Español ▾</span>
-        <div className={styles.cartContainer}>
-          <span>🛒</span>
-          {totalItems > 0 && (
-            <span className={styles.cartBadge} data-testid="cart-badge">{totalItems}</span>
-          )}
-        </div>
+        <Link to="/cart" style={{textDecoration: 'none'}}>
+          <div className={styles.cartContainer}>
+            <span>🛒</span>
+            {totalItems > 0 && (
+              <span className={styles.cartBadge} data-testid="cart-badge">{totalItems}</span>
+            )}
+          </div>
+        </Link>
       </div>
     </header>
   );

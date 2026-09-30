@@ -1,0 +1,117 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #d4d4d8;
+  background-color: #ffffff;
+  margin-bottom: 8px;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.image {
+  width: 80px;
+  height: 80px;
+  background-color: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: monospace;
+  font-size: 10px;
+  color: #a1a1aa;
+}
+
+.details {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #18181b;
+  margin: 0;
+}
+
+.availability {
+  font-size: 12px;
+  color: #18181b;
+  background-color: #f4f4f5;
+  padding: 2px 6px;
+  border: 1px solid #d4d4d8;
+  width: fit-content;
+  font-family: monospace;
+}
+
+.priceBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+}
+
+.priceAlert {
+  font-size: 11px;
+  color: #ba1a1a;
+  font-weight: 500;
+}
+
+.oldPriceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.crossedOut {
+  text-decoration: line-through;
+  color: #71717a;
+}
+
+.discountBadge {
+  background-color: #18181b;
+  color: #ffffff;
+  padding: 2px 4px;
+  font-family: monospace;
+}
+
+.currentPrice {
+  font-size: 18px;
+  font-weight: bold;
+  color: #18181b;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.trashBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #71717a;
+  font-size: 16px;
+}
+
+.trashBtn:hover {
+  color: #ba1a1a;
+}
+
+.quantitySelect {
+  padding: 4px 8px;
+  border: 1px solid #d4d4d8;
+  background-color: #ffffff;
+  font-family: monospace;
+  font-size: 12px;
+}
