@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Carrito de Compras | WIREFRAME_STORE</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Configuration verbatim from instructions -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#f3f3f4",
+            "primary": "#000000",
+            "on-secondary-fixed": "#1a1b22",
+            "primary-fixed-dim": "#c8c5ca",
+            "surface-container-high": "#e8e8e9",
+            "on-primary-container": "#858387",
+            "on-secondary-container": "#63646c",
+            "tertiary-fixed": "#e8e2d9",
+            "on-tertiary": "#ffffff",
+            "on-error-container": "#93000a",
+            "on-primary-fixed": "#1b1b1e",
+            "on-tertiary-container": "#88837c",
+            "inverse-primary": "#c8c5ca",
+            "on-secondary": "#ffffff",
+            "background": "#f9f9fa",
+            "on-primary-fixed-variant": "#47464a",
+            "tertiary": "#000000",
+            "inverse-on-surface": "#f0f1f2",
+            "inverse-surface": "#2f3132",
+            "surface-variant": "#e2e2e3",
+            "on-surface": "#1a1c1d",
+            "error-container": "#ffdad6",
+            "on-tertiary-fixed-variant": "#494640",
+            "secondary-fixed": "#e3e1ec",
+            "surface-tint": "#5f5e61",
+            "outline-variant": "#c8c5cb",
+            "on-background": "#1a1c1d",
+            "surface-container-lowest": "#ffffff",
+            "error": "#ba1a1a",
+            "primary-fixed": "#e4e1e6",
+            "primary-container": "#1b1b1e",
+            "secondary": "#5d5e66",
+            "on-primary": "#ffffff",
+            "secondary-fixed-dim": "#c6c5cf",
+            "tertiary-container": "#1d1b16",
+            "on-secondary-fixed-variant": "#46464e",
+            "surface-bright": "#f9f9fa",
+            "surface": "#f9f9fa",
+            "secondary-container": "#e3e1ec",
+            "on-tertiary-fixed": "#1d1b16",
+            "surface-container": "#eeeeef",
+            "on-error": "#ffffff",
+            "surface-dim": "#dadadb",
+            "surface-container-highest": "#e2e2e3",
+            "on-surface-variant": "#47464b",
+            "tertiary-fixed-dim": "#cbc6bd",
+            "outline": "#77767b"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "margin-tablet": "2rem",
+            "margin": "1rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-xl": "2.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-sm": "0.5rem",
+            "gutter-desktop": "1.5rem",
+            "margin-desktop": "3rem"
+          },
+          "fontFamily": {
+            "label-md": ["JetBrains Mono"],
+            "headline-xl": ["Inter"],
+            "body-sm": ["Inter"],
+            "body-lg": ["Inter"],
+            "label-lg": ["JetBrains Mono"],
+            "headline-sm": ["Inter"],
+            "label-sm": ["JetBrains Mono"],
+            "headline-xl-mobile": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-md": ["Inter"],
+            "headline-lg-mobile": ["Inter"],
+            "headline-md": ["Inter"]
+          },
+          "fontSize": {
+            "label-md": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "label-lg": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "400" }],
+            "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-lg-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    /* Blueprint crossline styling for wireframe placeholders */
+    .wireframe-box {
+      position: relative;
+      background-color: #f3f3f4;
+    }
+    .wireframe-box::before,
+    .wireframe-box::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .wireframe-box::before {
+      background: linear-gradient(to top right, transparent calc(50% - 0.5px), #c8c5cb calc(50% - 0.5px), #c8c5cb calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    }
+    .wireframe-box::after {
+      background: linear-gradient(to bottom right, transparent calc(50% - 0.5px), #c8c5cb calc(50% - 0.5px), #c8c5cb calc(50% + 0.5px), transparent calc(50% + 0.5px));
+    }
+    /* Custom clean scrollbars for technical wireframe */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #eeeeef;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #77767b;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col font-body-md selection:bg-primary selection:text-on-primary">
+<!-- ================= TOP NAVIGATION BAR (Shared Component: TopNavBar) ================= -->
+<header class="w-full bg-surface-container-lowest border-b border-outline-variant sticky top-0 z-50">
+<div class="w-full px-margin-desktop py-space-md flex items-center justify-between gap-space-lg max-w-full">
+<!-- Brand Logo & Search Cluster -->
+<div class="flex items-center gap-space-lg flex-1">
+<a class="font-label-lg text-label-lg font-bold tracking-wider text-on-surface uppercase border border-outline px-space-sm py-space-xs hover:bg-surface-container-low transition-colors duration-150 shrink-0" href="#">
+          WIREFRAME_STORE
+        </a>
+<!-- Search Bar (on_left) -->
+<div class="relative w-full max-w-md hidden md:flex items-center">
+<span class="absolute left-3 text-on-surface-variant flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-[18px]">search</span>
+</span>
+<input class="w-full h-10 pl-9 pr-3 bg-surface-container-lowest border border-outline-variant font-label-md text-label-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary rounded-none transition-colors" placeholder="Buscar por SKU, norma DIN, componente..." type="text"/>
+<span class="absolute right-2.5 font-label-sm text-label-sm text-outline border border-outline-variant px-1 bg-surface-container-low">
+            CTRL+K
+          </span>
+</div>
+</div>
+<!-- Navigation Links & Trailing Cluster -->
+<nav class="flex items-center gap-space-lg shrink-0">
+<ul class="hidden lg:flex items-center gap-space-md font-label-md text-label-md">
+<li>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors py-1" href="#">
+              Categorias
+            </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors py-1" href="#">
+              Ayuda
+            </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors py-1 flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">language</span>
+              Español
+            </a>
+</li>
+</ul>
+<div class="h-4 w-[1px] bg-outline-variant hidden lg:block"></div>
+<!-- Trailing User & Cart Action -->
+<div class="flex items-center gap-space-md">
+<button class="flex items-center gap-1.5 font-label-md text-label-md text-on-surface border border-transparent hover:border-outline-variant px-space-sm py-1 transition-colors">
+<span class="material-symbols-outlined text-[18px]">account_circle</span>
+<span>Hola, Julio Cano</span>
+</button>
+<!-- Cart Action Button with Active Badge -->
+<a aria-label="Carrito de compras" class="relative flex items-center justify-center p-2 text-on-surface border border-outline hover:bg-surface-container-low transition-colors duration-150" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute -top-2 -right-2 bg-primary text-on-primary font-label-sm text-[10px] px-1.5 py-0.2 border border-primary leading-tight font-bold">
+              13
+            </span>
+</a>
+</div>
+</nav>
+</div>
+</header>
+<!-- ================= TECHNICAL META SUB-HEADER STRIP ================= -->
+<aside class="w-full bg-surface-container border-b border-outline-variant px-margin-desktop py-space-xs font-label-sm text-label-sm text-on-surface-variant flex items-center justify-between overflow-x-auto whitespace-nowrap">
+<div class="flex items-center gap-space-md tracking-wider">
+<span><strong class="font-bold text-on-surface">ESPECIFICACIÓN:</strong> CHECKOUT_CART_V1.0</span>
+<span class="text-outline">|</span>
+<span><strong class="font-bold text-on-surface">GRID:</strong> 2-COLUMN_RATIO_8:4</span>
+<span class="text-outline">|</span>
+<span><strong class="font-bold text-on-surface">ESTADO_SESION:</strong> AUTENTICADO</span>
+<span class="text-outline">|</span>
+<span><strong class="font-bold text-on-surface">MONEDA:</strong> USD / COP ($)</span>
+</div>
+<div class="hidden sm:flex items-center gap-space-sm font-label-sm">
+<span class="inline-block w-2 h-2 bg-primary"></span>
+<span>SISTEMA DE TRAZADO TÉCNICO ACTIVO</span>
+</div>
+</aside>
+<!-- ================= MAIN CONTENT CANVAS ================= -->
+<main class="flex-grow w-full max-w-[1600px] mx-auto px-margin-desktop py-space-lg">
+<!-- Breadcrumb & Status Tracker -->
+<nav aria-label="Ruta de navegación" class="mb-space-md font-label-sm text-label-sm text-on-surface-variant flex items-center gap-2">
+<a class="hover:text-on-surface hover:underline" href="#">CATALOGO_ROOT</a>
+<span>/</span>
+<a class="hover:text-on-surface hover:underline" href="#">ORDEN_DISCOVERY</a>
+<span>/</span>
+<span class="text-on-surface font-semibold">CARRITO_CHECKOUT</span>
+</nav>
+<!-- Header Section with Title & Batch Controls -->
+<section class="border-b border-outline-variant pb-space-md mb-space-lg flex flex-col md:flex-row md:items-end justify-between gap-space-md">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight uppercase">
+          CARRITO DE COMPRAS <span class="font-label-md text-label-md text-on-surface-variant font-normal tracking-normal">(4 ARTÍCULOS SELECCIONADOS)</span>
+</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">
+          Revise las especificaciones mecánicas, cantidades y compatibilidad antes de emitir la orden de despacho.
+        </p>
+</div>
+<!-- Controls: Select All & Delete Selected -->
+<div class="flex items-center gap-space-md font-label-md text-label-md shrink-0">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input checked="" class="w-4 h-4 rounded-none border border-outline text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-primary" type="checkbox"/>
+<span class="text-on-surface font-medium">Seleccionar todos (4)</span>
+</label>
+<div class="h-4 w-[1px] bg-outline-variant"></div>
+<button class="text-on-surface-variant hover:text-error hover:underline flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">delete_sweep</span>
+<span>Eliminar seleccionados</span>
+</button>
+</div>
+</section>
+<!-- 12-Column Responsive Layout (~8 Columns Left, ~4 Columns Right) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- ================= LEFT COLUMN: CART ITEMS (8 COLS) ================= -->
+<div class="lg:col-span-8 flex flex-col gap-space-md">
+<!-- Table-like Header row for wireframe density -->
+<div class="hidden sm:grid grid-cols-12 gap-space-sm font-label-sm text-label-sm text-on-surface-variant uppercase border-b border-outline-variant pb-space-xs px-space-md bg-surface-container-low">
+<div class="col-span-1 text-center">SEL</div>
+<div class="col-span-2">PLANO/REF</div>
+<div class="col-span-5">ESPECIFICACIÓN / DESCRIPCIÓN</div>
+<div class="col-span-2 text-center">CANTIDAD</div>
+<div class="col-span-2 text-right">PRECIO TOTAL</div>
+</div>
+<!-- ================= ROW 1 ================= -->
+<article class="bg-surface-container-lowest border border-outline-variant p-space-md hover:border-on-surface transition-colors duration-150">
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-md items-start">
+<!-- Checkbox & Thumbnail -->
+<div class="sm:col-span-3 flex items-start gap-space-sm">
+<div class="pt-2">
+<input checked="" class="w-4 h-4 rounded-none border border-outline text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-primary" type="checkbox"/>
+</div>
+<!-- Wireframe placeholder 120x120 -->
+<div class="wireframe-box w-28 h-28 border border-outline-variant flex flex-col justify-between p-1.5 shrink-0 bg-surface-container-high">
+<span class="font-label-sm text-[9px] text-on-surface-variant bg-surface-container-lowest px-1 border border-outline-variant self-start z-10">
+                  IMG_CART_01
+                </span>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold text-center z-10 bg-surface-container-lowest/80 px-1 py-0.5 border border-outline-variant mx-auto">
+                  [ 120 x 120 ]
+                </span>
+<span class="font-label-sm text-[9px] text-on-surface-variant text-right z-10">
+                  ISO-9001
+                </span>
+</div>
+</div>
+<!-- Title & Details -->
+<div class="sm:col-span-5 flex flex-col justify-between min-h-28">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface px-1.5 py-0.5 border border-outline-variant font-medium">
+                    [ Disponible ]
+                  </span>
+<span class="font-label-sm text-label-sm text-outline">SKU: IND-PRX-M18-01</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-snug hover:underline cursor-pointer">
+                  Producto de ejemplo: Sensor de proximidad inductivo M18 NPN blindado 8mm cable 2m con protección de polaridad invertida
+                </h2>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+                  Tensión: 10-30V DC • Frecuencia: 500Hz • Grado: IP67
+                </div>
+</div>
+<!-- Quick action links -->
+<div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant pt-space-sm mt-space-sm border-t border-dotted border-outline-variant">
+<button class="hover:text-on-surface hover:underline">Guardar para más tarde</button>
+<span class="text-outline">|</span>
+<button class="hover:text-on-surface hover:underline">Comparar</button>
+</div>
+</div>
+<!-- Quantity Selector -->
+<div class="sm:col-span-2 flex sm:flex-col items-center sm:items-center justify-between sm:justify-start gap-space-xs">
+<label class="font-label-sm text-label-sm text-outline sm:hidden">Cantidad:</label>
+<select class="h-9 px-2 bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary rounded-none cursor-pointer w-28">
+<option selected="">Cant. 1</option>
+<option>Cant. 2</option>
+<option>Cant. 3</option>
+<option>Cant. 5</option>
+<option>Cant. 10</option>
+</select>
+<span class="font-label-sm text-[10px] text-outline mt-1 hidden sm:block">Stock: 45 uds</span>
+</div>
+<!-- Price & Delete -->
+<div class="sm:col-span-2 flex sm:flex-col items-end justify-between sm:justify-start gap-1 text-right">
+<div class="flex flex-col items-end">
+<span class="line-through text-outline font-label-sm text-label-sm">$146.056</span>
+<div class="flex items-center gap-1.5 my-0.5">
+<span class="font-label-sm text-label-sm bg-primary text-on-primary px-1 py-0.2 font-semibold">
+                    [-60%]
+                  </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$57.022</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Unitario: $57.022</span>
+</div>
+<button aria-label="Eliminar artículo" class="p-1.5 border border-transparent hover:border-outline-variant hover:bg-surface-container-high text-on-surface-variant hover:text-error transition-colors mt-2" title="Eliminar artículo">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ================= ROW 2 ================= -->
+<article class="bg-surface-container-lowest border border-outline-variant p-space-md hover:border-on-surface transition-colors duration-150">
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-md items-start">
+<div class="sm:col-span-3 flex items-start gap-space-sm">
+<div class="pt-2">
+<input checked="" class="w-4 h-4 rounded-none border border-outline text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-primary" type="checkbox"/>
+</div>
+<div class="wireframe-box w-28 h-28 border border-outline-variant flex flex-col justify-between p-1.5 shrink-0 bg-surface-container-high">
+<span class="font-label-sm text-[9px] text-on-surface-variant bg-surface-container-lowest px-1 border border-outline-variant self-start z-10">
+                  IMG_CART_02
+                </span>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold text-center z-10 bg-surface-container-lowest/80 px-1 py-0.5 border border-outline-variant mx-auto">
+                  [ 120 x 120 ]
+                </span>
+<span class="font-label-sm text-[9px] text-on-surface-variant text-right z-10">
+                  DIN-RAIL
+                </span>
+</div>
+</div>
+<div class="sm:col-span-5 flex flex-col justify-between min-h-28">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface px-1.5 py-0.5 border border-outline-variant font-medium">
+                    [ Disponible ]
+                  </span>
+<span class="font-label-sm text-label-sm text-outline">SKU: PWR-SUP-24V-10A</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-snug hover:underline cursor-pointer">
+                  Producto de ejemplo: Fuente conmutada regulada 24V DC 10A riel DIN protección contra cortocircuito IP20
+                </h2>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+                  Entrada: 110/220V AC • Eficiencia: 89% • Temp: -20°C a +70°C
+                </div>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant pt-space-sm mt-space-sm border-t border-dotted border-outline-variant">
+<button class="hover:text-on-surface hover:underline">Guardar para más tarde</button>
+<span class="text-outline">|</span>
+<button class="hover:text-on-surface hover:underline">Comparar</button>
+</div>
+</div>
+<div class="sm:col-span-2 flex sm:flex-col items-center sm:items-center justify-between sm:justify-start gap-space-xs">
+<label class="font-label-sm text-label-sm text-outline sm:hidden">Cantidad:</label>
+<select class="h-9 px-2 bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary rounded-none cursor-pointer w-28">
+<option>Cant. 1</option>
+<option selected="">Cant. 2</option>
+<option>Cant. 3</option>
+<option>Cant. 5</option>
+</select>
+<span class="font-label-sm text-[10px] text-outline mt-1 hidden sm:block">Stock: 18 uds</span>
+</div>
+<div class="sm:col-span-2 flex sm:flex-col items-end justify-between sm:justify-start gap-1 text-right">
+<div class="flex flex-col items-end">
+<span class="line-through text-outline font-label-sm text-label-sm">$210.400</span>
+<div class="flex items-center gap-1.5 my-0.5">
+<span class="font-label-sm text-label-sm bg-primary text-on-primary px-1 py-0.2 font-semibold">
+                    [-45%]
+                  </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$115.720</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Unitario: $57.860</span>
+</div>
+<button aria-label="Eliminar artículo" class="p-1.5 border border-transparent hover:border-outline-variant hover:bg-surface-container-high text-on-surface-variant hover:text-error transition-colors mt-2" title="Eliminar artículo">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ================= ROW 3 ================= -->
+<article class="bg-surface-container-lowest border border-outline-variant p-space-md hover:border-on-surface transition-colors duration-150">
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-md items-start">
+<div class="sm:col-span-3 flex items-start gap-space-sm">
+<div class="pt-2">
+<input checked="" class="w-4 h-4 rounded-none border border-outline text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-primary" type="checkbox"/>
+</div>
+<div class="wireframe-box w-28 h-28 border border-outline-variant flex flex-col justify-between p-1.5 shrink-0 bg-surface-container-high">
+<span class="font-label-sm text-[9px] text-on-surface-variant bg-surface-container-lowest px-1 border border-outline-variant self-start z-10">
+                  IMG_CART_03
+                </span>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold text-center z-10 bg-surface-container-lowest/80 px-1 py-0.5 border border-outline-variant mx-auto">
+                  [ 120 x 120 ]
+                </span>
+<span class="font-label-sm text-[9px] text-on-surface-variant text-right z-10">
+                  MODBUS-RTU
+                </span>
+</div>
+</div>
+<div class="sm:col-span-5 flex flex-col justify-between min-h-28">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface px-1.5 py-0.5 border border-outline-variant font-medium">
+                    [ Disponible ]
+                  </span>
+<span class="font-label-sm text-label-sm text-outline">SKU: PLC-MOD-16IO-RS</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-snug hover:underline cursor-pointer">
+                  Producto de ejemplo: PLC microcontrolador modular 16 E/S digitales transistorizadas puerto RS485 Modbus RTU
+                </h2>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+                  E/S: 8 DI / 8 DO • Puerto: RS485 aislado • RTC integrado
+                </div>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant pt-space-sm mt-space-sm border-t border-dotted border-outline-variant">
+<button class="hover:text-on-surface hover:underline">Guardar para más tarde</button>
+<span class="text-outline">|</span>
+<button class="hover:text-on-surface hover:underline">Comparar</button>
+</div>
+</div>
+<div class="sm:col-span-2 flex sm:flex-col items-center sm:items-center justify-between sm:justify-start gap-space-xs">
+<label class="font-label-sm text-label-sm text-outline sm:hidden">Cantidad:</label>
+<select class="h-9 px-2 bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary rounded-none cursor-pointer w-28">
+<option selected="">Cant. 1</option>
+<option>Cant. 2</option>
+<option>Cant. 4</option>
+</select>
+<span class="font-label-sm text-[10px] text-outline mt-1 hidden sm:block">Stock: 6 uds</span>
+</div>
+<div class="sm:col-span-2 flex sm:flex-col items-end justify-between sm:justify-start gap-1 text-right">
+<div class="flex flex-col items-end">
+<span class="line-through text-outline font-label-sm text-label-sm">$680.500</span>
+<div class="flex items-center gap-1.5 my-0.5">
+<span class="font-label-sm text-label-sm bg-primary text-on-primary px-1 py-0.2 font-semibold">
+                    [-30%]
+                  </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$476.350</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Unitario: $476.350</span>
+</div>
+<button aria-label="Eliminar artículo" class="p-1.5 border border-transparent hover:border-outline-variant hover:bg-surface-container-high text-on-surface-variant hover:text-error transition-colors mt-2" title="Eliminar artículo">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ================= ROW 4 ================= -->
+<article class="bg-surface-container-lowest border border-outline-variant p-space-md hover:border-on-surface transition-colors duration-150">
+<div class="grid grid-cols-1 sm:grid-cols-12 gap-space-md items-start">
+<div class="sm:col-span-3 flex items-start gap-space-sm">
+<div class="pt-2">
+<input checked="" class="w-4 h-4 rounded-none border border-outline text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer accent-primary" type="checkbox"/>
+</div>
+<div class="wireframe-box w-28 h-28 border border-outline-variant flex flex-col justify-between p-1.5 shrink-0 bg-surface-container-high">
+<span class="font-label-sm text-[9px] text-on-surface-variant bg-surface-container-lowest px-1 border border-outline-variant self-start z-10">
+                  IMG_CART_04
+                </span>
+<span class="font-label-sm text-[10px] text-on-surface font-semibold text-center z-10 bg-surface-container-lowest/80 px-1 py-0.5 border border-outline-variant mx-auto">
+                  [ 120 x 120 ]
+                </span>
+<span class="font-label-sm text-[9px] text-on-surface-variant text-right z-10">
+                  PKG-50X
+                </span>
+</div>
+</div>
+<div class="sm:col-span-5 flex flex-col justify-between min-h-28">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="font-label-sm text-label-sm bg-surface-container-high text-on-surface px-1.5 py-0.5 border border-outline-variant font-medium">
+                    [ Disponible ]
+                  </span>
+<span class="font-label-sm text-label-sm text-outline">SKU: BRN-SPR-508-X50</span>
+</div>
+<h2 class="font-headline-sm text-headline-sm text-on-surface leading-snug hover:underline cursor-pointer">
+                  Producto de ejemplo: Bornera de conexión seccionable por resorte paso 5.08mm para montaje en riel paquete x50 uds
+                </h2>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant">
+                  Calibre: 24-12 AWG • Corriente: 20A • Cert: CE / UL
+                </div>
+</div>
+<div class="flex items-center gap-space-md font-label-sm text-label-sm text-on-surface-variant pt-space-sm mt-space-sm border-t border-dotted border-outline-variant">
+<button class="hover:text-on-surface hover:underline">Guardar para más tarde</button>
+<span class="text-outline">|</span>
+<button class="hover:text-on-surface hover:underline">Comparar</button>
+</div>
+</div>
+<div class="sm:col-span-2 flex sm:flex-col items-center sm:items-center justify-between sm:justify-start gap-space-xs">
+<label class="font-label-sm text-label-sm text-outline sm:hidden">Cantidad:</label>
+<select class="h-9 px-2 bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary rounded-none cursor-pointer w-28">
+<option>Cant. 1</option>
+<option>Cant. 2</option>
+<option selected="">Cant. 4</option>
+<option>Cant. 8</option>
+</select>
+<span class="font-label-sm text-[10px] text-outline mt-1 hidden sm:block">Stock: 120 pkgs</span>
+</div>
+<div class="sm:col-span-2 flex sm:flex-col items-end justify-between sm:justify-start gap-1 text-right">
+<div class="flex flex-col items-end">
+<span class="line-through text-outline font-label-sm text-label-sm">$312.000</span>
+<div class="flex items-center gap-1.5 my-0.5">
+<span class="font-label-sm text-label-sm bg-primary text-on-primary px-1 py-0.2 font-semibold">
+                    [-40%]
+                  </span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$187.200</span>
+</div>
+<span class="font-label-sm text-[10px] text-on-surface-variant">Unitario: $46.800</span>
+</div>
+<button aria-label="Eliminar artículo" class="p-1.5 border border-transparent hover:border-outline-variant hover:bg-surface-container-high text-on-surface-variant hover:text-error transition-colors mt-2" title="Eliminar artículo">
+<span class="material-symbols-outlined text-[20px]">delete</span>
+</button>
+</div>
+</div>
+</article>
+<!-- ================= COUPON / VOUCHER INPUT ================= -->
+<section class="bg-surface-container-lowest border border-outline-variant p-space-md mt-space-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-space-md">
+<div class="flex items-center gap-2 text-on-surface">
+<span class="material-symbols-outlined text-[20px]">sell</span>
+<span class="font-label-md text-label-md uppercase font-bold">CUPÓN O VOUCHER TÉCNICO</span>
+</div>
+<div class="flex items-center gap-space-xs flex-1 max-w-md">
+<div class="relative flex-grow">
+<input class="w-full h-10 px-3 bg-surface-container-lowest border border-outline-variant font-label-md text-label-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary rounded-none transition-colors" placeholder="Código de cupón o descuento técnico" type="text"/>
+</div>
+<button class="h-10 px- space-lg bg-surface-container-lowest border border-outline font-label-md text-label-md text-on-surface hover:bg-surface-container-high hover:border-primary transition-colors duration-150 uppercase font-semibold shrink-0">
+              Aplicar
+            </button>
+</div>
+</section>
+</div>
+<!-- ================= RIGHT COLUMN: ORDER SUMMARY (4 COLS) ================= -->
+<aside class="lg:col-span-4 sticky top-24">
+<div class="bg-surface-container-lowest border border-outline-variant p-space-lg shadow-none">
+<!-- Card Header -->
+<div class="border-b border-outline-variant pb-space-sm mb-space-md flex items-center justify-between">
+<h2 class="font-headline-sm text-headline-sm uppercase font-bold tracking-wide text-on-surface">
+              Resumen del pedido
+            </h2>
+<span class="font-label-sm text-label-sm text-outline border border-outline-variant px-1.5 py-0.5 bg-surface-container-low">
+              4 ITEMS
+            </span>
+</div>
+<!-- Itemized Financial Breakdown -->
+<div class="space-y-space-sm font-body-sm text-body-sm">
+<div class="flex items-center justify-between text-on-surface-variant">
+<span>Total de artículos (8 uds):</span>
+<span class="font-label-md text-label-md font-medium text-on-surface">$1.677.138</span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span>Descuento de artículo(s):</span>
+<span class="font-label-md text-label-md font-medium text-on-surface bg-surface-container-high px-1 py-0.5 border border-outline-variant">
+                -$781.530
+              </span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span>Descuento por tiempo limitado:</span>
+<span class="font-label-md text-label-md font-medium text-on-surface bg-surface-container-high px-1 py-0.5 border border-outline-variant">
+                -$62.691
+              </span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span class="flex items-center gap-1">
+                Envío estimado (Estándar):
+                <span class="material-symbols-outlined text-[14px] text-outline cursor-help" title="Envío terrestre asegurado">info</span>
+</span>
+<span class="font-label-md text-label-md font-bold text-on-surface uppercase border border-outline px-1">
+                GRATIS
+              </span>
+</div>
+<div class="flex items-center justify-between text-on-surface-variant">
+<span>Impuestos estimados (IVA 19%):</span>
+<span class="font-label-md text-label-md text-on-surface">Incluido</span>
+</div>
+</div>
+<!-- Divider -->
+<div class="border-t border-outline-variant my-space-md"></div>
+<!-- Grand Total Row -->
+<div class="mb-space-lg">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-sm text-headline-sm font-bold uppercase text-on-surface">Total estimado:</span>
+<span class="font-headline-xl text-[32px] font-bold text-on-surface tracking-tight">$832.917</span>
+</div>
+<div class="mt-1 font-label-sm text-label-sm text-on-surface-variant text-right">
+              IVA incluido donde aplique | Ahorro total: <strong class="font-semibold text-on-surface">$844.221</strong>
+</div>
+</div>
+<!-- Primary CTA Button -->
+<button class="w-full bg-primary text-on-primary hover:bg-neutral-800 transition-colors py-3.5 px-space-md font-label-lg text-label-lg font-bold uppercase tracking-wider flex items-center justify-center gap-2 border border-primary focus:outline-none focus:ring-1 focus:ring-primary rounded-none shadow-none">
+<span class="material-symbols-outlined text-[20px]">lock</span>
+<span>CONTINUAR CON EL PAGO / PAGAR</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+<!-- Secondary Actions -->
+<div class="mt-3 flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<button class="hover:text-on-surface hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">print</span>
+<span>Imprimir proforma cotización</span>
+</button>
+<button class="hover:text-on-surface hover:underline flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">share</span>
+<span>Compartir cesta</span>
+</button>
+</div>
+<!-- Technical Security Box & Guarantees -->
+<div class="mt-space-lg pt-space-md border-t border-outline-variant space-y-2.5 font-label-sm text-label-sm text-on-surface-variant">
+<div class="flex items-center gap-2.5 p-2 bg-surface-container-low border border-outline-variant">
+<span class="material-symbols-outlined text-[18px] text-on-surface">verified_user</span>
+<span>Transacción SSL 256-bit cifrada</span>
+</div>
+<div class="flex items-center gap-2.5 p-2 bg-surface-container-low border border-outline-variant">
+<span class="material-symbols-outlined text-[18px] text-on-surface">shield</span>
+<span>Garantía técnica de 12 meses</span>
+</div>
+<div class="flex items-center gap-2.5 p-2 bg-surface-container-low border border-outline-variant">
+<span class="material-symbols-outlined text-[18px] text-on-surface">assignment_return</span>
+<span>Devolución dentro de 30 días</span>
+</div>
+</div>
+<!-- Accepted Payment Methods (Grayscale badges) -->
+<div class="mt-space-md pt-space-sm border-t border-dotted border-outline-variant">
+<span class="font-label-sm text-[9px] uppercase tracking-wider text-outline block mb-1.5">MÉTODOS DE PAGO ACEPTADOS:</span>
+<div class="flex items-center gap-1 font-label-sm text-[10px] text-on-surface-variant">
+<span class="border border-outline-variant px-1.5 py-0.5 bg-surface-container-low">VISA</span>
+<span class="border border-outline-variant px-1.5 py-0.5 bg-surface-container-low">MC</span>
+<span class="border border-outline-variant px-1.5 py-0.5 bg-surface-container-low">AMEX</span>
+<span class="border border-outline-variant px-1.5 py-0.5 bg-surface-container-low">WIRE</span>
+<span class="border border-outline-variant px-1.5 py-0.5 bg-surface-container-low">PSE</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- ================= FOOTER (Shared Component: Footer) ================= -->
+<footer class="w-full bg-surface-container-low border-t border-outline-variant mt-space-xl">
+<div class="w-full px-margin-desktop py-space-xl flex flex-col md:flex-row justify-between items-center gap-space-md max-w-full">
+<!-- Brand & Technical Traceability Copyright -->
+<div class="flex flex-col sm:flex-row items-center gap-space-md text-center sm:text-left">
+<span class="font-label-sm text-label-sm font-bold text-on-surface uppercase border border-outline px-2 py-0.5 bg-surface-container-lowest">
+          WIREFRAME STORE
+        </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+          © 2025 WIREFRAME STORE. ESPECIFICACIÓN TÉCNICA Y TRAZADO CATALOGO.
+        </p>
+</div>
+<!-- Footer Policy Links -->
+<nav aria-label="Enlaces de pie de página">
+<ul class="flex flex-wrap items-center justify-center gap-space-md font-label-sm text-label-sm">
+<li>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">
+              Condiciones de Uso
+            </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">
+              Aviso Legal
+            </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">
+              Privacidad
+            </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">
+              Soporte Técnico
+            </a>
+</li>
+<li>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">
+              Mapa del Sitio
+            </a>
+</li>
+</ul>
+</nav>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WIREFRAME_STORE - Catálogo Principal</title>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-container-low": "#f3f3f4",
+            "error-container": "#ffdad6",
+            "primary-container": "#1b1b1e",
+            "surface-container": "#eeeeef",
+            "on-tertiary-fixed": "#1d1b16",
+            "on-surface-variant": "#47464b",
+            "on-tertiary": "#ffffff",
+            "surface-container-highest": "#e2e2e3",
+            "error": "#ba1a1a",
+            "on-tertiary-fixed-variant": "#494640",
+            "on-tertiary-container": "#88837c",
+            "secondary": "#5d5e66",
+            "background": "#f9f9fa",
+            "surface-bright": "#f9f9fa",
+            "on-secondary-container": "#63646c",
+            "surface-tint": "#5f5e61",
+            "on-primary-container": "#858387",
+            "surface-container-lowest": "#ffffff",
+            "surface-dim": "#dadadb",
+            "tertiary-fixed-dim": "#cbc6bd",
+            "on-secondary-fixed": "#1a1b22",
+            "inverse-primary": "#c8c5ca",
+            "tertiary-fixed": "#e8e2d9",
+            "tertiary-container": "#1d1b16",
+            "secondary-fixed-dim": "#c6c5cf",
+            "on-primary-fixed-variant": "#47464a",
+            "surface-variant": "#e2e2e3",
+            "on-error": "#ffffff",
+            "surface-container-high": "#e8e8e9",
+            "on-primary": "#ffffff",
+            "primary-fixed": "#e4e1e6",
+            "on-surface": "#1a1c1d",
+            "inverse-on-surface": "#f0f1f2",
+            "outline": "#77767b",
+            "inverse-surface": "#2f3132",
+            "primary": "#000000",
+            "secondary-container": "#e3e1ec",
+            "on-background": "#1a1c1d",
+            "secondary-fixed": "#e3e1ec",
+            "on-secondary": "#ffffff",
+            "outline-variant": "#c8c5cb",
+            "on-secondary-fixed-variant": "#46464e",
+            "surface": "#f9f9fa",
+            "tertiary": "#000000",
+            "primary-fixed-dim": "#c8c5ca",
+            "on-error-container": "#93000a",
+            "on-primary-fixed": "#1b1b1e"
+          },
+          "borderRadius": {
+            "DEFAULT": "0px",
+            "none": "0px",
+            "sm": "0px",
+            "lg": "0px",
+            "xl": "0px",
+            "full": "0px"
+          },
+          "spacing": {
+            "margin-tablet": "2rem",
+            "margin-desktop": "3rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "margin": "1rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem",
+            "gutter": "1rem",
+            "space-sm": "0.5rem",
+            "gutter-desktop": "1.5rem"
+          },
+          "fontFamily": {
+            "headline-lg": ["Inter", "sans-serif"],
+            "label-lg": ["JetBrains Mono", "monospace"],
+            "headline-md": ["Inter", "sans-serif"],
+            "headline-xl-mobile": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "headline-xl": ["Inter", "sans-serif"],
+            "headline-lg-mobile": ["Inter", "sans-serif"],
+            "label-sm": ["JetBrains Mono", "monospace"],
+            "label-md": ["JetBrains Mono", "monospace"],
+            "body-lg": ["Inter", "sans-serif"],
+            "headline-sm": ["Inter", "sans-serif"],
+            "body-sm": ["Inter", "sans-serif"]
+          },
+          "fontSize": {
+            "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "label-lg": ["13px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "500" }],
+            "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "body-md": ["14px", { "lineHeight": "22px", "letterSpacing": "0em", "fontWeight": "400" }],
+            "headline-xl": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+            "headline-lg-mobile": ["22px", { "lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600" }],
+            "label-sm": ["10px", { "lineHeight": "14px", "letterSpacing": "0.05em", "fontWeight": "400" }],
+            "label-md": ["11px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "500" }],
+            "body-lg": ["16px", { "lineHeight": "26px", "letterSpacing": "-0.005em", "fontWeight": "400" }],
+            "headline-sm": ["16px", { "lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "600" }],
+            "body-sm": ["12px", { "lineHeight": "18px", "letterSpacing": "0.005em", "fontWeight": "400" }]
+          }
+        },
+      },
+    }
+  </script>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-full flex flex-col font-body-md">
+<!-- TopNavBar (Shared Component Desktop Storefront Anchor) -->
+<header class="bg-surface-container-lowest border-b border-outline-variant w-full sticky top-0 z-40">
+<div class="w-full px-margin-desktop py-space-md flex items-center justify-between gap-space-lg max-w-full">
+<!-- Left: Brand Logo & Navigation Link 'Categorias' -->
+<div class="flex items-center gap-space-lg shrink-0">
+<a class="font-label-lg text-label-lg font-bold tracking-wider text-on-surface uppercase border border-outline px-space-sm py-space-xs inline-flex items-center justify-center hover:bg-surface-container-low transition-colors duration-150" href="#">
+          [ LOGO ]
+        </a>
+<nav class="flex items-center gap-space-md">
+<button class="text-on-surface font-semibold border-b-2 border-primary pb-space-xs inline-flex items-center gap-1 font-body-md text-body-md hover:bg-surface-container-low px-space-xs transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-primary" type="button">
+            Categorias
+            <span class="material-symbols-outlined text-[16px] leading-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+</button>
+</nav>
+</div>
+<!-- Center: Wide Search Input Container -->
+<div class="flex-1 max-w-2xl mx-space-md">
+<form class="relative w-full flex items-center" onsubmit="event.preventDefault();">
+<input class="w-full h-10 px-space-sm py-space-xs bg-surface-container-lowest border border-outline text-on-surface font-body-md text-body-md placeholder:text-outline placeholder:font-label-md focus:border-primary focus:ring-0 focus:outline-none rounded-none transition-colors" placeholder="Buscar productos, marcas y más..." type="text"/>
+<button aria-label="Buscar" class="absolute right-0 top-0 h-10 px-space-md border-l border-outline bg-surface-container-low hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-1 focus:ring-primary" type="submit">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+</button>
+</form>
+</div>
+<!-- Right: Actions & User Greeting Profile Cluster -->
+<div class="flex items-center gap-space-lg shrink-0">
+<span class="font-label-md text-label-md text-on-surface font-semibold tracking-tight border-b border-dashed border-outline pb-space-xs">
+          Hola, Julio Cano
+        </span>
+<a class="text-on-surface-variant hover:text-on-surface font-body-md text-body-md transition-colors duration-150" href="#">
+          Ayuda
+        </a>
+<div class="flex items-center gap-1 text-on-surface-variant hover:text-on-surface font-body-md text-body-md cursor-pointer transition-colors duration-150">
+<span>Español</span>
+<span class="material-symbols-outlined text-[16px]" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+<!-- Cart Anchor with 13 Badge -->
+<a aria-label="Carrito de compras" class="relative p-space-xs border border-outline hover:bg-surface-container-low text-on-surface flex items-center justify-center transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="shopping_cart">shopping_cart</span>
+<span class="absolute -top-2 -right-2 bg-primary text-on-primary font-label-sm text-label-sm font-semibold px-1 py-0.5 leading-none border border-surface-container-lowest">
+            13
+          </span>
+</a>
+</div>
+</div>
+</header>
+<!-- Technical Utility Sub-Header Strip (Wireframe Specs) -->
+<aside class="bg-surface-container border-b border-outline-variant px-margin-desktop py-space-xs flex justify-between items-center text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-space-md">
+<span class="uppercase font-semibold text-on-surface">ESPECIFICACIÓN:</span>
+<span>LAYOUT_DESKTOP_V2.1</span>
+<span class="border-l border-outline-variant pl-space-md">GRID: 12-COLUMNS BORDER-ALIGNED</span>
+</div>
+<div class="flex items-center gap-space-md">
+<span>ESTADO_SESION: AUTENTICADO</span>
+<span class="border-l border-outline-variant pl-space-md">MONEDA: USD ($)</span>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full px-margin-desktop py-space-lg flex flex-col gap-space-xl">
+<!-- Jumbotron / Carousel Banner Section -->
+<section aria-label="Banner de promociones" class="w-full">
+<div class="relative w-full border border-outline bg-surface-container-low h-[320px] flex items-center justify-between px-space-md overflow-hidden">
+<!-- SVG Wireframe Structural Hairlines (Diagonal Cross Grid) -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline-variant" fill="none" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-dasharray="1 1" stroke-width="0.3" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-dasharray="1 1" stroke-width="0.3" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<!-- Carousel Left Nav Control -->
+<button aria-label="Anterior slide" class="relative z-10 w-10 h-10 border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<!-- Centered Jumbotron Wireframe Identifier -->
+<div class="relative z-10 text-center max-w-xl p-space-md bg-surface-container-lowest/80 border border-outline">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-outline block mb-space-xs">[ BANNER_HERO_SLOT_01 ]</span>
+<h1 class="font-headline-lg text-headline-lg font-semibold text-on-surface uppercase tracking-tight">
+            Jumbotron carrusel de productos
+          </h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs">
+            Visualizador central de campañas destacadas, lanzamientos periódicos y ofertas técnicas volumétricas.
+          </p>
+<div class="mt-space-md flex justify-center items-center gap-space-sm">
+<span class="font-label-sm text-label-sm border border-outline px-space-sm py-0.5 bg-surface-container-low text-on-surface">DIM: 1440 x 320 PX</span>
+<span class="font-label-sm text-label-sm border border-outline px-space-sm py-0.5 bg-surface-container-low text-on-surface">AUTOPLAY: OFF</span>
+</div>
+</div>
+<!-- Carousel Right Nav Control -->
+<button aria-label="Siguiente slide" class="relative z-10 w-10 h-10 border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Carousel Pagination Dots (Flat Wireframe Style) -->
+<div class="absolute bottom-space-sm left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
+<button aria-label="Slide 1" class="w-6 h-2 bg-primary border border-primary" type="button"></button>
+<button aria-label="Slide 2" class="w-2 h-2 bg-surface-container-lowest border border-outline" type="button"></button>
+<button aria-label="Slide 3" class="w-2 h-2 bg-surface-container-lowest border border-outline" type="button"></button>
+<button aria-label="Slide 4" class="w-2 h-2 bg-surface-container-lowest border border-outline" type="button"></button>
+</div>
+</div>
+</section>
+<!-- Product Grid & Catalog Controls -->
+<section aria-labelledby="catalog-heading" class="w-full flex flex-col gap-space-lg">
+<!-- Section Header with Meta & Filters Bar -->
+<div class="border-b border-outline pb-space-sm flex flex-col md:flex-row justify-between items-start md:items-end gap-space-md">
+<div>
+<div class="font-label-sm text-label-sm text-outline uppercase tracking-wider mb-space-xs">SECCIÓN / EXPLORACIÓN DIRECTA</div>
+<h2 class="font-headline-md text-headline-md text-on-surface uppercase tracking-tight" id="catalog-heading">
+            Catálogo de Productos
+          </h2>
+</div>
+<!-- Filter & Sorting Wireframe Group -->
+<div class="flex flex-wrap items-center gap-space-sm">
+<div class="flex items-center border border-outline bg-surface-container-lowest text-on-surface px-space-sm py-1 font-label-md text-label-md">
+<span class="text-outline mr-space-xs">ORDEN:</span>
+<select class="bg-transparent border-0 p-0 text-on-surface font-label-md text-label-md focus:ring-0 cursor-pointer">
+<option>Relevancia Técnica</option>
+<option>Precio: Menor a Mayor</option>
+<option>Precio: Mayor a Menor</option>
+<option>SKU Ascendente</option>
+</select>
+</div>
+<button class="border border-outline bg-surface-container-lowest hover:bg-surface-container px-space-sm py-1 font-label-md text-label-md text-on-surface inline-flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[14px]" data-icon="filter_list">filter_list</span>
+<span>Filtros (3 Activos)</span>
+</button>
+<span class="font-label-sm text-label-sm text-outline border-l border-outline pl-space-sm">
+            8 DE 144 ITEMS
+          </span>
+</div>
+</div>
+<!-- 8 Wireframe Product Cards Grid (4 Columns Desktop, 2 Columns Tablet, 1 Column Mobile) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter-desktop">
+<!-- Product Card 1 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<!-- Square Placeholder Image Container -->
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_01</span>
+</div>
+</div>
+<!-- Meta SKU & Title -->
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-9021-A</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo A1
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Descripción corta de especificación técnica, encapsulado cerámico y tolerancia de carga nominal 12V.
+            </p>
+</div>
+<div>
+<!-- Price Display -->
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$149.99</span>
+</div>
+<!-- Card Footer Section -->
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 1</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 2 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_02</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-4412-B</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo B2
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Módulo integrado de lectura continua, display monocromático y calibración estándar de fábrica.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$89.50</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 2</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 3 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_03</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-1088-C</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo C3
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Chasis extruido de aluminio pulido con ranuras de fijación DIN y disipación pasiva de temperatura.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$210.00</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 1</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 4 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_04</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-3301-D</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo D4
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Fuente regulada con limitador de sobretensión, protección IP65 y bornes de conexión rápida.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$64.25</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 4</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 5 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_05</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-7720-E</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo E5
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Sensor óptico reflectivo de barrera con respuesta de 1ms y longitud de onda sintonizable.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$115.00</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 1</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 6 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_06</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-5509-F</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo F6
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Actuador lineal servoasistido con encoder magnético de 12 bits y control serial bidireccional.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$320.50</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 1</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 7 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_07</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-6618-G</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo G7
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Tarjeta de comunicación multiplexada Ethernet/CAN-Bus con aislación galvánica completa de 2.5kV.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$175.00</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 3</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+<!-- Product Card 8 -->
+<article class="border border-outline bg-surface-container-lowest p-space-md flex flex-col justify-between hover:border-primary transition-colors duration-150">
+<div>
+<div class="relative w-full aspect-square bg-surface-container-high border border-outline-variant flex items-center justify-center overflow-hidden mb-space-sm">
+<svg class="absolute inset-0 w-full h-full pointer-events-none stroke-outline" preserveaspectratio="none" viewbox="0 0 100 100">
+<line stroke-width="0.5" x1="0" x2="100" y1="0" y2="100"></line>
+<line stroke-width="0.5" x1="0" x2="100" y1="100" y2="0"></line>
+</svg>
+<div class="relative z-10 bg-surface-container-lowest/90 px-space-xs py-0.5 border border-outline text-center">
+<span class="font-label-sm text-label-sm text-on-surface font-medium block">[ 600 x 600 ]</span>
+<span class="font-label-sm text-[9px] text-outline uppercase block">IMG_SLOT_08</span>
+</div>
+</div>
+<div class="font-label-sm text-label-sm text-outline mb-1">SKU: WF-8833-H</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface leading-tight mb-space-xs">
+              Producto Modelo H8
+            </h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-space-md">
+              Unidad terminal de relés de estado sólido (SSR) con disipador incorporado para montaje en riel.
+            </p>
+</div>
+<div>
+<div class="mb-space-sm pt-space-xs border-t border-outline-variant flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-outline uppercase">PRECIO UNITARIO</span>
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">$52.80</span>
+</div>
+<div class="flex items-center justify-between gap-space-sm pt-space-xs">
+<div class="flex items-center border border-outline px-space-sm py-1 bg-surface-container-low">
+<span class="font-label-sm text-label-sm text-on-surface font-medium uppercase">cant: 1</span>
+</div>
+<button class="flex-1 border border-primary bg-primary hover:bg-neutral-800 text-on-primary py-1 px-space-sm font-label-md text-label-md font-semibold text-center transition-colors" type="button">
+                + Agregar
+              </button>
+</div>
+</div>
+</article>
+</div>
+<!-- Pagination / Wireframe Traversal Footer -->
+<div class="mt-space-md border border-outline bg-surface-container-lowest p-space-sm flex flex-col sm:flex-row justify-between items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-outline uppercase">
+          MOSTRANDO PÁGINA 1 DE 18 — 8 RESULTADOS POR CARGA
+        </span>
+<div class="flex items-center gap-1">
+<button class="border border-outline-variant text-outline px-space-sm py-1 font-label-md text-label-md cursor-not-allowed" disabled="" type="button">
+            « ANTERIOR
+          </button>
+<button class="border border-primary bg-primary text-on-primary px-space-sm py-1 font-label-md text-label-md" type="button">
+            1
+          </button>
+<button class="border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface px-space-sm py-1 font-label-md text-label-md" type="button">
+            2
+          </button>
+<button class="border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface px-space-sm py-1 font-label-md text-label-md" type="button">
+            3
+          </button>
+<span class="px-space-xs text-outline font-label-md">...</span>
+<button class="border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface px-space-sm py-1 font-label-md text-label-md" type="button">
+            18
+          </button>
+<button class="border border-outline bg-surface-container-lowest hover:bg-surface-container text-on-surface px-space-sm py-1 font-label-md text-label-md" type="button">
+            SIGUIENTE »
+          </button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer (Shared Component Anchor) -->
+<footer class="bg-surface-container-low border-t border-outline-variant w-full mt-auto">
+<div class="w-full px-margin-desktop py-space-xl flex flex-col md:flex-row justify-between items-center gap-space-md max-w-full">
+<div class="flex flex-col md:flex-row items-center gap-space-md">
+<span class="font-label-sm text-label-sm font-bold text-on-surface uppercase">
+          WIREFRAME_STORE
+        </span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">
+          © 2025 WIREFRAME STORE. ESPECIFICACIÓN TÉCNICA Y TRAZADO CATALOGO.
+        </span>
+</div>
+<nav class="flex flex-wrap items-center justify-center gap-space-md font-label-sm text-label-sm">
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">Condiciones de Uso</a>
+<span class="text-outline-variant">|</span>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">Aviso Legal</a>
+<span class="text-outline-variant">|</span>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">Privacidad</a>
+<span class="text-outline-variant">|</span>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">Soporte Técnico</a>
+<span class="text-outline-variant">|</span>
+<a class="text-on-surface-variant hover:text-primary hover:underline transition-colors duration-150" href="#">Mapa del Sitio</a>
+</nav>
+</div>
+</footer>
+</body></html>
