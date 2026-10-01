@@ -1,11 +1,11 @@
 # Etapa 1: Build
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 # Bypass de Furycloud (DLP) forzando el registro público de NPM
 RUN npm config set registry https://registry.npmjs.org/
 
-COPY package*.json ./
+COPY package.json ./
 RUN npm install
 
 COPY . .
