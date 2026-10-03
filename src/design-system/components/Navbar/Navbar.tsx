@@ -1,11 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
+import { SearchBar } from '../../../features/search/components/SearchBar';
 
 export function Navbar() {
   const cart = useCartStore((state) => state.cart);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const navigate = useNavigate();
+
+  const handleSearch = (q: string) => {
+    navigate(`/?q=${encodeURIComponent(q)}`);
+  };
 
   return (
     <header className={styles.navbar}>
@@ -15,12 +21,7 @@ export function Navbar() {
       </div>
 
       <div className={styles.searchContainer}>
-        <input 
-          type="text" 
-          placeholder="Buscar productos, marcas y más..." 
-          className={styles.searchInput}
-        />
-        <button className={styles.searchButton}>Q</button>
+        <SearchBar onSearch={handleSearch} />
       </div>
 
       <div className={styles.rightSection}>
