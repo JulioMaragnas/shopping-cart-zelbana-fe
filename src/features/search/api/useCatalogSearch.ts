@@ -9,7 +9,8 @@ export const useCatalogSearch = (debouncedQuery: string, categoryId?: string) =>
       if (debouncedQuery) params.append('q', debouncedQuery);
       if (categoryId) params.append('categoryId', categoryId);
       
-      const response = await fetch(`/api/products?${params.toString()}`);
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_URL}/api/products?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
@@ -26,7 +27,8 @@ export const useSearchSuggestions = (debouncedQuery: string) => {
       if (!debouncedQuery) return [];
       
       const params = new URLSearchParams({ q: debouncedQuery });
-      const response = await fetch(`/api/search/suggestions?${params.toString()}`);
+      const API_URL = import.meta.env.VITE_API_URL || '';
+      const response = await fetch(`${API_URL}/api/search/suggestions?${params.toString()}`);
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
