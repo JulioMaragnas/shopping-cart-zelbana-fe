@@ -8,6 +8,8 @@ export const useCatalogSearch = (debouncedQuery: string, categoryId?: string) =>
       const params = new URLSearchParams();
       if (debouncedQuery) params.append('q', debouncedQuery);
       if (categoryId) params.append('categoryId', categoryId);
+      params.append('limit', '50');
+      params.append('offset', '0');
       
       const API_URL = import.meta.env.VITE_API_URL || '';
       const response = await fetch(`${API_URL}/api/products?${params.toString()}`);
