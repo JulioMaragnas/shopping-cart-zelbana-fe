@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:real": "VITE_USE_MOCKS=false vite",
+    "test": "vitest run",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

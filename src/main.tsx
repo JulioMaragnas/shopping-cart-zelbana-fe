@@ -8,7 +8,7 @@ import './index.css'
 const queryClient = new QueryClient();
 
 async function enableMocking() {
-  if (import.meta.env.MODE !== 'development') {
+  if (import.meta.env.MODE !== 'development' || import.meta.env.VITE_USE_MOCKS === 'false') {
     return;
   }
   const { worker } = await import('./mocks/browser');
