@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { ProductCard } from './ProductCard';
 import type { Product } from '../types';
 import { describe, it, expect } from 'vitest';
@@ -15,34 +16,41 @@ const mockProduct: Product = {
   lowStock: false,
 };
 
+const renderCard = (product: Product) => {
+  return render(
+    <MemoryRouter>
+      <ProductCard product={product} />
+    </MemoryRouter>
+  );
+};
+
 describe('ProductCard Component', () => {
   it('renders normal product data', () => {
-    render(<ProductCard product={mockProduct} />);
+    renderCard(mockProduct);
     expect(screen.getByText('Jabón Cacao')).toBeInTheDocument();
     expect(screen.getByText('$15.50')).toBeInTheDocument();
   });
 
   it('renders original price strikethrough if originalPrice > salePrice', () => {
-    render(<ProductCard product={mockProduct} />);
+    renderCard(mockProduct);
     const originalPrice = screen.getByText('$20.00');
     expect(originalPrice).toBeInTheDocument();
     expect(originalPrice).toHaveStyle('text-decoration: line-through');
   });
 
   it('does not render original price if originalPrice is equal or lower than salePrice', () => {
-    render(<ProductCard product={{ ...mockProduct, originalPrice: 15.50 }} />);
-    // Debería mostrar el de venta, pero no el viejo tachado.
+    renderCard({ ...mockProduct, originalPrice: 15.50 });
     const prices = screen.getAllByText('$15.50');
     expect(prices).toHaveLength(1);
   });
 
   it('shows low stock warning badge if lowStock is true', () => {
-    render(<ProductCard product={{ ...mockProduct, lowStock: true }} />);
+    renderCard({ ...mockProduct, lowStock: true });
     expect(screen.getByText('¡Pocas unidades disponibles!')).toBeInTheDocument();
   });
 
   it('disables Add to Cart button and changes text to "Agotado" if disponible is false', () => {
-    render(<ProductCard product={{ ...mockProduct, disponible: false }} />);
+    renderCard({ ...mockProduct, disponible: false });
     const button = screen.getByRole('button', { name: /agotado/i });
     expect(button).toBeDisabled();
   });
