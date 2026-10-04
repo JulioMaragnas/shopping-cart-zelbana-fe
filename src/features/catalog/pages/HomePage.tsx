@@ -1,14 +1,19 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
 import { Jumbotron } from '../../../design-system/components/Jumbotron/Jumbotron';
-import { ProductCard } from '../../../design-system/components/ProductCard/ProductCard';
-import { useProducts } from '../api/useProducts';
+import { ProductGrid } from '../../search/components/ProductGrid';
+import { useCatalogSearch } from '../../search/api/useCatalogSearch';
 import { useCartStore } from '../../cart/store/useCartStore';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet-async';
 
 export function HomePage() {
-  const { data: products, isLoading, isError } = useProducts();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
+  
+  // Usamos nuestro hook con react-query que le pega al endpoint correcto (y soporta MSW)
+  const { data: products = [], isLoading, isError } = useCatalogSearch(query);
   const addItem = useCartStore((state) => state.addItem);
 
   const handleAdd = (product: any) => {
@@ -30,21 +35,17 @@ export function HomePage() {
       <Navbar />
       
       <main className={styles.container}>
-        <Jumbotron />
+        {!query && <Jumbotron />}
         
-        {isLoading && <p>Cargando catálogo...</p>}
         {isError && <p>Error al cargar el catálogo.</p>}
         
-        {!isLoading && !isError && (
-          <div className={styles.grid}>
-            {products?.map((product) => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onAdd={() => handleAdd(product)} 
-              />
-            ))}
-          </div>
+        {!isError && (
+          <ProductGrid 
+            products={products} 
+            isLoading={isLoading} 
+            query={query} 
+            onAdd={handleAdd} 
+          />
         )}
       </main>
     </>
