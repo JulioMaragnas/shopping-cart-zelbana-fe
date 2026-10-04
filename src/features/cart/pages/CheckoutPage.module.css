@@ -1,0 +1,190 @@
+.container {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  border-bottom: 1px solid #f4f4f5;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #71717a;
+  margin: 0;
+}
+
+.orderBadgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.orderId {
+  font-family: ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: #27272a;
+}
+
+.statusBadge {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timerBox {
+  background-color: #fcfcfc;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.timerBoxUrgent {
+  background-color: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.timerLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #71717a;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timerCountdown {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 36px;
+  font-weight: 700;
+  color: #18181b;
+  letter-spacing: 0.05em;
+}
+
+.timerCountdownUrgent {
+  color: #e11d48;
+}
+
+.timerExplanation {
+  font-size: 13px;
+  color: #71717a;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+.summarySection {
+  background-color: #fafafa;
+  border: 1px solid #f4f4f5;
+  border-radius: 6px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summaryLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: #27272a;
+}
+
+.summaryTotal {
+  font-size: 22px;
+  font-weight: 700;
+  color: #09090b;
+}
+
+.alertBox {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 14px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.alertBox h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payButton {
+  width: 100%;
+  background-color: #18181b;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.payButton:hover:not(:disabled) {
+  background-color: #27272a;
+}
+
+.payButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  width: 100%;
+  background-color: transparent;
+  color: #71717a;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

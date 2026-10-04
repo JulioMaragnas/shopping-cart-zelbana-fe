@@ -10,11 +10,12 @@ export interface CartItemProps {
   };
   currentPrice: number;
   disponible: boolean;
+  validationMessage?: string;
   onRemove: (id: string) => void;
   onChangeQuantity: (id: string, qty: number) => void;
 }
 
-export function CartItemRow({ item, currentPrice, disponible, onRemove, onChangeQuantity }: CartItemProps) {
+export function CartItemRow({ item, currentPrice, disponible, validationMessage, onRemove, onChangeQuantity }: CartItemProps) {
   // Mock logic to show discounts if currentPrice < priceWhenAdded
   const priceDropped = currentPrice < item.priceWhenAdded;
   const dropAmount = item.priceWhenAdded - currentPrice;
@@ -31,6 +32,11 @@ export function CartItemRow({ item, currentPrice, disponible, onRemove, onChange
         <span className={styles.availability}>
           {disponible ? 'Disponible' : 'Agotado'}
         </span>
+        {validationMessage && validationMessage !== 'Stock disponible' && (
+          <span style={{ color: '#b45309', fontSize: '12px', marginTop: '4px', fontWeight: 600 }}>
+            ⚠️ {validationMessage}
+          </span>
+        )}
       </div>
 
       <div className={styles.priceBlock}>
