@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
 import { CheckoutPage } from './CheckoutPage';
 import { useCartStore } from '../store/useCartStore';
+import { server } from '../../../mocks/server';
+import { http, HttpResponse } from 'msw';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -99,5 +101,25 @@ describe('CheckoutPage', () => {
     expect(screen.getByRole('button', { name: /volver al carrito/i })).toBeInTheDocument();
 
     vi.useRealTimers();
+  });
+
+  it('debe mostrar alerta de error cuando la confirmación de pago falla', async () => {
+    server.use(
+      http.post('*/storefront/api/checkout/confirm/:orderId', () => {
+        return HttpResponse.json(
+          { error: 'Tu tiempo de reserva expiró y los productos fueron liberados.' },
+          { status: 400 }
+        );
+      })
+    );
+
+    renderComponent();
+
+    const payButton = screen.getByRole('button', { name: /confirmar y pagar|simular pago/i });
+    fireEvent.click(payButton);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/tiempo de reserva expiró/i);
+    });
   });
 });

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
+import { useQueryClient } from '@tanstack/react-query';
 import { useCartStore } from '../store/useCartStore';
 import { useCheckoutConfirm, useCheckoutCancel } from '../api/useCheckout';
 import styles from './CheckoutPage.module.css';
@@ -10,6 +11,7 @@ export function CheckoutPage() {
   const { orderId = '' } = useParams<{ orderId: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const clearCart = useCartStore((state) => state.clearCart);
   const cart = useCartStore((state) => state.cart);
 
@@ -30,16 +32,24 @@ export function CheckoutPage() {
   const cancelMutation = useCheckoutCancel();
 
   useEffect(() => {
-    if (secondsRemaining <= 0) return;
-
-    const timer = setInterval(() => {
+    const checkRemaining = () => {
       const diff = Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000);
       const remaining = Math.max(0, diff);
       setSecondsRemaining(remaining);
+      return remaining;
+    };
+
+    if (checkRemaining() <= 0) return;
+
+    const timer = setInterval(() => {
+      const remaining = checkRemaining();
+      if (remaining <= 0) {
+        clearInterval(timer);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [expiresAt, secondsRemaining]);
+  }, [expiresAt]);
 
   const isExpired = secondsRemaining <= 0;
   const minutes = Math.floor(secondsRemaining / 60);
@@ -52,12 +62,15 @@ export function CheckoutPage() {
     setErrorMessage(null);
     try {
       await confirmMutation.mutateAsync(orderId);
+      await queryClient.invalidateQueries({ queryKey: ['catalogSearch'] });
+      await queryClient.invalidateQueries({ queryKey: ['productDetail'] });
       clearCart();
       navigate(`/order-success/${orderId}`, {
         state: { orderId, totalAmount: initialTotal },
       });
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Error al confirmar el pago');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al confirmar el pago';
+      setErrorMessage(msg);
     }
   };
 
@@ -66,9 +79,11 @@ export function CheckoutPage() {
     setErrorMessage(null);
     try {
       await cancelMutation.mutateAsync(orderId);
+      await queryClient.invalidateQueries({ queryKey: ['catalogSearch'] });
       navigate('/cart');
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Error al cancelar la reserva');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al cancelar la reserva';
+      setErrorMessage(msg);
       // Even if server error occurs, user can still go back to cart
       navigate('/cart');
     }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { Product, PaginatedCatalogResponse } from '../types';
+import type { Product, PaginatedCatalogResponse, CatalogItem } from '../types';
 
 export interface CatalogSearchResult {
   products: Product[];
@@ -15,8 +15,14 @@ export interface UseCatalogSearchOptions {
   limit?: number;
 }
 
-export const normalizeProduct = (item: any): Product => {
-  if (item && item.product) {
+export type RawCatalogInput = CatalogItem | (Partial<Product> & { id: string | number; name: string; salePrice: number });
+
+const isCatalogItem = (item: RawCatalogInput): item is CatalogItem => {
+  return 'product' in item && item.product !== undefined;
+};
+
+export const normalizeProduct = (item: RawCatalogInput): Product => {
+  if (isCatalogItem(item)) {
     const p = item.product;
     const stock = typeof item.currentStock === 'number' ? item.currentStock : 0;
     return {

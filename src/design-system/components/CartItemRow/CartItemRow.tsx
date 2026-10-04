@@ -24,7 +24,12 @@ export function CartItemRow({ item, currentPrice, disponible, validationMessage,
 
   return (
     <div className={styles.row}>
-      <input type="checkbox" className={styles.checkbox} defaultChecked />
+      <input
+        type="checkbox"
+        className={styles.checkbox}
+        defaultChecked
+        aria-label="Seleccionar producto"
+      />
       <div className={styles.image}>img</div>
       
       <div className={styles.details}>
@@ -33,7 +38,7 @@ export function CartItemRow({ item, currentPrice, disponible, validationMessage,
           {disponible ? 'Disponible' : 'Agotado'}
         </span>
         {validationMessage && validationMessage !== 'Stock disponible' && (
-          <span style={{ color: '#b45309', fontSize: '12px', marginTop: '4px', fontWeight: 600 }}>
+          <span className={styles.validationMessage}>
             ⚠️ {validationMessage}
           </span>
         )}
@@ -62,6 +67,7 @@ export function CartItemRow({ item, currentPrice, disponible, validationMessage,
           className={styles.quantitySelect} 
           value={item.quantity} 
           onChange={(e) => onChangeQuantity(item.id, Number(e.target.value))}
+          aria-label="Seleccionar cantidad"
         >
           {[1,2,3,4,5,6].map(n => (
             <option key={n} value={n}>Cant. {n}</option>

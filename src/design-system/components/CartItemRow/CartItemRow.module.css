@@ -115,3 +115,10 @@
   font-family: monospace;
   font-size: 12px;
 }
+
+.validationMessage {
+  color: #b45309;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 600;
+}

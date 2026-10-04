@@ -8,6 +8,9 @@ import { HelmetProvider } from 'react-helmet-async';
 import { CartPage } from './CartPage';
 import { useCartStore } from '../store/useCartStore';
 
+import { server } from '../../../mocks/server';
+import { http, HttpResponse } from 'msw';
+
 const renderCartPage = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -108,6 +111,39 @@ describe('CartPage Component (Zero Trust)', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Checkout Page Mock')).toBeInTheDocument();
+    });
+  });
+
+  it('TC-CHK-2: Displays error alert when checkout reservation fails (e.g. 409 conflict)', async () => {
+    const user = userEvent.setup();
+    useCartStore.getState().addItem({
+      id: '1',
+      name: 'Jeep wrangler',
+      priceWhenAdded: 45000,
+      quantity: 1,
+    });
+
+    server.use(
+      http.post('*/storefront/api/checkout/reserve', () => {
+        return HttpResponse.json(
+          { error: 'Stock insuficiente para uno o más productos de tu carrito.' },
+          { status: 409 }
+        );
+      })
+    );
+
+    renderCartPage();
+
+    await waitFor(() => {
+      const payBtn = screen.getByRole('button', { name: /Pagar/i });
+      expect(payBtn).not.toBeDisabled();
+    });
+
+    const payBtn = screen.getByRole('button', { name: /Pagar/i });
+    await user.click(payBtn);
+
+    await waitFor(() => {
+      expect(screen.getByRole('alert')).toHaveTextContent(/Stock insuficiente/i);
     });
   });
 });

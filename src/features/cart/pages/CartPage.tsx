@@ -47,8 +47,9 @@ export function CartPage() {
       if (response.success && response.order) {
         navigate(`/checkout/${response.order.id}`, { state: { order: response.order } });
       }
-    } catch (err: any) {
-      setReserveError(err.message || 'Error al reservar el inventario');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Error al reservar el inventario';
+      setReserveError(msg);
       refetch();
     }
   };
