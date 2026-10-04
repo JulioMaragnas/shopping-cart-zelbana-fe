@@ -1,23 +1,101 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
 import { SearchBar } from '../../../features/search/components/SearchBar';
+import { useCategories } from '../../../features/catalog/api/useCategories';
 
 export function Navbar() {
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const cart = useCartStore((state) => state.cart);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const navigate = useNavigate();
 
+  const { data: categories = [] } = useCategories();
+
   const handleSearch = (q: string) => {
-    navigate(`/?q=${encodeURIComponent(q)}`);
+    navigate(`/?query=${encodeURIComponent(q)}&page=1`);
   };
+
+  const handleSelectCategory = (categoryId?: string) => {
+    setIsDropdownOpen(false);
+    if (categoryId) {
+      navigate(`/?categoryId=${encodeURIComponent(categoryId)}&page=1`);
+    } else {
+      navigate('/?page=1');
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   return (
     <header className={styles.navbar}>
       <div className={styles.leftSection}>
-        <Link to="/" className={styles.logo} style={{textDecoration: 'none'}}>[ LOGO ]</Link>
-        <span className={styles.navLink}>Categorías ▾</span>
+        <Link to="/" className={styles.logo} style={{ textDecoration: 'none' }}>
+          [ LOGO ]
+        </Link>
+
+        <div className={styles.dropdownContainer} ref={dropdownRef}>
+          <button
+            type="button"
+            className={styles.dropdownTrigger}
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-expanded={isDropdownOpen}
+          >
+            Categorías ▾
+          </button>
+
+          {isDropdownOpen && (
+            <div className={styles.dropdownMenu} role="menu">
+              <button
+                type="button"
+                className={styles.dropdownItemAll}
+                onClick={() => handleSelectCategory()}
+              >
+                Todas las categorías
+              </button>
+
+              {categories.map((parent) => (
+                <div key={parent.id} className={styles.categoryGroup}>
+                  <button
+                    type="button"
+                    className={styles.dropdownParentItem}
+                    onClick={() => handleSelectCategory(parent.id)}
+                  >
+                    {parent.name}
+                  </button>
+                  {parent.children && parent.children.length > 0 && (
+                    <div className={styles.categoryChildrenList}>
+                      {parent.children.map((child) => (
+                        <button
+                          key={child.id}
+                          type="button"
+                          className={styles.dropdownChildItem}
+                          onClick={() => handleSelectCategory(child.id)}
+                        >
+                          ↳ {child.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className={styles.searchContainer}>
@@ -28,11 +106,13 @@ export function Navbar() {
         <span className={styles.navLink}>Hola, Julio Cano</span>
         <span className={styles.navLink}>Ayuda</span>
         <span className={styles.navLink}>Español ▾</span>
-        <Link to="/cart" style={{textDecoration: 'none'}}>
+        <Link to="/cart" style={{ textDecoration: 'none' }}>
           <div className={styles.cartContainer}>
             <span>🛒</span>
             {totalItems > 0 && (
-              <span className={styles.cartBadge} data-testid="cart-badge">{totalItems}</span>
+              <span className={styles.cartBadge} data-testid="cart-badge">
+                {totalItems}
+              </span>
             )}
           </div>
         </Link>

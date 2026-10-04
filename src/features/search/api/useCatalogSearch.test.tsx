@@ -7,7 +7,7 @@ import React from 'react';
 const createTestQueryClient = () => new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false, // Disable retries for testing
+      retry: false,
     },
   },
 });
@@ -31,7 +31,7 @@ describe('useCatalogSearch', () => {
     expect(result.current.data).toBeUndefined();
   });
 
-  it('should fetch products when query is empty', async () => {
+  it('should fetch paginated products when query is empty', async () => {
     const { result } = renderHook(() => useCatalogSearch(''), {
       wrapper: createWrapper(),
     });
@@ -40,7 +40,10 @@ describe('useCatalogSearch', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data).toHaveLength(5); // Default mock returns 5 items
+    expect(result.current.data?.products).toHaveLength(5);
+    expect(result.current.data?.totalItems).toBe(5);
+    expect(result.current.data?.totalPages).toBe(1);
+    expect(result.current.data?.currentPage).toBe(1);
   });
 
   it('should filter products when a query is provided', async () => {
@@ -52,7 +55,20 @@ describe('useCatalogSearch', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data).toHaveLength(1);
-    expect(result.current.data?.[0].name).toBe('Jeep rubicon');
+    expect(result.current.data?.products).toHaveLength(1);
+    expect(result.current.data?.products[0].name).toBe('Jeep rubicon');
+  });
+
+  it('should filter products by categoryId', async () => {
+    const { result } = renderHook(() => useCatalogSearch('', 'cat-4'), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(result.current.data?.products).toHaveLength(1);
+    expect(result.current.data?.products[0].categoryId).toBe('cat-4');
   });
 });
