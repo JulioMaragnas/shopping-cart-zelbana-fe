@@ -28,7 +28,13 @@ describe('useProductDetail Hook', () => {
     expect(result.current.data?.id).toBe('1');
     expect(result.current.data?.name).toBe('Jeep wrangler');
     expect(result.current.data?.disponible).toBe(true);
-    expect(result.current.data?.currentStock).toBe(15);
+    expect(result.current.data?.maxOrderQuantity).toBe(10);
+    expect(result.current.data?.discountPercentage).toBe(20);
+    expect(result.current.data?.categoryName).toBe('Jabones Artesanales');
+    expect(result.current.data?.specs).toEqual([
+      { label: 'Tracción', value: '4x4 Command-Trac' },
+      { label: 'Capacidad', value: '5 pasajeros' },
+    ]);
   });
 
   it('handles error state when product is not found (404)', async () => {

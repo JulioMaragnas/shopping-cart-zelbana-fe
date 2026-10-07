@@ -1,19 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
 import { useProductDetail } from '../api/useProductDetail';
+import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
+import type { Category } from '../../search/types';
 import styles from './ProductDetailPage.module.css';
+
+const findCategoryNameById = (cats: Category[], targetId: string): string | null => {
+  for (const cat of cats) {
+    if (cat.id === targetId) return cat.name;
+    if (cat.children && cat.children.length > 0) {
+      const found = findCategoryNameById(cat.children, targetId);
+      if (found) return found;
+    }
+  }
+  return null;
+};
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { data: product, isLoading, isError } = useProductDetail(id);
+  const { data: categories = [] } = useCategories();
   const addItem = useCartStore((state) => state.addItem);
+  const cart = useCartStore((state) => state.cart);
 
   const [selectedPhoto, setSelectedPhoto] = useState(0);
+  const [mainImageError, setMainImageError] = useState(false);
   const [quantity, setQuantity] = useState<number | ''>(1);
-  const [showAddedNotice, setShowAddedNotice] = useState(false);
+  const [addedQuantityNotice, setAddedQuantityNotice] = useState<number | null>(null);
+  const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setSelectedPhoto(0);
+    setMainImageError(false);
+    setQuantity(1);
+  }, [id]);
+
+  useEffect(() => {
+    return () => {
+      if (noticeTimerRef.current) {
+        clearTimeout(noticeTimerRef.current);
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -43,26 +74,70 @@ export function ProductDetailPage() {
     );
   }
 
-  const { name, description, photos, salePrice, originalPrice, disponible, lowStock, currentStock = 0 } = product;
-  const hasDiscount = originalPrice > salePrice;
-  const discountPercentage = hasDiscount
-    ? Math.round(((originalPrice - salePrice) / originalPrice) * 100)
-    : 0;
+  const {
+    name,
+    description,
+    thumbnailUrl,
+    photos = [],
+    salePrice,
+    discountPercentage = 0,
+    categoryId,
+    categoryName,
+    specs = [],
+    disponible,
+    lowStock,
+    maxOrderQuantity = 0,
+  } = product;
+
+  const galleryPhotos = (
+    photos.length > 0 ? photos : thumbnailUrl ? [thumbnailUrl] : []
+  ).slice(0, 5);
+  const currentPhoto = galleryPhotos[selectedPhoto] ?? galleryPhotos[0] ?? null;
+
+  const quantityInCart = cart.find((item) => item.id === product.id)?.quantity ?? 0;
+  const remainingAvailable = Math.max(0, maxOrderQuantity - quantityInCart);
+  const isAvailable = disponible && maxOrderQuantity > 0;
+  const isLimitReached = isAvailable && remainingAvailable === 0;
+  const isPurchaseDisabled = !isAvailable || isLimitReached;
+
+  const resolvedCategoryName =
+    categoryName || (categoryId ? findCategoryNameById(categories, categoryId) : null);
+
+  const handleSelectThumbnail = (idx: number) => {
+    setSelectedPhoto(idx);
+    setMainImageError(false);
+  };
 
   const handleAddToCart = () => {
-    if (!disponible) return;
-    const finalQuantity = typeof quantity === 'number' && quantity >= 1 ? quantity : 1;
+    if (isPurchaseDisabled) return;
+    const rawQty = typeof quantity === 'number' && quantity >= 1 ? quantity : 1;
+    const finalQuantity = Math.min(remainingAvailable, rawQty);
+    if (finalQuantity < 1) return;
+
     addItem({
       id: product.id,
       name: product.name,
+      thumbnailUrl: thumbnailUrl ?? galleryPhotos[0] ?? null,
       priceWhenAdded: product.salePrice,
       quantity: finalQuantity,
     });
-    setShowAddedNotice(true);
-    setTimeout(() => setShowAddedNotice(false), 3000);
+
+    setQuantity(1);
+    setAddedQuantityNotice(finalQuantity);
+    if (noticeTimerRef.current) {
+      clearTimeout(noticeTimerRef.current);
+    }
+    noticeTimerRef.current = setTimeout(() => {
+      setAddedQuantityNotice(null);
+    }, 3000);
   };
 
-  const currentPhoto = photos[selectedPhoto] || photos[0] || 'https://via.placeholder.com/400';
+  let buttonLabel = 'Agregar al Carrito';
+  if (!isAvailable) {
+    buttonLabel = 'Agotado';
+  } else if (isLimitReached) {
+    buttonLabel = 'Máximo en carrito';
+  }
 
   return (
     <>
@@ -81,21 +156,32 @@ export function ProductDetailPage() {
         </nav>
 
         <div className={styles.contentGrid}>
-          {/* Columna Izquierda: Galería */}
+          {/* Columna Izquierda: Galería (Fase 3.1) */}
           <div className={styles.galleryColumn}>
             <div className={styles.mainImageContainer}>
-              <img src={currentPhoto} alt={name} className={styles.mainImage} />
-              {!disponible && <div className={styles.outOfStockOverlay}>Agotado</div>}
+              {currentPhoto && !mainImageError ? (
+                <img
+                  src={currentPhoto}
+                  alt={name}
+                  onError={() => setMainImageError(true)}
+                  className={styles.mainImage}
+                />
+              ) : (
+                <div className={styles.placeholderImage}>Sin imagen disponible</div>
+              )}
+              {!isAvailable && <div className={styles.outOfStockOverlay}>Agotado</div>}
             </div>
 
-            {photos.length > 1 && (
+            {galleryPhotos.length > 1 && (
               <div className={styles.thumbnailRow}>
-                {photos.map((photo, idx) => (
+                {galleryPhotos.map((photo, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    className={`${styles.thumbnailBtn} ${selectedPhoto === idx ? styles.activeThumbnail : ''}`}
-                    onClick={() => setSelectedPhoto(idx)}
+                    className={`${styles.thumbnailBtn} ${
+                      selectedPhoto === idx ? styles.activeThumbnail : ''
+                    }`}
+                    onClick={() => handleSelectThumbnail(idx)}
                     aria-label={`Ver foto ${idx + 1}`}
                   >
                     <img src={photo} alt={`${name} ${idx + 1}`} className={styles.thumbnailImg} />
@@ -105,30 +191,39 @@ export function ProductDetailPage() {
             )}
           </div>
 
-          {/* Columna Derecha: Información y Compra */}
+          {/* Columna Derecha: Información y Compra (Fases 3.2, 3.3, 3.4) */}
           <div className={styles.infoColumn}>
             <h1 className={styles.title}>{name}</h1>
 
             <div className={styles.priceRow}>
               <span className={styles.salePrice}>${salePrice.toFixed(2)}</span>
-              {hasDiscount && (
-                <>
-                  <span className={styles.originalPrice}>${originalPrice.toFixed(2)}</span>
-                  <span className={styles.discountBadge}>-{discountPercentage}% OFF</span>
-                </>
+              {discountPercentage > 0 && (
+                <span className={styles.discountBadge}>-{discountPercentage}% OFF</span>
               )}
             </div>
 
-            {/* Estado de Stock */}
+            {/* Estado de Stock (Ofuscado) */}
             <div className={styles.stockStatus}>
-              {!disponible ? (
+              {!isAvailable ? (
                 <span className={styles.outOfStockBadge}>Producto Agotado</span>
               ) : lowStock ? (
-                <span className={styles.lowStockBadge}>¡Pocas unidades disponibles! ({currentStock} en inventario)</span>
+                <span className={styles.lowStockBadge}>¡Pocas unidades disponibles!</span>
               ) : (
-                <span className={styles.inStockBadge}>✓ Disponible en bodega</span>
+                <span className={styles.inStockBadge}>✓ Disponible</span>
               )}
             </div>
+
+            {quantityInCart > 0 && (
+              <div className={styles.cartQuantityNotice} role="status">
+                Ya tienes {quantityInCart} unidad(es) en tu carrito
+              </div>
+            )}
+
+            {isLimitReached && (
+              <div className={styles.limitReachedNotice} role="alert">
+                Ya tienes el máximo de unidades disponibles en tu carrito
+              </div>
+            )}
 
             {/* Selector de cantidad y acción */}
             <div className={styles.purchaseControls}>
@@ -140,21 +235,26 @@ export function ProductDetailPage() {
                   id="quantity"
                   type="number"
                   min="1"
-                  max={currentStock > 0 ? currentStock : 1}
+                  max={remainingAvailable > 0 ? remainingAvailable : 1}
                   value={quantity}
-                  disabled={!disponible}
+                  disabled={isPurchaseDisabled}
                   onChange={(e) => {
                     const val = e.target.value;
                     if (val === '') {
                       setQuantity('');
                     } else {
                       const parsed = parseInt(val, 10);
-                      setQuantity(isNaN(parsed) ? 1 : Math.max(1, parsed));
+                      const maxSelectable = remainingAvailable > 0 ? remainingAvailable : 1;
+                      setQuantity(
+                        isNaN(parsed) ? 1 : Math.min(maxSelectable, Math.max(1, parsed))
+                      );
                     }
                   }}
                   onBlur={() => {
                     if (quantity === '' || quantity < 1) {
                       setQuantity(1);
+                    } else if (remainingAvailable > 0 && quantity > remainingAvailable) {
+                      setQuantity(remainingAvailable);
                     }
                   }}
                   className={styles.quantityInput}
@@ -163,31 +263,51 @@ export function ProductDetailPage() {
 
               <button
                 type="button"
-                className={`${styles.addToCartBtn} ${!disponible ? styles.disabledBtn : ''}`}
-                disabled={!disponible}
+                className={`${styles.addToCartBtn} ${isPurchaseDisabled ? styles.disabledBtn : ''}`}
+                disabled={isPurchaseDisabled}
                 onClick={handleAddToCart}
               >
-                {disponible ? 'Agregar al Carrito' : 'Agotado'}
+                {buttonLabel}
               </button>
             </div>
 
-            {showAddedNotice && (
+            {addedQuantityNotice !== null && (
               <div className={styles.addedNotice} role="status">
-                ✓ ¡{quantity} {quantity === 1 ? 'unidad agregada' : 'unidades agregadas'} a tu carrito!
+                ✓ ¡{addedQuantityNotice}{' '}
+                {addedQuantityNotice === 1 ? 'unidad agregada' : 'unidades agregadas'} a tu carrito!
               </div>
             )}
 
-            {/* Descripción y Especificaciones */}
+            {/* Descripción y Especificaciones Dinámicas (Fase 3.3) */}
             <div className={styles.detailsSection}>
               <h2 className={styles.sectionHeading}>Descripción</h2>
               <p className={styles.descriptionText}>{description}</p>
 
               <h2 className={styles.sectionHeading}>Especificaciones</h2>
               <ul className={styles.specsList}>
-                <li><strong>Código de Referencia:</strong> #{product.id}</li>
-                <li><strong>Categoría:</strong> {product.categoryId || 'General'}</li>
-                <li><strong>Elaboración:</strong> Cosmética e higiene artesanal</li>
-                <li><strong>Garantía:</strong> Sellado de fábrica con certificación sanitaria</li>
+                <li>
+                  <strong>Código de Referencia:</strong> #{product.id}
+                </li>
+                {resolvedCategoryName && (
+                  <li>
+                    <strong>Categoría:</strong>{' '}
+                    {categoryId ? (
+                      <Link
+                        to={`/?categoryId=${encodeURIComponent(categoryId)}&page=1`}
+                        className={styles.categoryLink}
+                      >
+                        {resolvedCategoryName}
+                      </Link>
+                    ) : (
+                      resolvedCategoryName
+                    )}
+                  </li>
+                )}
+                {specs.map((spec, idx) => (
+                  <li key={`${spec.label}-${idx}`}>
+                    <strong>{spec.label}:</strong> {spec.value}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
