@@ -71,4 +71,28 @@ describe('useCatalogSearch', () => {
     expect(result.current.data?.products).toHaveLength(1);
     expect(result.current.data?.products[0].categoryId).toBe('cat-4');
   });
+
+  it('TC-PLP-2.2.1, TC-PLP-2.3.1 & TC-PLP-2.4.1: normalizes thumbnailUrl (MinIO relative presigned), discountPercentage, and maxOrderQuantity without exposing unitPrice or originalPrice', async () => {
+    const { result } = renderHook(() => useCatalogSearch(''), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    const firstProduct = result.current.data?.products[0];
+    expect(firstProduct).toBeDefined();
+    expect(firstProduct?.thumbnailUrl).toMatch(/^\/products\/prod-1-thumb\.webp\?X-Amz-Algorithm=AWS4-HMAC-SHA256/);
+    expect(firstProduct?.discountPercentage).toBe(20);
+    expect(firstProduct?.maxOrderQuantity).toBe(10);
+    expect(firstProduct?.lowStock).toBe(false);
+    expect('unitPrice' in (firstProduct as unknown as Record<string, unknown>)).toBe(false);
+    expect('originalPrice' in (firstProduct as unknown as Record<string, unknown>)).toBe(false);
+
+    // Product 2 has stock 3 => lowStock: true, maxOrderQuantity: 3
+    const lowStockProduct = result.current.data?.products[1];
+    expect(lowStockProduct?.lowStock).toBe(true);
+    expect(lowStockProduct?.maxOrderQuantity).toBe(3);
+  });
 });

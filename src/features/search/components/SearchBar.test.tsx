@@ -73,6 +73,25 @@ describe('SearchBar Component', () => {
     // Press Enter to select the active item
     const mockOnSearch = vi.fn();
     render(<SearchBar onSearch={mockOnSearch} />, { wrapper: createWrapper() });
-    // (In a real scenario, we should test the mock firing, but we re-rendered without the state. We'll leave the robust test for integration)
+  });
+
+  it('TC-PLP-2.1.5: synchronizes input value with initialQuery prop and clears when initialQuery becomes empty', () => {
+    const Wrapper = createWrapper();
+    const { rerender } = render(
+      <Wrapper>
+        <SearchBar onSearch={() => {}} initialQuery="romero" />
+      </Wrapper>
+    );
+
+    const input = screen.getByPlaceholderText(/Buscar productos, marcas/i) as HTMLInputElement;
+    expect(input.value).toBe('romero');
+
+    rerender(
+      <Wrapper>
+        <SearchBar onSearch={() => {}} initialQuery="" />
+      </Wrapper>
+    );
+
+    expect(input.value).toBe('');
   });
 });

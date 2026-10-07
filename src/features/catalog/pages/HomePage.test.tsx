@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -48,6 +49,28 @@ describe('HomePage Component', () => {
     });
 
     expect(screen.getByRole('button', { name: /Limpiar filtro/i })).toBeInTheDocument();
+  });
+
+  it('TC-PLP-2.1.4 & TC-PLP-2.1.5: shows clear filter button when only query is active, syncs SearchBar input, and clears search on click', async () => {
+    const user = userEvent.setup();
+    renderHomePage(['/?query=wrangler']);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Búsqueda:/i)).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText(/Buscar productos/i) as HTMLInputElement;
+    expect(searchInput.value).toBe('wrangler');
+
+    const clearBtn = screen.getByRole('button', { name: /Limpiar filtro/i });
+    expect(clearBtn).toBeInTheDocument();
+
+    await user.click(clearBtn);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('jumbotron')).toBeInTheDocument();
+    });
+    expect(searchInput.value).toBe('');
   });
 
   it('renders paginated controls and displays current page status', async () => {

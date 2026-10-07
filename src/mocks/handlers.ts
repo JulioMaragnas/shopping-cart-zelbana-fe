@@ -27,68 +27,104 @@ export const mockCategories: Category[] = [
   }
 ];
 
-// Mock de productos con categoryId y fotos
-export const mockCatalogItems = [
+export interface MockCatalogEntry {
+  id: string;
+  name: string;
+  description: string;
+  thumbnailUrl: string | null;
+  photos: string[];
+  salePrice: number;
+  discountPercentage: number;
+  categoryId: string;
+  categoryName: string;
+  specs: Array<{ label: string; value: string }>;
+  currentStock: number;
+}
+
+const minioUrl = (file: string) =>
+  `/products/${file}?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20261007%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261007T204131Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7d3b730f64ddf56d85928d4573158adade43fdaf`;
+
+export const mockCatalogItems: MockCatalogEntry[] = [
   {
-    product: {
-      id: '1',
-      name: 'Jeep wrangler',
-      description: 'Todoterreno clásico, ideal para aventuras extremas.',
-      photos: ['https://via.placeholder.com/150'],
-      salePrice: 45000,
-      originalPrice: 48000,
-      categoryId: 'cat-3'
-    },
-    currentStock: 15
+    id: '1',
+    name: 'Jeep wrangler',
+    description: 'Todoterreno clásico, ideal para aventuras extremas.',
+    thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+    photos: [
+      minioUrl('prod-1-1.webp'),
+      minioUrl('prod-1-2.webp'),
+      minioUrl('prod-1-3.webp'),
+    ],
+    salePrice: 45000,
+    discountPercentage: 20,
+    categoryId: 'cat-3',
+    categoryName: 'Jabones Artesanales',
+    specs: [
+      { label: 'Tracción', value: '4x4 Command-Trac' },
+      { label: 'Capacidad', value: '5 pasajeros' },
+    ],
+    currentStock: 15,
   },
   {
-    product: {
-      id: '2',
-      name: 'Jeep grand cherokee',
-      description: 'SUV de lujo con gran capacidad 4x4.',
-      photos: ['https://via.placeholder.com/150'],
-      salePrice: 55000,
-      originalPrice: 55000,
-      categoryId: 'cat-3'
-    },
-    currentStock: 3 // Low stock <= 5
+    id: '2',
+    name: 'Jeep grand cherokee',
+    description: 'SUV de lujo con gran capacidad 4x4.',
+    thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+    photos: [minioUrl('prod-2-1.webp')],
+    salePrice: 55000,
+    discountPercentage: 0,
+    categoryId: 'cat-3',
+    categoryName: 'Jabones Artesanales',
+    specs: [
+      { label: 'Motor', value: 'V6 Pentastar' },
+    ],
+    currentStock: 3, // Low stock <= 5
   },
   {
-    product: {
-      id: '3',
-      name: 'Jeep rubicon',
-      description: 'La versión más extrema para el off-road.',
-      photos: ['https://via.placeholder.com/150'],
-      salePrice: 50000,
-      originalPrice: 52000,
-      categoryId: 'cat-4'
-    },
-    currentStock: 0 // Agotado
+    id: '3',
+    name: 'Jeep rubicon',
+    description: 'La versión más extrema para el off-road.',
+    thumbnailUrl: minioUrl('prod-3-thumb.webp'),
+    photos: [minioUrl('prod-3-1.webp'), minioUrl('prod-3-2.webp')],
+    salePrice: 50000,
+    discountPercentage: 10,
+    categoryId: 'cat-4',
+    categoryName: 'Sales de Baño',
+    specs: [
+      { label: 'Diferenciales', value: 'Tru-Lok electrónicos' },
+    ],
+    currentStock: 0, // Agotado
   },
   {
-    product: {
-      id: '4',
-      name: 'Jeep cherokee',
-      description: 'SUV compacta y versátil.',
-      photos: ['https://via.placeholder.com/150'],
-      salePrice: 35000,
-      originalPrice: 37000,
-      categoryId: 'cat-2'
-    },
-    currentStock: 25
+    id: '4',
+    name: 'Jeep cherokee',
+    description: 'SUV compacta y versátil.',
+    thumbnailUrl: minioUrl('prod-4-thumb.webp'),
+    photos: [minioUrl('prod-4-1.webp')],
+    salePrice: 35000,
+    discountPercentage: 15,
+    categoryId: 'cat-2',
+    categoryName: 'Cuidado Facial',
+    specs: [
+      { label: 'Transmisión', value: 'Automática 9 velocidades' },
+    ],
+    currentStock: 25,
   },
   {
-    product: {
-      id: '5',
-      name: 'Jeep compass',
-      description: 'Diseño moderno y eficiencia urbana.',
-      photos: ['https://via.placeholder.com/150'],
-      salePrice: 28000,
-      originalPrice: 30000,
-      categoryId: 'cat-1'
-    },
-    currentStock: 10
-  }
+    id: '5',
+    name: 'Jeep compass',
+    description: 'Diseño moderno y eficiencia urbana.',
+    thumbnailUrl: minioUrl('prod-5-thumb.webp'),
+    photos: [minioUrl('prod-5-1.webp')],
+    salePrice: 28000,
+    discountPercentage: 0,
+    categoryId: 'cat-1',
+    categoryName: 'Cuidado Corporal',
+    specs: [
+      { label: 'Consumo', value: 'Eficiente en ciudad' },
+    ],
+    currentStock: 10,
+  },
 ];
 
 const handleCategories = () => {
@@ -106,9 +142,9 @@ const handleProducts = ({ request }: { request: Request }) => {
 
   if (categoryId) {
     filtered = filtered.filter(item => {
-      if (item.product.categoryId === categoryId) return true;
+      if (item.categoryId === categoryId) return true;
       const parent = mockCategories.find(c => c.id === categoryId);
-      if (parent && parent.children?.some(ch => ch.id === item.product.categoryId)) {
+      if (parent && parent.children?.some(ch => ch.id === item.categoryId)) {
         return true;
       }
       return false;
@@ -118,15 +154,27 @@ const handleProducts = ({ request }: { request: Request }) => {
   if (query) {
     const lowerQuery = query.toLowerCase();
     filtered = filtered.filter(item =>
-      item.product.name.toLowerCase().includes(lowerQuery) ||
-      item.product.description.toLowerCase().includes(lowerQuery)
+      item.name.toLowerCase().includes(lowerQuery) ||
+      item.description.toLowerCase().includes(lowerQuery)
     );
   }
 
   const totalItems = filtered.length;
   const totalPages = Math.ceil(totalItems / limit) || 1;
   const startIndex = (page - 1) * limit;
-  const paginatedItems = filtered.slice(startIndex, startIndex + limit);
+  const paginatedItems = filtered.slice(startIndex, startIndex + limit).map(item => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    thumbnailUrl: item.thumbnailUrl,
+    salePrice: item.salePrice,
+    discountPercentage: item.discountPercentage,
+    categoryId: item.categoryId,
+    categoryName: item.categoryName,
+    disponible: item.currentStock > 0,
+    lowStock: item.currentStock > 0 && item.currentStock <= 5,
+    maxOrderQuantity: Math.min(item.currentStock, 10),
+  }));
 
   const response: PaginatedCatalogResponse = {
     items: paginatedItems,
@@ -140,13 +188,27 @@ const handleProducts = ({ request }: { request: Request }) => {
 
 const handleProductDetail = ({ params }: { params: Record<string, string | readonly string[] | undefined> }) => {
   const { id } = params;
-  const item = mockCatalogItems.find(i => i.product.id === id);
+  const item = mockCatalogItems.find(i => i.id === id);
 
   if (!item) {
-    return HttpResponse.json({ error: 'Product not found' }, { status: 404 });
+    return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
   }
 
-  const response: ProductDetailResponse = item;
+  const response: ProductDetailResponse = {
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    thumbnailUrl: item.thumbnailUrl,
+    photos: item.photos,
+    salePrice: item.salePrice,
+    discountPercentage: item.discountPercentage,
+    categoryId: item.categoryId,
+    categoryName: item.categoryName,
+    specs: item.specs,
+    disponible: item.currentStock > 0,
+    lowStock: item.currentStock > 0 && item.currentStock <= 5,
+    maxOrderQuantity: Math.min(item.currentStock, 10),
+  };
   return HttpResponse.json(response);
 };
 
@@ -160,8 +222,8 @@ const handleSuggestions = ({ request }: { request: Request }) => {
 
   const lowerQuery = query.toLowerCase();
   const suggestions = mockCatalogItems
-    .filter(item => item.product.name.toLowerCase().includes(lowerQuery))
-    .map(item => item.product.name);
+    .filter(item => item.name.toLowerCase().includes(lowerQuery))
+    .map(item => item.name);
 
   return HttpResponse.json(suggestions);
 };
@@ -173,10 +235,10 @@ const handleCartValidate = async ({ request }: { request: Request }) => {
     const cart = body.cart || [];
 
     const items: CartValidatedItem[] = cart.map(item => {
-      const found = mockCatalogItems.find(c => c.product.id === item.productId);
+      const found = mockCatalogItems.find(c => c.id === item.productId);
       const stock = found ? found.currentStock : 0;
-      const name = found ? found.product.name : 'Producto Desconocido';
-      const unitPrice = found ? found.product.salePrice : 0;
+      const name = found ? found.name : 'Producto Desconocido';
+      const unitPrice = found ? found.salePrice : 0;
       const quantityFulfilled = Math.min(item.quantity, stock);
       const subtotal = quantityFulfilled * unitPrice;
 
@@ -220,7 +282,7 @@ const handleCheckoutReserve = async ({ request }: { request: Request }) => {
 
     // Si algún item tiene stock 0 (ej. rubicon id 3), responder 409 Conflict
     const hasOutOfStock = cart.some(item => {
-      const found = mockCatalogItems.find(c => c.product.id === item.productId);
+      const found = mockCatalogItems.find(c => c.id === item.productId);
       return !found || found.currentStock < item.quantity;
     });
 
@@ -232,8 +294,8 @@ const handleCheckoutReserve = async ({ request }: { request: Request }) => {
     }
 
     const totalAmount = cart.reduce((acc, item) => {
-      const found = mockCatalogItems.find(c => c.product.id === item.productId);
-      return acc + (found ? found.product.salePrice * item.quantity : 0);
+      const found = mockCatalogItems.find(c => c.id === item.productId);
+      return acc + (found ? found.salePrice * item.quantity : 0);
     }, 0);
 
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();

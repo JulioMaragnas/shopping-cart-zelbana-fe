@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
 import { SearchBar } from '../../../features/search/components/SearchBar';
@@ -11,20 +11,36 @@ export function Navbar() {
   const cart = useCartStore((state) => state.cart);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const currentQuery = searchParams.get('query') || searchParams.get('q') || '';
+  const currentCategoryId = searchParams.get('categoryId') || '';
 
   const { data: categories = [] } = useCategories();
 
   const handleSearch = (q: string) => {
-    navigate(`/?query=${encodeURIComponent(q)}&page=1`);
+    const nextParams = new URLSearchParams();
+    if (currentCategoryId) {
+      nextParams.set('categoryId', currentCategoryId);
+    }
+    const trimmed = q.trim();
+    if (trimmed) {
+      nextParams.set('query', trimmed);
+    }
+    nextParams.set('page', '1');
+    navigate(`/?${nextParams.toString()}`);
   };
 
   const handleSelectCategory = (categoryId?: string) => {
     setIsDropdownOpen(false);
+    const nextParams = new URLSearchParams();
     if (categoryId) {
-      navigate(`/?categoryId=${encodeURIComponent(categoryId)}&page=1`);
-    } else {
-      navigate('/?page=1');
+      nextParams.set('categoryId', categoryId);
     }
+    if (currentQuery) {
+      nextParams.set('query', currentQuery);
+    }
+    nextParams.set('page', '1');
+    navigate(`/?${nextParams.toString()}`);
   };
 
   useEffect(() => {
@@ -99,7 +115,7 @@ export function Navbar() {
       </div>
 
       <div className={styles.searchContainer}>
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={handleSearch} initialQuery={currentQuery} />
       </div>
 
       <div className={styles.rightSection}>

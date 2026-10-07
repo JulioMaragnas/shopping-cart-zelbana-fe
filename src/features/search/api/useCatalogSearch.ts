@@ -17,43 +17,47 @@ export interface UseCatalogSearchOptions {
 
 export type RawCatalogInput = CatalogItem | (Partial<Product> & { id: string | number; name: string; salePrice: number });
 
-const isCatalogItem = (item: RawCatalogInput): item is CatalogItem => {
+const hasNestedProduct = (item: RawCatalogInput): item is CatalogItem & { product: NonNullable<CatalogItem['product']> } => {
   return 'product' in item && item.product !== undefined;
 };
 
 export const normalizeProduct = (item: RawCatalogInput): Product => {
-  if (isCatalogItem(item)) {
-    const p = item.product;
-    const stock = typeof item.currentStock === 'number' ? item.currentStock : 0;
-    return {
-      id: String(p.id),
-      name: p.name,
-      description: p.description || '',
-      photos: Array.isArray(p.photos) ? p.photos : [],
-      salePrice: p.salePrice,
-      originalPrice: p.originalPrice ?? p.salePrice,
-      unitPrice: p.unitPrice,
-      categoryId: p.categoryId,
-      currentStock: stock,
-      disponible: stock > 0,
-      lowStock: stock > 0 && stock <= 5,
-    };
-  }
+  const source = hasNestedProduct(item) ? item.product : item;
+  const photos = Array.isArray(source.photos) ? source.photos : [];
+  const thumbnailUrl =
+    source.thumbnailUrl !== undefined
+      ? source.thumbnailUrl
+      : photos.length > 0
+      ? photos[0]
+      : null;
 
-  // Si ya viene como Product plano (retrocompatibilidad)
-  const stock = typeof item.currentStock === 'number' ? item.currentStock : (item.disponible ? 10 : 0);
+  const disponible = Boolean(item.disponible);
+  const maxOrderQuantity =
+    typeof item.maxOrderQuantity === 'number'
+      ? Math.max(0, item.maxOrderQuantity)
+      : disponible
+      ? 1
+      : 0;
+  const lowStock = Boolean(item.lowStock);
+  const discountPercentage =
+    typeof source.discountPercentage === 'number' && source.discountPercentage > 0
+      ? Math.round(source.discountPercentage)
+      : 0;
+
   return {
-    id: String(item.id),
-    name: item.name,
-    description: item.description || '',
-    photos: Array.isArray(item.photos) ? item.photos : [],
-    salePrice: item.salePrice,
-    originalPrice: item.originalPrice ?? item.salePrice,
-    unitPrice: item.unitPrice,
-    categoryId: item.categoryId,
-    currentStock: stock,
-    disponible: item.disponible !== undefined ? Boolean(item.disponible) : stock > 0,
-    lowStock: item.lowStock !== undefined ? Boolean(item.lowStock) : (stock > 0 && stock <= 5),
+    id: String(source.id),
+    name: source.name || '',
+    description: source.description || '',
+    thumbnailUrl,
+    photos,
+    salePrice: Number(source.salePrice) || 0,
+    discountPercentage,
+    categoryId: source.categoryId,
+    categoryName: source.categoryName,
+    specs: Array.isArray(source.specs) ? source.specs : [],
+    disponible: disponible && maxOrderQuantity > 0,
+    lowStock,
+    maxOrderQuantity,
   };
 };
 

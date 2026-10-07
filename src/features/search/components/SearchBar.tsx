@@ -4,14 +4,23 @@ import { useSearchSuggestions } from '../api/useCatalogSearch';
 import { useDebounce } from '../hooks/useDebounce';
 import styles from './SearchBar.module.css';
 
-export const SearchBar = ({ onSearch }: { onSearch: (q: string) => void }) => {
-  const [inputValue, setInputValue] = useState('');
+export interface SearchBarProps {
+  onSearch: (q: string) => void;
+  initialQuery?: string;
+}
+
+export const SearchBar = ({ onSearch, initialQuery = '' }: SearchBarProps) => {
+  const [inputValue, setInputValue] = useState(initialQuery);
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   
   const debouncedInput = useDebounce(inputValue, 150); // debounce ultra rápido para typeahead
   const { data: suggestions = [] } = useSearchSuggestions(debouncedInput);
   const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setInputValue(initialQuery);
+  }, [initialQuery]);
 
   // Muestra el dropdown cuando hay sugerencias
   useEffect(() => {

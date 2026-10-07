@@ -8,7 +8,7 @@ import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet-async';
-import type { Category } from '../../search/types';
+import type { Category, Product } from '../../search/types';
 
 export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -25,6 +25,7 @@ export function HomePage() {
 
   const { data: categories = [] } = useCategories();
   const addItem = useCartStore((state) => state.addItem);
+  const cart = useCartStore((state) => state.cart);
 
   const products = catalogData?.products || [];
   const totalPages = catalogData?.totalPages || 1;
@@ -48,6 +49,8 @@ export function HomePage() {
   const handleClearFilter = () => {
     const nextParams = new URLSearchParams(searchParams);
     nextParams.delete('categoryId');
+    nextParams.delete('query');
+    nextParams.delete('q');
     nextParams.set('page', '1');
     setSearchParams(nextParams);
   };
@@ -59,10 +62,15 @@ export function HomePage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAdd = (product: any) => {
+  const handleAdd = (product: Product) => {
+    const quantityInCart = cart.find((i) => i.id === product.id)?.quantity ?? 0;
+    if (!product.disponible || quantityInCart >= product.maxOrderQuantity) {
+      return;
+    }
     addItem({
       id: product.id,
       name: product.name,
+      thumbnailUrl: product.thumbnailUrl,
       priceWhenAdded: product.salePrice,
       quantity: 1,
     });
@@ -107,16 +115,14 @@ export function HomePage() {
               <span className={styles.itemCount}>({totalItems} productos)</span>
             </div>
 
-            {categoryId && (
-              <button
-                type="button"
-                className={styles.clearFilterBtn}
-                onClick={handleClearFilter}
-                aria-label="Limpiar filtro"
-              >
-                ✕ Limpiar filtro
-              </button>
-            )}
+            <button
+              type="button"
+              className={styles.clearFilterBtn}
+              onClick={handleClearFilter}
+              aria-label="Limpiar filtro"
+            >
+              ✕ Limpiar filtro
+            </button>
           </div>
         )}
 

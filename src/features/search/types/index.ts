@@ -1,15 +1,22 @@
+export interface ProductSpec {
+  label: string;
+  value: string;
+}
+
 export interface Product {
   id: string;
   name: string;
   description: string;
+  thumbnailUrl: string | null;
   photos: string[];
-  unitPrice?: number;
   salePrice: number;
-  originalPrice: number;
+  discountPercentage: number;
   categoryId?: string;
+  categoryName?: string;
+  specs?: ProductSpec[];
   disponible: boolean;
   lowStock: boolean;
-  currentStock?: number;
+  maxOrderQuantity: number;
 }
 
 export interface Category {
@@ -18,18 +25,34 @@ export interface Category {
   children?: Category[];
 }
 
+export interface CatalogProductPayload {
+  id: string;
+  name: string;
+  description?: string;
+  thumbnailUrl?: string | null;
+  photos?: string[];
+  salePrice: number;
+  discountPercentage?: number;
+  categoryId?: string;
+  categoryName?: string;
+  specs?: ProductSpec[];
+}
+
 export interface CatalogItem {
-  product: {
-    id: string;
-    name: string;
-    description: string;
-    photos: string[];
-    unitPrice?: number;
-    salePrice: number;
-    originalPrice: number;
-    categoryId?: string;
-  };
-  currentStock: number;
+  product?: CatalogProductPayload;
+  id?: string;
+  name?: string;
+  description?: string;
+  thumbnailUrl?: string | null;
+  photos?: string[];
+  salePrice?: number;
+  discountPercentage?: number;
+  categoryId?: string;
+  categoryName?: string;
+  specs?: ProductSpec[];
+  disponible?: boolean;
+  lowStock?: boolean;
+  maxOrderQuantity?: number;
 }
 
 export interface PaginatedCatalogResponse {
@@ -39,19 +62,7 @@ export interface PaginatedCatalogResponse {
   currentPage: number;
 }
 
-export interface ProductDetailResponse {
-  product: {
-    id: string;
-    name: string;
-    description: string;
-    photos: string[];
-    unitPrice?: number;
-    salePrice: number;
-    originalPrice: number;
-    categoryId?: string;
-  };
-  currentStock: number;
-}
+export type ProductDetailResponse = CatalogItem;
 
 export interface SearchParams {
   query?: string;
@@ -61,3 +72,4 @@ export interface SearchParams {
   limit?: number;
   offset?: number;
 }
+

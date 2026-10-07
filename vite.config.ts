@@ -17,7 +17,16 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target,
           changeOrigin: true,
-        }
+        },
+        '/products': {
+          target,
+          changeOrigin: true,
+          bypass(req) {
+            if (req.headers.accept?.includes('text/html') && !req.url?.includes('X-Amz-')) {
+              return '/index.html'
+            }
+          },
+        },
       }
     }
   }
