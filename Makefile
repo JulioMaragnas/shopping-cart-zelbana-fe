@@ -7,11 +7,39 @@ REMOTE_APP  := /opt/zelbana-shopping-cart/shopping-cart-zelbana-fe
 REPO        := git@github-zelbana-fe:JulioMaragnas/shopping-cart-zelbana-fe.git
 BRANCH      ?= $$(shell git rev-parse --abbrev-ref HEAD)
 
+ifneq ($(MAKECMDGOALS),git-push)
 ifndef TAG
 $$(error ❌ Error: Debes especificar la variable TAG obligatoriamente (ej: make deploy-test BRANCH=develop TAG=v1.0.0))
 endif
+endif
 
-.PHONY: sync build push deploy deploy-test check-prod-branch check-test-branch
+.PHONY: sync git-push build push deploy deploy-test check-prod-branch check-test-branch
+
+git-push:
+	@local_branch=$$(git rev-parse --abbrev-ref HEAD); \
+	local_sha=$$(git rev-parse HEAD); \
+	if [ "$$local_branch" = "HEAD" ]; then echo "❌ Error: Estás en detached HEAD. Cambia a una rama antes de hacer git-push."; exit 1; fi; \
+	bundle_name="zelbana-fe-$$local_sha.bundle"; \
+	echo "📦 Empaquetando rama '$$local_branch' ($${local_sha:0:7}) localmente..."; \
+	git bundle create "/tmp/$$bundle_name" "$$local_branch"; \
+	echo "🚚 Enviando paquete al Runner ($(SERVER))..."; \
+	scp "/tmp/$$bundle_name" "$(SERVER):/tmp/$$bundle_name"; \
+	rm -f "/tmp/$$bundle_name"; \
+	echo "🔍 Sincronizando y validando rama en el Runner ($(REMOTE_APP))..."; \
+	ssh $(SERVER) "cd $(REMOTE_APP) && \
+		git fetch /tmp/$$bundle_name $$local_branch && \
+		git checkout -B $$local_branch FETCH_HEAD && \
+		git reset --hard FETCH_HEAD && \
+		remote_branch=\$$(git rev-parse --abbrev-ref HEAD) && \
+		remote_sha=\$$(git rev-parse HEAD) && \
+		if [ \"\$$remote_branch\" != \"$$local_branch\" ] || [ \"\$$remote_sha\" != \"$$local_sha\" ]; then \
+			echo \"❌ Error de validación: Servidor (\$$remote_branch @ \$$remote_sha) != Local ($$local_branch @ $$local_sha)\"; \
+			rm -f /tmp/$$bundle_name; \
+			exit 1; \
+		fi && \
+		echo \"✅ Validado: Servidor .201 en rama '\$$remote_branch' ($${local_sha:0:7}) == Mac local.\" && \
+		git push origin \$$remote_branch && \
+		rm -f /tmp/$$bundle_name"
 
 sync:
 	@echo "══════════════════════════════════════════"
