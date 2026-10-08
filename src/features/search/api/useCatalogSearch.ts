@@ -31,14 +31,16 @@ export const normalizeProduct = (item: RawCatalogInput): Product => {
       ? photos[0]
       : null;
 
-  const disponible = Boolean(item.disponible);
+  const rawDisponible = item.disponible ?? source.disponible;
+  const disponible = Boolean(rawDisponible);
+  const rawMaxOrderQuantity = item.maxOrderQuantity ?? source.maxOrderQuantity;
   const maxOrderQuantity =
-    typeof item.maxOrderQuantity === 'number'
-      ? Math.max(0, item.maxOrderQuantity)
+    typeof rawMaxOrderQuantity === 'number'
+      ? Math.max(0, rawMaxOrderQuantity)
       : disponible
       ? 1
       : 0;
-  const lowStock = Boolean(item.lowStock);
+  const lowStock = Boolean(item.lowStock ?? source.lowStock);
   const discountPercentage =
     typeof source.discountPercentage === 'number' && source.discountPercentage > 0
       ? Math.round(source.discountPercentage)

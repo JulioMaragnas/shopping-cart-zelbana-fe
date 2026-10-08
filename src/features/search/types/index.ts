@@ -36,6 +36,9 @@ export interface CatalogProductPayload {
   categoryId?: string;
   categoryName?: string;
   specs?: ProductSpec[];
+  disponible?: boolean;
+  lowStock?: boolean;
+  maxOrderQuantity?: number;
 }
 
 export interface CatalogItem {

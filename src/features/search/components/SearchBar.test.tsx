@@ -48,9 +48,10 @@ describe('SearchBar Component', () => {
     });
   });
 
-  it('allows keyboard navigation through the suggestions', async () => {
+  it('allows keyboard navigation through the suggestions and triggers onSearch on Enter', async () => {
     const user = userEvent.setup();
-    render(<SearchBar onSearch={() => {}} />, { wrapper: createWrapper() });
+    const mockOnSearch = vi.fn();
+    render(<SearchBar onSearch={mockOnSearch} />, { wrapper: createWrapper() });
     
     const input = screen.getByPlaceholderText(/Buscar/i);
     await user.type(input, 'jeep');
@@ -71,8 +72,18 @@ describe('SearchBar Component', () => {
     expect(firstItem).toHaveAttribute('data-active', 'false');
     
     // Press Enter to select the active item
+    await user.keyboard('{Enter}');
+    expect(mockOnSearch).toHaveBeenCalledWith('Jeep grand cherokee');
+  });
+
+  it('escapes RegExp special characters in input without throwing SyntaxError', async () => {
+    const user = userEvent.setup();
     const mockOnSearch = vi.fn();
     render(<SearchBar onSearch={mockOnSearch} />, { wrapper: createWrapper() });
+
+    const input = screen.getByPlaceholderText(/Buscar/i);
+    await user.type(input, 'jeep ([[+?{Enter}');
+    expect(mockOnSearch).toHaveBeenCalledWith('jeep ([+?');
   });
 
   it('TC-PLP-2.1.5: synchronizes input value with initialQuery prop and clears when initialQuery becomes empty', () => {

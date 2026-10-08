@@ -8,7 +8,8 @@ import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
 import styles from './HomePage.module.css';
 import { Helmet } from 'react-helmet-async';
-import type { Category, Product } from '../../search/types';
+import type { Product } from '../../search/types';
+import { findCategoryName } from '../utils/findCategoryName';
 
 export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -31,18 +32,6 @@ export function HomePage() {
   const totalPages = catalogData?.totalPages || 1;
   const currentPage = catalogData?.currentPage || 1;
   const totalItems = catalogData?.totalItems || 0;
-
-  // Helper recursivo para encontrar nombre de categoría
-  const findCategoryName = (cats: Category[], targetId: string): string | null => {
-    for (const cat of cats) {
-      if (cat.id === targetId) return cat.name;
-      if (cat.children && cat.children.length > 0) {
-        const found = findCategoryName(cat.children, targetId);
-        if (found) return found;
-      }
-    }
-    return null;
-  };
 
   const selectedCategoryName = categoryId ? findCategoryName(categories, categoryId) : null;
 

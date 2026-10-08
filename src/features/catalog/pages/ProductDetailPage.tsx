@@ -5,19 +5,8 @@ import { Navbar } from '../../../design-system/components/Navbar/Navbar';
 import { useProductDetail } from '../api/useProductDetail';
 import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
-import type { Category } from '../../search/types';
+import { findCategoryName } from '../utils/findCategoryName';
 import styles from './ProductDetailPage.module.css';
-
-const findCategoryNameById = (cats: Category[], targetId: string): string | null => {
-  for (const cat of cats) {
-    if (cat.id === targetId) return cat.name;
-    if (cat.children && cat.children.length > 0) {
-      const found = findCategoryNameById(cat.children, targetId);
-      if (found) return found;
-    }
-  }
-  return null;
-};
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -28,6 +17,7 @@ export function ProductDetailPage() {
 
   const [selectedPhoto, setSelectedPhoto] = useState(0);
   const [mainImageError, setMainImageError] = useState(false);
+  const [brokenThumbnails, setBrokenThumbnails] = useState<Record<number, boolean>>({});
   const [quantity, setQuantity] = useState<number | ''>(1);
   const [addedQuantityNotice, setAddedQuantityNotice] = useState<number | null>(null);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -35,6 +25,7 @@ export function ProductDetailPage() {
   useEffect(() => {
     setSelectedPhoto(0);
     setMainImageError(false);
+    setBrokenThumbnails({});
     setQuantity(1);
   }, [id]);
 
@@ -101,11 +92,11 @@ export function ProductDetailPage() {
   const isPurchaseDisabled = !isAvailable || isLimitReached;
 
   const resolvedCategoryName =
-    categoryName || (categoryId ? findCategoryNameById(categories, categoryId) : null);
+    categoryName || (categoryId ? findCategoryName(categories, categoryId) : null);
 
   const handleSelectThumbnail = (idx: number) => {
     setSelectedPhoto(idx);
-    setMainImageError(false);
+    setMainImageError(Boolean(brokenThumbnails[idx]));
   };
 
   const handleAddToCart = () => {
@@ -184,7 +175,18 @@ export function ProductDetailPage() {
                     onClick={() => handleSelectThumbnail(idx)}
                     aria-label={`Ver foto ${idx + 1}`}
                   >
-                    <img src={photo} alt={`${name} ${idx + 1}`} className={styles.thumbnailImg} />
+                    {!brokenThumbnails[idx] ? (
+                      <img
+                        src={photo}
+                        alt={`${name} ${idx + 1}`}
+                        onError={() =>
+                          setBrokenThumbnails((prev) => ({ ...prev, [idx]: true }))
+                        }
+                        className={styles.thumbnailImg}
+                      />
+                    ) : (
+                      <div className={styles.thumbnailPlaceholder}>Foto {idx + 1}</div>
+                    )}
                   </button>
                 ))}
               </div>

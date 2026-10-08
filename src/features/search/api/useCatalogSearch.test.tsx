@@ -72,6 +72,20 @@ describe('useCatalogSearch', () => {
     expect(result.current.data?.products[0].categoryId).toBe('cat-4');
   });
 
+  it('TC-PLP-2.1.6: filtering by parent category (cat-1) includes products from parent and child subcategories (cat-3, cat-4)', async () => {
+    const { result } = renderHook(() => useCatalogSearch('', 'cat-1'), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(result.current.data?.products).toHaveLength(4);
+    const categoryIds = result.current.data?.products.map((p) => p.categoryId);
+    expect(categoryIds).toEqual(expect.arrayContaining(['cat-1', 'cat-3', 'cat-4']));
+  });
+
   it('TC-PLP-2.2.1, TC-PLP-2.3.1 & TC-PLP-2.4.1: normalizes thumbnailUrl (MinIO relative presigned), discountPercentage, and maxOrderQuantity without exposing unitPrice or originalPrice', async () => {
     const { result } = renderHook(() => useCatalogSearch(''), {
       wrapper: createWrapper(),

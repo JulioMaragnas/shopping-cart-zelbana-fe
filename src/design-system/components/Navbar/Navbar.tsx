@@ -60,7 +60,7 @@ export function Navbar() {
   return (
     <header className={styles.navbar}>
       <div className={styles.leftSection}>
-        <Link to="/" className={styles.logo} style={{ textDecoration: 'none' }}>
+        <Link to="/" className={styles.logo}>
           [ LOGO ]
         </Link>
 
@@ -122,7 +122,7 @@ export function Navbar() {
         <span className={styles.navLink}>Hola, Julio Cano</span>
         <span className={styles.navLink}>Ayuda</span>
         <span className={styles.navLink}>Español ▾</span>
-        <Link to="/cart" style={{ textDecoration: 'none' }}>
+        <Link to="/cart" className={styles.cartLink} aria-label="Ver carrito de compras">
           <div className={styles.cartContainer}>
             <span>🛒</span>
             {totalItems > 0 && (

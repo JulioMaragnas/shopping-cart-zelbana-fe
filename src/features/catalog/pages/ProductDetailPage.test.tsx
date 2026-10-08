@@ -5,6 +5,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { HelmetProvider } from 'react-helmet-async';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../mocks/server';
 import { ProductDetailPage } from './ProductDetailPage';
 import { useCartStore } from '../../cart/store/useCartStore';
 
@@ -74,7 +76,44 @@ describe('ProductDetailPage Component (Fases 3.1, 3.2, 3.3, 3.4)', () => {
     expect(screen.queryByRole('button', { name: /Ver foto/i })).not.toBeInTheDocument();
   });
 
-  it('TC-PDP-3.1.4: shows fallback placeholder when main image fails to load (onError) without external placeholder URL', async () => {
+  it('TC-PDP-3.1.3: defensively limits gallery to maximum 5 photos when backend sends more than 5', async () => {
+    server.use(
+      http.get('*/storefront/api/products/:id', () => {
+        return HttpResponse.json({
+          id: '1',
+          name: 'Jeep 7 Fotos',
+          salePrice: 45000,
+          discountPercentage: 10,
+          thumbnailUrl: '/products/prod-1-thumb.webp',
+          photos: [
+            '/products/f1.webp',
+            '/products/f2.webp',
+            '/products/f3.webp',
+            '/products/f4.webp',
+            '/products/f5.webp',
+            '/products/f6.webp',
+            '/products/f7.webp',
+          ],
+          disponible: true,
+          lowStock: false,
+          maxOrderQuantity: 5,
+          categoryId: 'cat-3',
+        });
+      })
+    );
+
+    renderPDP('1');
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: 'Jeep 7 Fotos' })).toBeInTheDocument();
+    });
+
+    const thumbButtons = screen.getAllByRole('button', { name: /Ver foto/i });
+    expect(thumbButtons).toHaveLength(5);
+    expect(screen.queryByRole('button', { name: /Ver foto 6/i })).not.toBeInTheDocument();
+  });
+
+  it('TC-PDP-3.1.4: shows fallback placeholder when main image or secondary thumbnail fails to load (onError)', async () => {
     renderPDP('1');
 
     await waitFor(() => {
@@ -85,6 +124,11 @@ describe('ProductDetailPage Component (Fases 3.1, 3.2, 3.3, 3.4)', () => {
     fireEvent.error(mainImg);
 
     expect(screen.getByText(/Sin imagen disponible/i)).toBeInTheDocument();
+
+    const thumb2Img = screen.getByRole('img', { name: 'Jeep wrangler 2' });
+    fireEvent.error(thumb2Img);
+
+    expect(screen.getByText('Foto 2')).toBeInTheDocument();
   });
 
   it('TC-PDP-3.3.2: renders clickable categoryName and dynamic specs without hardcoded cosmetics text', async () => {

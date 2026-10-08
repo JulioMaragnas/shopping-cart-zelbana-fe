@@ -20,6 +20,7 @@
   color: #18181b;
   border: 1px solid #18181b;
   padding: 4px 8px;
+  text-decoration: none;
 }
 
 .navLink {
@@ -135,6 +136,10 @@
   display: flex;
   align-items: center;
   gap: 24px;
+}
+
+.cartLink {
+  text-decoration: none;
 }
 
 .cartContainer {

@@ -84,7 +84,7 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd?: () =
       </Link>
 
       <div className={styles.info}>
-        <Link to={`/products/${id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+        <Link to={`/products/${id}`} className={styles.titleLink}>
           <h3 className={styles.title}>{name}</h3>
         </Link>
 

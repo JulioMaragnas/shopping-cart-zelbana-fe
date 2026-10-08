@@ -74,7 +74,8 @@ export const SearchBar = ({ onSearch, initialQuery = '' }: SearchBarProps) => {
   // Resalta en negrita la parte NO escrita de la palabra
   const highlightText = (text: string, match: string) => {
     if (!match) return text;
-    const parts = text.split(new RegExp(`(${match})`, 'gi'));
+    const escapedMatch = match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const parts = text.split(new RegExp(`(${escapedMatch})`, 'gi'));
     return (
       <>
         {parts.map((part, i) => 

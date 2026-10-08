@@ -67,6 +67,11 @@
   flex-grow: 1;
 }
 
+.titleLink {
+  text-decoration: none;
+  color: inherit;
+}
+
 .title {
   font-size: 16px;
   font-weight: 600;
