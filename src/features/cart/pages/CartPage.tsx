@@ -150,8 +150,14 @@ export function CartPage() {
                   disponible={disponible}
                   isDeleted={isDeleted}
                   validationMessage={validationMessage}
-                  onRemove={removeItem}
-                  onChangeQuantity={updateQuantity}
+                  onRemove={(id) => {
+                    setAdjustNotice(null);
+                    removeItem(id);
+                  }}
+                  onChangeQuantity={(id, qty) => {
+                    setAdjustNotice(null);
+                    updateQuantity(id, qty);
+                  }}
                 />
               );
             })
