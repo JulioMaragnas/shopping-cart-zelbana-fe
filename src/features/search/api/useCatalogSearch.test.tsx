@@ -1,5 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../mocks/server';
 import { useCatalogSearch } from './useCatalogSearch';
 import { describe, it, expect } from 'vitest';
 import React from 'react';
@@ -84,6 +86,47 @@ describe('useCatalogSearch', () => {
     expect(result.current.data?.products).toHaveLength(4);
     const categoryIds = result.current.data?.products.map((p) => p.categoryId);
     expect(categoryIds).toEqual(expect.arrayContaining(['cat-1', 'cat-3', 'cat-4']));
+  });
+
+  it('TC-PLP-2.1.7: sends page, limit, and offset=(page-1)*limit and keeps currentPage coherent with requested page clamped to totalPages', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('*/storefront/api/products', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          items: [
+            {
+              id: '21',
+              name: 'Jabón Página 2',
+              salePrice: 15,
+              discountPercentage: 0,
+              thumbnailUrl: '/products/p21.webp',
+              disponible: true,
+              lowStock: false,
+              maxOrderQuantity: 10,
+            },
+          ],
+          totalItems: 50,
+          totalPages: 3,
+          currentPage: 1, // Simulates backend returning stale currentPage: 1
+        });
+      })
+    );
+
+    const { result } = renderHook(() => useCatalogSearch({ page: 2, limit: 20 }), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    const parsedUrl = new URL(capturedUrl);
+    expect(parsedUrl.searchParams.get('page')).toBe('2');
+    expect(parsedUrl.searchParams.get('limit')).toBe('20');
+    expect(parsedUrl.searchParams.get('offset')).toBe('20');
+    expect(result.current.data?.currentPage).toBe(2);
+    expect(result.current.data?.totalPages).toBe(3);
   });
 
   it('TC-PLP-2.2.1, TC-PLP-2.3.1 & TC-PLP-2.4.1: normalizes thumbnailUrl (MinIO relative presigned), discountPercentage, and maxOrderQuantity without exposing unitPrice or originalPrice', async () => {

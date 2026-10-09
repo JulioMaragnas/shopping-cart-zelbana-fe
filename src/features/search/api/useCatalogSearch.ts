@@ -73,10 +73,12 @@ export const useCatalogSearch = (
     : { page: 1, limit: 20, ...queryOrOptions };
 
   const { query = '', categoryId, page = 1, limit = 20 } = options;
+  const safePage = Math.max(1, page);
 
   return useQuery<CatalogSearchResult>({
-    queryKey: ['catalogSearch', query, categoryId, page, limit],
+    queryKey: ['catalogSearch', query, categoryId, safePage, limit],
     queryFn: async () => {
+      const offset = (safePage - 1) * limit;
       const params = new URLSearchParams();
       if (query) {
         params.append('query', query);
@@ -85,8 +87,9 @@ export const useCatalogSearch = (
       if (categoryId) {
         params.append('categoryId', categoryId);
       }
-      params.append('page', String(page));
+      params.append('page', String(safePage));
       params.append('limit', String(limit));
+      params.append('offset', String(offset));
 
       const response = await fetch(`/storefront/api/products?${params.toString()}`);
       if (!response.ok) {
@@ -97,20 +100,27 @@ export const useCatalogSearch = (
 
       if (json && Array.isArray(json.items)) {
         const paginated = json as PaginatedCatalogResponse;
+        const totalItems = paginated.totalItems ?? paginated.items.length;
+        const totalPages = Math.max(1, paginated.totalPages ?? (Math.ceil(totalItems / limit) || 1));
+        const currentPage = Math.min(safePage, totalPages);
         return {
           products: paginated.items.map(normalizeProduct),
-          totalItems: paginated.totalItems ?? paginated.items.length,
-          totalPages: paginated.totalPages ?? 1,
-          currentPage: paginated.currentPage ?? page,
+          totalItems,
+          totalPages,
+          currentPage,
         };
       }
 
       if (Array.isArray(json)) {
+        const totalItems = json.length;
+        const totalPages = Math.max(1, Math.ceil(totalItems / limit) || 1);
+        const currentPage = Math.min(safePage, totalPages);
+        const sliced = json.length > limit ? json.slice(offset, offset + limit) : json;
         return {
-          products: json.map(normalizeProduct),
-          totalItems: json.length,
-          totalPages: Math.ceil(json.length / limit) || 1,
-          currentPage: page,
+          products: sliced.map(normalizeProduct),
+          totalItems,
+          totalPages,
+          currentPage,
         };
       }
 
@@ -118,7 +128,7 @@ export const useCatalogSearch = (
         products: [],
         totalItems: 0,
         totalPages: 1,
-        currentPage: page,
+        currentPage: 1,
       };
     },
     staleTime: 60000, // 1 minuto de caché

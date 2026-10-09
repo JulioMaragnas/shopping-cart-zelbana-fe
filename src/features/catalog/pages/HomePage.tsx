@@ -15,7 +15,9 @@ export function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('query') || searchParams.get('q') || '';
   const categoryId = searchParams.get('categoryId') || '';
-  const page = Math.max(1, Number(searchParams.get('page')) || 1);
+  const rawPageParam = searchParams.get('page');
+  const parsedPage = Number(rawPageParam);
+  const page = Number.isInteger(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
 
   const { data: catalogData, isLoading, isError } = useCatalogSearch({
     query,
@@ -29,9 +31,19 @@ export function HomePage() {
   const cart = useCartStore((state) => state.cart);
 
   const products = catalogData?.products || [];
-  const totalPages = catalogData?.totalPages || 1;
-  const currentPage = catalogData?.currentPage || 1;
+  const totalPages = Math.max(1, catalogData?.totalPages || 1);
+  const currentPage = catalogData ? Math.min(page, totalPages) : page;
   const totalItems = catalogData?.totalItems || 0;
+
+  React.useEffect(() => {
+    if (!isLoading && catalogData && rawPageParam !== null) {
+      if (!Number.isInteger(parsedPage) || parsedPage < 1 || page > totalPages) {
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.set('page', String(currentPage));
+        setSearchParams(nextParams, { replace: true });
+      }
+    }
+  }, [isLoading, catalogData, rawPageParam, parsedPage, page, totalPages, currentPage, searchParams, setSearchParams]);
 
   const selectedCategoryName = categoryId ? findCategoryName(categories, categoryId) : null;
 
