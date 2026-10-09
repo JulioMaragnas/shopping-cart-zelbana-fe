@@ -16,30 +16,50 @@ export function CartPage() {
   const updateQuantity = useCartStore((state) => state.updateQuantity);
 
   const [reserveError, setReserveError] = useState<string | null>(null);
+  const [adjustNotice, setAdjustNotice] = useState<string | null>(null);
 
   const { data: validationData, isFetching, refetch } = useCartValidate();
   const reserveMutation = useCheckoutReserve();
 
-  const subtotal = cart.reduce((sum, item) => sum + item.priceWhenAdded * item.quantity, 0);
-  const total = validationData ? validationData.totalAmount : subtotal;
-  const itemDiscounts = Math.max(0, subtotal - total);
-  const timeDiscounts = 0;
-  const isValid = cart.length > 0 && (validationData ? validationData.isValid : false);
+  const fallbackTotal = cart.reduce((sum, item) => sum + item.priceWhenAdded * item.quantity, 0);
+  const total = validationData ? validationData.totalAmount : fallbackTotal;
+  const totalUnits = validationData
+    ? validationData.items.reduce((sum, item) => sum + item.quantityFulfilled, 0)
+    : cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const isValid = cart.length > 0 && Boolean(validationData?.isValid);
+  const hasInvalidItems = Boolean(validationData && !validationData.isValid && cart.length > 0);
 
   const handleAdjustCart = () => {
-    if (!validationData?.items) return;
-    validationData.items.forEach((vItem) => {
-      if (vItem.quantityFulfilled === 0) {
-        removeItem(vItem.productId);
-      } else if (vItem.quantityFulfilled < vItem.quantityRequested) {
-        updateQuantity(vItem.productId, vItem.quantityFulfilled);
+    if (!validationData) return;
+    let removedAny = false;
+
+    cart.forEach((item) => {
+      const vItem = validationData.items.find((v) => v.productId === item.id);
+      const isDeletedItem =
+        !vItem ||
+        vItem.name === 'Producto eliminado' ||
+        vItem.message.toLowerCase().includes('no existe');
+
+      if (isDeletedItem || vItem.quantityFulfilled === 0) {
+        removeItem(item.id);
+        removedAny = true;
+      } else if (vItem.quantityFulfilled < item.quantity) {
+        updateQuantity(item.id, vItem.quantityFulfilled);
       }
     });
+
+    setAdjustNotice(
+      removedAny
+        ? 'Hemos ajustado tu carrito al inventario disponible. Los productos agotados o que ya no están en el catálogo fueron removidos.'
+        : 'Hemos ajustado tu carrito al inventario disponible.'
+    );
   };
 
   const handlePay = async () => {
     if (!isValid || reserveMutation.isPending) return;
     setReserveError(null);
+    setAdjustNotice(null);
     try {
       const response = await reserveMutation.mutateAsync(
         cart.map((item) => ({ productId: item.id, quantity: item.quantity }))
@@ -53,11 +73,6 @@ export function CartPage() {
       refetch();
     }
   };
-
-  const hasPartialStock =
-    validationData &&
-    !validationData.isValid &&
-    validationData.items.some((i) => i.quantityFulfilled < i.quantityRequested);
 
   return (
     <>
@@ -77,10 +92,16 @@ export function CartPage() {
             </div>
           )}
 
-          {hasPartialStock && (
+          {adjustNotice && (
+            <div className={styles.statusNotice} role="status">
+              ✓ {adjustNotice}
+            </div>
+          )}
+
+          {hasInvalidItems && (
             <div className={styles.warningBanner}>
               <p className={styles.warningText}>
-                ⚠️ Hay productos con stock insuficiente en tu pedido respecto a la cantidad solicitada.
+                ⚠️ Hay productos con stock insuficiente o no disponibles en tu carrito respecto a la cantidad solicitada.
               </p>
               <button
                 type="button"
@@ -97,16 +118,37 @@ export function CartPage() {
           ) : (
             cart.map((item) => {
               const vItem = validationData?.items.find((v) => v.productId === item.id);
-              const currentPrice = vItem ? vItem.unitPrice : item.priceWhenAdded;
-              const disponible = vItem ? vItem.quantityFulfilled > 0 : true;
-              const validationMessage = vItem?.message;
+              const isDeleted = Boolean(
+                validationData &&
+                  (!vItem ||
+                    vItem.name === 'Producto eliminado' ||
+                    vItem.message.toLowerCase().includes('no existe'))
+              );
+              const currentPrice = vItem
+                ? vItem.salePrice ?? vItem.unitPrice
+                : item.priceWhenAdded;
+              const discountPercentage = vItem?.discountPercentage ?? 0;
+              const availableStock = vItem
+                ? vItem.availableStock ?? vItem.quantityFulfilled
+                : undefined;
+              const disponible = isDeleted ? false : vItem ? vItem.quantityFulfilled > 0 : true;
+              const validationMessage =
+                vItem?.message ?? (isDeleted ? 'El producto ya no existe en el catálogo.' : undefined);
+              const thumbnailUrl =
+                vItem?.thumbnailUrl !== undefined ? vItem.thumbnailUrl : item.thumbnailUrl;
 
               return (
                 <CartItemRow
                   key={item.id}
-                  item={item}
+                  item={{
+                    ...item,
+                    thumbnailUrl,
+                  }}
                   currentPrice={currentPrice}
+                  discountPercentage={discountPercentage}
+                  availableStock={availableStock}
                   disponible={disponible}
+                  isDeleted={isDeleted}
                   validationMessage={validationMessage}
                   onRemove={removeItem}
                   onChangeQuantity={updateQuantity}
@@ -118,9 +160,7 @@ export function CartPage() {
 
         <div className={styles.rightCol}>
           <OrderSummaryCard
-            subtotal={subtotal}
-            itemDiscounts={itemDiscounts}
-            timeDiscounts={timeDiscounts}
+            totalUnits={totalUnits}
             total={total}
             isValidating={isFetching || reserveMutation.isPending}
             isValid={isValid}

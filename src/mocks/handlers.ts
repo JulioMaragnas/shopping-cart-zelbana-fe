@@ -236,32 +236,58 @@ const handleCartValidate = async ({ request }: { request: Request }) => {
 
     const items: CartValidatedItem[] = cart.map(item => {
       const found = mockCatalogItems.find(c => c.id === item.productId);
-      const stock = found ? found.currentStock : 0;
-      const name = found ? found.name : 'Producto Desconocido';
-      const unitPrice = found ? found.salePrice : 0;
-      const quantityFulfilled = Math.min(item.quantity, stock);
-      const subtotal = quantityFulfilled * unitPrice;
+      if (!found) {
+        return {
+          productId: item.productId,
+          name: 'Producto eliminado',
+          thumbnailUrl: null,
+          quantityRequested: item.quantity,
+          quantityFulfilled: 0,
+          availableStock: 0,
+          salePrice: 0,
+          unitPrice: 0,
+          discountPercentage: 0,
+          subtotal: 0,
+          message: 'El producto ya no existe en el catálogo.',
+        };
+      }
+
+      const availableStock = Math.min(Math.max(0, found.currentStock), 10);
+      const salePrice = found.salePrice;
+      const quantityFulfilled = Math.min(item.quantity, availableStock);
+      const subtotal = Number((quantityFulfilled * salePrice).toFixed(2));
 
       let message = 'Stock disponible';
-      if (stock === 0) {
+      if (availableStock === 0) {
         message = 'Producto agotado';
       } else if (quantityFulfilled < item.quantity) {
-        message = `Stock parcial: solo quedan ${stock}`;
+        message = `Stock parcial: solo quedan ${availableStock}`;
       }
 
       return {
         productId: item.productId,
-        name,
+        name: found.name,
+        thumbnailUrl: found.thumbnailUrl,
         quantityRequested: item.quantity,
         quantityFulfilled,
-        unitPrice,
+        availableStock,
+        salePrice,
+        unitPrice: salePrice,
+        discountPercentage: found.discountPercentage,
         subtotal,
         message,
       };
     });
 
-    const isValid = items.length > 0 && items.every(i => i.quantityFulfilled === i.quantityRequested && i.quantityFulfilled > 0);
-    const totalAmount = items.reduce((acc, i) => acc + i.subtotal, 0);
+    const isValid =
+      items.length > 0 &&
+      items.every(
+        i =>
+          i.quantityFulfilled === i.quantityRequested &&
+          i.quantityFulfilled > 0 &&
+          i.name !== 'Producto eliminado'
+      );
+    const totalAmount = Number(items.reduce((acc, i) => acc + i.subtotal, 0).toFixed(2));
 
     const response: CartValidationResponse = {
       items,

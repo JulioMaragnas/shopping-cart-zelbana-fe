@@ -1,45 +1,42 @@
 import React from 'react';
 import styles from './OrderSummaryCard.module.css';
 
-interface OrderSummaryProps {
-  subtotal: number;
-  itemDiscounts: number;
-  timeDiscounts: number;
+export interface OrderSummaryProps {
+  totalUnits: number;
   total: number;
   onPay: () => void;
   isValidating: boolean;
   isValid: boolean;
 }
 
-export function OrderSummaryCard({ subtotal, itemDiscounts, timeDiscounts, total, onPay, isValidating, isValid }: OrderSummaryProps) {
+export function OrderSummaryCard({
+  totalUnits,
+  total,
+  onPay,
+  isValidating,
+  isValid,
+}: OrderSummaryProps) {
+  const formattedTotal = `$${total.toFixed(2)}`;
+
   return (
     <div className={styles.card}>
       <h3 className={styles.title}>Resumen del pedido</h3>
-      
+
       <div className={styles.row}>
-        <span>Total de artículos:</span>
-        <span>${subtotal}</span>
+        <span>Productos ({totalUnits} unidades):</span>
+        <span>{formattedTotal}</span>
       </div>
-      
-      <div className={styles.row}>
-        <span>Descuento de artículo(s):</span>
-        <span className={styles.discountValue}>-${itemDiscounts}</span>
-      </div>
-      
-      <div className={styles.row}>
-        <span>Descuento por tiempo limitado:</span>
-        <span className={styles.discountValue}>-${timeDiscounts}</span>
-      </div>
-      
+
       <div className={styles.divider} />
-      
+
       <div className={styles.totalRow}>
         <span>Total</span>
-        <span className={styles.totalValue}>${total}</span>
+        <span className={styles.totalValue}>{formattedTotal}</span>
       </div>
-      
-      <button 
-        className={styles.payButton} 
+
+      <button
+        type="button"
+        className={styles.payButton}
         onClick={onPay}
         disabled={!isValid || isValidating}
       >

@@ -41,6 +41,10 @@ describe('useCartValidate Hook', () => {
     expect(result.current.data?.totalAmount).toBe(90000); // 2 * 45000
     expect(result.current.data?.items).toHaveLength(1);
     expect(result.current.data?.items[0].quantityFulfilled).toBe(2);
+    expect(result.current.data?.items[0].availableStock).toBe(10);
+    expect(result.current.data?.items[0].salePrice).toBe(45000);
+    expect(result.current.data?.items[0].discountPercentage).toBe(20);
+    expect(result.current.data?.items[0].thumbnailUrl).toMatch(/^\/products\/prod-1-thumb\.webp\?X-Amz-/);
     expect(result.current.data?.items[0].message).toBe('Stock disponible');
   });
 
@@ -62,8 +66,29 @@ describe('useCartValidate Hook', () => {
     expect(result.current.data?.isValid).toBe(false);
     expect(result.current.data?.items[0].quantityRequested).toBe(5);
     expect(result.current.data?.items[0].quantityFulfilled).toBe(3);
+    expect(result.current.data?.items[0].availableStock).toBe(3);
     expect(result.current.data?.items[0].message).toContain('Stock parcial');
     expect(result.current.data?.totalAmount).toBe(165000); // 3 * 55000
+  });
+
+  it('TC-CART-4: Flags deleted product with quantityFulfilled 0 and isValid false', async () => {
+    useCartStore.getState().addItem({
+      id: '999',
+      name: 'Deleted Product',
+      priceWhenAdded: 10000,
+      quantity: 1,
+    });
+
+    const { result } = renderHook(() => useCartValidate(), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+
+    expect(result.current.data?.isValid).toBe(false);
+    expect(result.current.data?.items[0].quantityFulfilled).toBe(0);
+    expect(result.current.data?.items[0].availableStock).toBe(0);
+    expect(result.current.data?.items[0].message).toContain('no existe en el catálogo');
   });
 
   it('is disabled when cart is empty', () => {

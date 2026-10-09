@@ -6,9 +6,13 @@ export interface CartItemInput {
 export interface CartValidatedItem {
   productId: string;
   name: string;
+  thumbnailUrl?: string | null;
   quantityRequested: number;
   quantityFulfilled: number;
+  availableStock?: number;
+  salePrice?: number;
   unitPrice: number;
+  discountPercentage?: number;
   subtotal: number;
   message: string;
 }
