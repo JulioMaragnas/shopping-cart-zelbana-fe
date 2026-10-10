@@ -9,6 +9,8 @@ import { useCartStore } from '../store/useCartStore';
 import { server } from '../../../mocks/server';
 import { http, HttpResponse } from 'msw';
 
+import { resetMockOrders } from '../../../mocks/handlers';
+
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -23,6 +25,7 @@ describe('CheckoutPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    resetMockOrders();
     queryClient = new QueryClient({
       defaultOptions: {
         queries: { retry: false },
@@ -36,7 +39,40 @@ describe('CheckoutPage', () => {
 
   const renderComponent = (
     orderId = 'ord-12345',
-    state = { order: { id: 'ord-12345', status: 'RESERVED', totalAmount: 30, expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString() } }
+    state: any = {
+      order: {
+        id: 'ord-12345',
+        status: 'RESERVED',
+        totalAmount: 50.0,
+        subtotalAmount: 65.0,
+        discountAmount: 15.0,
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        customerEmail: 'julio@ejemplo.com',
+        shippingAddress: 'Carrera 65A 1 sur-10',
+        items: [
+          {
+            productId: '1',
+            name: 'Jabón de coco',
+            quantity: 2,
+            unitPrice: 20.0,
+            salePrice: 12.5,
+            discountPercentage: 37,
+            lineSubtotal: 40.0,
+            lineTotal: 25.0,
+          },
+          {
+            productId: '2',
+            name: 'Sal hidratante',
+            quantity: 1,
+            unitPrice: 25.0,
+            salePrice: 25.0,
+            discountPercentage: 0,
+            lineSubtotal: 25.0,
+            lineTotal: 25.0,
+          },
+        ],
+      },
+    }
   ) => {
     return render(
       <HelmetProvider>
@@ -56,9 +92,54 @@ describe('CheckoutPage', () => {
 
     expect(screen.getByText(/ord-12345/i)).toBeInTheDocument();
     expect(screen.getByText(/Total a pagar/i)).toBeInTheDocument();
-    expect(screen.getByText(/\$30(\.00)?/i)).toBeInTheDocument();
-    // Temporizador debe mostrar formato MM:SS
+    expect(screen.getByText(/\$50(\.00)?/i)).toBeInTheDocument();
     expect(screen.getByTestId('countdown-timer')).toBeInTheDocument();
+  });
+
+  it('TC-ORD-3: Desglose "Resumen de la compra" con productos, descuento oficial y total (Mercado Libre)', () => {
+    renderComponent();
+
+    expect(screen.getByText(/Resumen de la compra/i)).toBeInTheDocument();
+    // Productos con subtotales en el desglose
+    expect(screen.getByText(/Jabón de coco \(x2\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/\$40\.00/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Sal hidratante/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\$25\.00/i).length).toBeGreaterThanOrEqual(1);
+    // Renglón de descuento oficial
+    expect(screen.getByText(/Descuento/i)).toBeInTheDocument();
+    expect(screen.getByText(/-\$15\.00/i)).toBeInTheDocument();
+    // Total sostenido
+    expect(screen.getByText(/\$50\.00/i)).toBeInTheDocument();
+  });
+
+  it('TC-ORD-2: Sostenimiento inmutable de precios y datos tras recarga F5 (sin state en location)', async () => {
+    // Simulamos recarga F5: state es undefined
+    renderComponent('ord-12345', undefined);
+
+    await waitFor(() => {
+      expect(screen.getByText(/ord-12345/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Jabón de coco/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText(/-\$15\.00/i)).toBeInTheDocument();
+      expect(screen.getByText(/\$50\.00/i)).toBeInTheDocument();
+    });
+  });
+
+  it('Redirige automáticamente a /order-success/:orderId si la orden ya tiene status PAID', async () => {
+    renderComponent('ord-12345', {
+      order: {
+        id: 'ord-12345',
+        status: 'PAID',
+        totalAmount: 50.0,
+        expiresAt: new Date().toISOString(),
+      },
+    });
+
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/order-success/ord-12345',
+        expect.objectContaining({ replace: true })
+      );
+    });
   });
 
   it('debe confirmar el pago, vaciar el carrito y navegar a /order-success/:orderId', async () => {
@@ -73,7 +154,7 @@ describe('CheckoutPage', () => {
     });
   });
 
-  it('debe cancelar la reserva y volver al carrito', async () => {
+  it('debe cancelar la reserva y volver al carrito conservando los productos', async () => {
     renderComponent();
 
     const cancelButton = screen.getByRole('button', { name: /cancelar reserva/i });
@@ -81,6 +162,7 @@ describe('CheckoutPage', () => {
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/cart');
+      expect(useCartStore.getState().cart).toHaveLength(1);
     });
   });
 
@@ -89,10 +171,14 @@ describe('CheckoutPage', () => {
 
     const pastExpiresAt = new Date(Date.now() + 2000).toISOString();
     renderComponent('ord-12345', {
-      order: { id: 'ord-12345', status: 'RESERVED', totalAmount: 30, expiresAt: pastExpiresAt },
+      order: {
+        id: 'ord-12345',
+        status: 'RESERVED',
+        totalAmount: 50,
+        expiresAt: pastExpiresAt,
+      },
     });
 
-    // Avanzar tiempo para que expire
     act(() => {
       vi.advanceTimersByTime(3000);
     });
@@ -123,3 +209,4 @@ describe('CheckoutPage', () => {
     });
   });
 });
+

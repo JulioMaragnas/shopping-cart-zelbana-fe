@@ -1,6 +1,15 @@
 import { http, HttpResponse } from 'msw';
 import type { Category, PaginatedCatalogResponse, ProductDetailResponse } from '../features/search/types';
-import type { CartValidationResponse, CartValidatedItem, ReserveResponse, ConfirmResponse, CancelResponse } from '../features/cart/types';
+import type {
+  CartValidationResponse,
+  CartValidatedItem,
+  ReserveResponse,
+  ConfirmResponse,
+  CancelResponse,
+  OrderDetail,
+  OrderItem,
+} from '../features/cart/types';
+
 
 // Mock de categorías según api_contracts_catalogo.md
 export const mockCategories: Category[] = [
@@ -301,6 +310,103 @@ const handleCartValidate = async ({ request }: { request: Request }) => {
   }
 };
 
+export const mockOrders: Record<string, OrderDetail> = {};
+
+export const resetMockOrders = () => {
+  Object.keys(mockOrders).forEach((k) => delete mockOrders[k]);
+  mockOrders['ord-12345'] = {
+    id: 'ord-12345',
+    status: 'RESERVED',
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    customerEmail: 'julio@ejemplo.com',
+    shippingAddress: 'Carrera 65A 1 sur-10',
+    shippingCoordinates: { lat: 6.2081, lng: -75.5684 },
+    subtotalAmount: 65.0,
+    discountAmount: 15.0,
+    totalAmount: 50.0,
+    items: [
+      {
+        productId: '1',
+        name: 'Jabón de coco',
+        thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+        quantity: 2,
+        unitPrice: 20.0,
+        salePrice: 12.5,
+        discountPercentage: 37,
+        lineSubtotal: 40.0,
+        lineTotal: 25.0,
+      },
+      {
+        productId: '2',
+        name: 'Sal hidratante',
+        thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+        quantity: 1,
+        unitPrice: 25.0,
+        salePrice: 25.0,
+        discountPercentage: 0,
+        lineSubtotal: 25.0,
+        lineTotal: 25.0,
+      },
+    ],
+  };
+};
+
+resetMockOrders();
+
+
+const handleOrderDetail = ({ params }: { params: { orderId?: string } }) => {
+  const orderId = params.orderId || '';
+  const existing = mockOrders[orderId];
+  if (existing) {
+    // Si ya expiró por tiempo, devolver EXPIRED
+    if (existing.status === 'RESERVED' && new Date(existing.expiresAt).getTime() <= Date.now()) {
+      return HttpResponse.json({ ...existing, status: 'EXPIRED' });
+    }
+    return HttpResponse.json(existing);
+  }
+
+  // Fallback si no existe previamente
+  const fallbackOrder: OrderDetail = {
+    id: orderId,
+    status: 'RESERVED',
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    customerEmail: 'julio@ejemplo.com',
+    shippingAddress: 'Carrera 65A 1 sur-10',
+    shippingCoordinates: { lat: 6.2081, lng: -75.5684 },
+    subtotalAmount: 65.0,
+    discountAmount: 15.0,
+    totalAmount: 50.0,
+    items: [
+      {
+        productId: '1',
+        name: 'Jabón de coco',
+        thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+        quantity: 2,
+        unitPrice: 20.0,
+        salePrice: 12.5,
+        discountPercentage: 37,
+        lineSubtotal: 40.0,
+        lineTotal: 25.0,
+      },
+      {
+        productId: '2',
+        name: 'Sal hidratante',
+        thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+        quantity: 1,
+        unitPrice: 25.0,
+        salePrice: 25.0,
+        discountPercentage: 0,
+        lineSubtotal: 25.0,
+        lineTotal: 25.0,
+      },
+    ],
+  };
+  mockOrders[orderId] = fallbackOrder;
+  return HttpResponse.json(fallbackOrder);
+};
+
 const handleCheckoutReserve = async ({ request }: { request: Request }) => {
   try {
     const body = (await request.json()) as { cart?: Array<{ productId: string; quantity: number }> };
@@ -319,20 +425,53 @@ const handleCheckoutReserve = async ({ request }: { request: Request }) => {
       );
     }
 
-    const totalAmount = cart.reduce((acc, item) => {
-      const found = mockCatalogItems.find(c => c.id === item.productId);
-      return acc + (found ? found.salePrice * item.quantity : 0);
-    }, 0);
+    const orderId = `ord-${Date.now().toString().slice(-6)}`;
+    const items: OrderItem[] = cart.map((item) => {
+      const found = mockCatalogItems.find((c) => c.id === item.productId);
+      const unitPrice = found ? found.salePrice * 1.25 : 20.0;
+      const salePrice = found ? found.salePrice : 20.0;
+      const discountPercentage = found ? found.discountPercentage : 0;
+      const lineSubtotal = unitPrice * item.quantity;
+      const lineTotal = salePrice * item.quantity;
 
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      return {
+        productId: item.productId,
+        name: found ? found.name : `Producto ${item.productId}`,
+        thumbnailUrl: found ? found.thumbnailUrl : null,
+        quantity: item.quantity,
+        unitPrice,
+        salePrice,
+        discountPercentage,
+        lineSubtotal,
+        lineTotal,
+      };
+    });
+
+    const subtotalAmount = items.reduce((acc, item) => acc + item.lineSubtotal, 0);
+    const totalAmount = items.reduce((acc, item) => acc + item.lineTotal, 0);
+    const discountAmount = Math.max(0, subtotalAmount - totalAmount);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
+
+    const order: OrderDetail = {
+      id: orderId,
+      status: 'RESERVED',
+      createdAt: now.toISOString(),
+      expiresAt,
+      customerEmail: 'julio@ejemplo.com',
+      shippingAddress: 'Carrera 65A 1 sur-10',
+      shippingCoordinates: { lat: 6.2081, lng: -75.5684 },
+      subtotalAmount,
+      discountAmount,
+      totalAmount,
+      items,
+    };
+
+    mockOrders[orderId] = order;
+
     const response: ReserveResponse = {
       success: true,
-      order: {
-        id: 'ord-12345',
-        status: 'RESERVED',
-        totalAmount,
-        expiresAt,
-      },
+      order,
     };
 
     return HttpResponse.json(response);
@@ -341,7 +480,32 @@ const handleCheckoutReserve = async ({ request }: { request: Request }) => {
   }
 };
 
-const handleCheckoutConfirm = () => {
+const handleCheckoutConfirm = async ({
+  request,
+  params,
+}: {
+  request: Request;
+  params: { orderId?: string };
+}) => {
+  const orderId = params.orderId || '';
+  if (mockOrders[orderId]) {
+    try {
+      const body = (await request.json().catch(() => ({}))) as {
+        shippingAddress?: string;
+        customerEmail?: string;
+      };
+      if (body.shippingAddress) {
+        mockOrders[orderId].shippingAddress = body.shippingAddress;
+      }
+      if (body.customerEmail) {
+        mockOrders[orderId].customerEmail = body.customerEmail;
+      }
+    } catch {
+      // Ignorar si el body viene vacío
+    }
+    mockOrders[orderId].status = 'PAID';
+  }
+
   const response: ConfirmResponse = {
     success: true,
     message: 'Pago consolidado en Kardex.',
@@ -349,7 +513,11 @@ const handleCheckoutConfirm = () => {
   return HttpResponse.json(response);
 };
 
-const handleCheckoutCancel = () => {
+const handleCheckoutCancel = ({ params }: { params: { orderId?: string } }) => {
+  const orderId = params.orderId || '';
+  if (mockOrders[orderId]) {
+    mockOrders[orderId].status = 'CANCELLED';
+  }
   const response: CancelResponse = {
     success: true,
     message: 'Reserva anulada y stock liberado.',
@@ -378,6 +546,10 @@ export const handlers = [
   http.post('*/storefront/api/cart/validate', handleCartValidate),
   http.post('*/api/cart/validate', handleCartValidate),
 
+  // Orders & Checkout
+  http.get('*/storefront/api/orders/:orderId', handleOrderDetail),
+  http.get('*/api/orders/:orderId', handleOrderDetail),
+
   http.post('*/storefront/api/checkout/reserve', handleCheckoutReserve),
   http.post('*/api/checkout/reserve', handleCheckoutReserve),
 
@@ -387,3 +559,4 @@ export const handlers = [
   http.post('*/storefront/api/checkout/cancel/:orderId', handleCheckoutCancel),
   http.post('*/api/checkout/cancel/:orderId', handleCheckoutCancel),
 ];
+

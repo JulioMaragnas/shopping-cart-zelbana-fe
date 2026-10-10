@@ -1,5 +1,30 @@
-import { useMutation } from '@tanstack/react-query';
-import type { CartItemInput, ReserveResponse, ConfirmResponse, CancelResponse } from '../types';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import type {
+  CartItemInput,
+  ReserveResponse,
+  ConfirmResponse,
+  CancelResponse,
+  OrderDetail,
+  ConfirmPaymentPayload,
+} from '../types';
+
+export const useOrderDetail = (orderId: string, initialData?: OrderDetail | null) => {
+  return useQuery<OrderDetail, Error>({
+    queryKey: ['orderDetail', orderId],
+    queryFn: async () => {
+      const response = await fetch(`/storefront/api/orders/${orderId}`);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al obtener la orden');
+      }
+
+      return data;
+    },
+    enabled: Boolean(orderId),
+    initialData: initialData ?? undefined,
+  });
+};
 
 export const useCheckoutReserve = () => {
   return useMutation<ReserveResponse, Error, CartItemInput[]>({
@@ -24,13 +49,24 @@ export const useCheckoutReserve = () => {
 };
 
 export const useCheckoutConfirm = () => {
-  return useMutation<ConfirmResponse, Error, string>({
-    mutationFn: async (orderId) => {
+  return useMutation<ConfirmResponse, Error, string | ConfirmPaymentPayload>({
+    mutationFn: async (param) => {
+      const isString = typeof param === 'string';
+      const orderId = isString ? param : param.orderId;
+      const body = isString
+        ? undefined
+        : JSON.stringify({
+            shippingAddress: param.shippingAddress,
+            shippingCoordinates: param.shippingCoordinates,
+            customerEmail: param.customerEmail,
+          });
+
       const response = await fetch(`/storefront/api/checkout/confirm/${orderId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        body,
       });
 
       const data = await response.json();
@@ -64,3 +100,4 @@ export const useCheckoutCancel = () => {
     },
   });
 };
+

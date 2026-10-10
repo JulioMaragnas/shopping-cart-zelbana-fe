@@ -49,6 +49,16 @@ describe('OrderSuccessPage', () => {
     expect(screen.getByText(/Pago consolidado/i)).toBeInTheDocument();
   });
 
+  it('TC-ORD-7: Muestra orderId, Total Pagado, Dirección y Correo consultando la orden (resiliente a F5)', async () => {
+    renderComponent('ord-12345');
+
+    expect(screen.getByText(/ord-12345/i)).toBeInTheDocument();
+    expect(screen.getByText(/Total Pagado/i)).toBeInTheDocument();
+    expect(await screen.findByText(/\$50\.00/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Carrera 65A 1 sur-10/i)).toBeInTheDocument();
+    expect(await screen.findByText(/julio@ejemplo\.com/i)).toBeInTheDocument();
+  });
+
   it('debe navegar al catálogo al hacer click en seguir comprando', () => {
     renderComponent();
 
