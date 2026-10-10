@@ -10,6 +10,7 @@ import { server } from '../../../mocks/server';
 import { http, HttpResponse } from 'msw';
 
 import { resetMockOrders } from '../../../mocks/handlers';
+import type { OrderDetail } from '../types';
 
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
@@ -39,45 +40,48 @@ describe('CheckoutPage', () => {
 
   const renderComponent = (
     orderId = 'ord-12345',
-    state: any = {
-      order: {
-        id: 'ord-12345',
-        status: 'RESERVED',
-        totalAmount: 50.0,
-        subtotalAmount: 65.0,
-        discountAmount: 15.0,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-        customerEmail: 'julio@ejemplo.com',
-        shippingAddress: 'Carrera 65A 1 sur-10',
-        items: [
-          {
-            productId: '1',
-            name: 'Jabón de coco',
-            quantity: 2,
-            unitPrice: 20.0,
-            salePrice: 12.5,
-            discountPercentage: 37,
-            lineSubtotal: 40.0,
-            lineTotal: 25.0,
-          },
-          {
-            productId: '2',
-            name: 'Sal hidratante',
-            quantity: 1,
-            unitPrice: 25.0,
-            salePrice: 25.0,
-            discountPercentage: 0,
-            lineSubtotal: 25.0,
-            lineTotal: 25.0,
-          },
-        ],
-      },
-    }
+    state?: { order?: OrderDetail }
   ) => {
+    const defaultOrder: OrderDetail = {
+      id: 'ord-12345',
+      status: 'RESERVED',
+      totalAmount: 50.0,
+      subtotalAmount: 65.0,
+      discountAmount: 15.0,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      customerEmail: 'julio@ejemplo.com',
+      shippingAddress: 'Carrera 65A 1 sur-10',
+      items: [
+        {
+          productId: '1',
+          name: 'Jabón de coco',
+          quantity: 2,
+          unitPrice: 20.0,
+          salePrice: 12.5,
+          discountPercentage: 37,
+          lineSubtotal: 40.0,
+          lineTotal: 25.0,
+        },
+        {
+          productId: '2',
+          name: 'Sal hidratante',
+          quantity: 1,
+          unitPrice: 25.0,
+          salePrice: 25.0,
+          discountPercentage: 0,
+          lineSubtotal: 25.0,
+          lineTotal: 25.0,
+        },
+      ],
+    };
+
+    const resolvedState = state === undefined && orderId === 'ord-12345' ? { order: defaultOrder } : state;
+
     return render(
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
-          <MemoryRouter initialEntries={[{ pathname: `/checkout/${orderId}`, state }]}>
+          <MemoryRouter initialEntries={[{ pathname: `/checkout/${orderId}`, state: resolvedState }]}>
             <Routes>
               <Route path="/checkout/:orderId" element={<CheckoutPage />} />
             </Routes>
