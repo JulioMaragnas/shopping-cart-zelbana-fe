@@ -123,17 +123,268 @@
   margin: 0 0 12px 0;
 }
 
-.deliveryInfoBox {
+.deliverySection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f4f4f5;
+}
+
+.addressCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 16px;
+  gap: 16px;
+}
+
+.addressCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #27272a;
+}
+
+.addressHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.addressLabelBadge {
+  background-color: #f4f4f5;
+  color: #18181b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e4e4e7;
+}
+
+.defaultBadge {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.addressReceiver {
+  font-weight: 600;
+  color: #09090b;
+}
+
+.addressLineText {
+  color: #27272a;
+}
+
+.addressCityText {
+  font-size: 13px;
+  color: #71717a;
+}
+
+.addressActionBtn {
+  background-color: #ffffff;
+  color: #18181b;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.addressActionBtn:hover {
+  background-color: #f4f4f5;
+  border-color: #a1a1aa;
+}
+
+/* Formulario de Dirección */
+.addressForm {
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chipsContainer {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  font-size: 14px;
-  color: #3f3f46;
-  background-color: #fafafa;
-  padding: 12px 16px;
-  border-radius: 6px;
-  border: 1px solid #f4f4f5;
 }
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #27272a;
+}
+
+.chipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chipBtn {
+  background-color: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #3f3f46;
+  border-radius: 9999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chipBtn:hover {
+  border-color: #71717a;
+  background-color: #f4f4f5;
+}
+
+.chipBtnActive {
+  background-color: #18181b;
+  border-color: #18181b;
+  color: #ffffff;
+}
+
+.chipBtnActive:hover {
+  background-color: #27272a;
+  border-color: #27272a;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputGroupFull {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input {
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: #18181b;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.input:focus {
+  border-color: #18181b;
+  box-shadow: 0 0 0 1px #18181b;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #27272a;
+  margin-top: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #18181b;
+}
+
+.addressListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.addressOptionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.addressOptionItem:hover {
+  border-color: #a1a1aa;
+}
+
+.addressOptionActive {
+  border-color: #18181b;
+  background-color: #fcfcfc;
+  box-shadow: 0 0 0 1px #18181b;
+}
+
+.addressOptionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.addNewBtn {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed #71717a;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #18181b;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.addNewBtn:hover {
+  background-color: #f4f4f5;
+}
+
+.requiredNotice {
+  font-size: 12px;
+  color: #b91c1c;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
 
 .itemsList {
   display: flex;

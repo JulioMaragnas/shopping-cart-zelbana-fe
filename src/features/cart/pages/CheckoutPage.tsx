@@ -5,8 +5,12 @@ import { Navbar } from '../../../design-system/components/Navbar/Navbar';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCartStore } from '../store/useCartStore';
 import { useCheckoutConfirm, useCheckoutCancel, useOrderDetail } from '../api/useCheckout';
-import type { OrderDetail, OrderItem } from '../types';
+import { useUserAddresses, useCreateUserAddress } from '../api/useAddresses';
+import { AddressMapPicker } from '../components/AddressMapPicker/AddressMapPicker';
+import type { OrderDetail, OrderItem, AddressQuickChip, ShippingCoordinates } from '../types';
 import styles from './CheckoutPage.module.css';
+
+const QUICK_CHIPS: AddressQuickChip[] = ['Casa', 'Oficina', 'Padres', 'Pareja'];
 
 export function CheckoutPage() {
   const { orderId = '' } = useParams<{ orderId: string }>();
@@ -22,7 +26,38 @@ export function CheckoutPage() {
     cart.reduce((sum, item) => sum + item.priceWhenAdded * item.quantity, 0);
 
   const { data: order, isLoading, isError, error } = useOrderDetail(orderId, initialOrder);
+  const { data: savedAddresses = [] } = useUserAddresses();
+  const createAddressMutation = useCreateUserAddress();
 
+  // Estados de Dirección de Entrega (Fase 5.4)
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [isChangingAddress, setIsChangingAddress] = useState(false);
+  const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
+
+  // Formulario de nueva dirección
+  const [selectedChip, setSelectedChip] = useState<AddressQuickChip | 'Otro'>('Casa');
+  const [customLabel, setCustomLabel] = useState('');
+  const [receiverName, setReceiverName] = useState('');
+  const [receiverPhone, setReceiverPhone] = useState('');
+  const [city, setCity] = useState('Medellín');
+  const [department, setDepartment] = useState('Antioquia');
+  const [addressLine, setAddressLine] = useState('');
+  const [additionalInfo, setAdditionalInfo] = useState('');
+  const [coordinates, setCoordinates] = useState<ShippingCoordinates | null>(null);
+  const [isDefaultAddress, setIsDefaultAddress] = useState(true); // Marcado por default (TC-ADDR-2)
+
+  // Sincronizar dirección seleccionada inicial
+  useEffect(() => {
+    if (savedAddresses.length > 0) {
+      if (!selectedAddressId) {
+        const defaultAddr = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+        setSelectedAddressId(defaultAddr.id);
+        setIsAddingNewAddress(false);
+      }
+    } else {
+      setIsAddingNewAddress(true);
+    }
+  }, [savedAddresses, selectedAddressId]);
 
   // Auto-redirect si la orden ya está consolidada (PAID)
   useEffect(() => {
@@ -77,14 +112,60 @@ export function CheckoutPage() {
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   const isUrgent = secondsRemaining > 0 && secondsRemaining <= 3 * 60;
 
+  // Validación de Dirección: obligatoria antes de confirmar compra (TC-ORD-ADDR-1)
+  const activeSavedAddress = savedAddresses.find((a) => a.id === selectedAddressId);
+  const isFormValid = Boolean(
+    receiverName.trim() &&
+    receiverPhone.trim() &&
+    city.trim() &&
+    department.trim() &&
+    addressLine.trim()
+  );
+
+  const isAddressValid = isAddingNewAddress
+    ? isFormValid
+    : Boolean(activeSavedAddress);
+
   const handleConfirm = async () => {
-    if (isExpired || confirmMutation.isPending) return;
+    if (isExpired || !isAddressValid || confirmMutation.isPending) return;
     setErrorMessage(null);
+
+    let finalShippingAddress = '';
+    let finalCoordinates: ShippingCoordinates | null = null;
+
+    if (!isAddingNewAddress && activeSavedAddress) {
+      finalShippingAddress = `${activeSavedAddress.addressLine}, ${activeSavedAddress.city}, ${activeSavedAddress.department} (Recibe: ${activeSavedAddress.receiverName} - ${activeSavedAddress.receiverPhone})${activeSavedAddress.additionalInfo ? ` [${activeSavedAddress.additionalInfo}]` : ''}`;
+      finalCoordinates = activeSavedAddress.coordinates ?? null;
+    } else {
+      const label = selectedChip === 'Otro' ? (customLabel.trim() || 'Principal') : selectedChip;
+      finalShippingAddress = `${addressLine.trim()}, ${city.trim()}, ${department.trim()} (Recibe: ${receiverName.trim()} - ${receiverPhone.trim()})${additionalInfo.trim() ? ` [${additionalInfo.trim()}]` : ''}`;
+      finalCoordinates = coordinates;
+
+      // Guardar dirección en la libreta si el usuario lo desea
+      if (isDefaultAddress) {
+        try {
+          await createAddressMutation.mutateAsync({
+            label,
+            receiverName: receiverName.trim(),
+            receiverPhone: receiverPhone.trim(),
+            city: city.trim(),
+            department: department.trim(),
+            addressLine: addressLine.trim(),
+            additionalInfo: additionalInfo.trim() || null,
+            coordinates: finalCoordinates,
+            isDefault: isDefaultAddress,
+          });
+        } catch {
+          // No bloqueamos el pago si falla la persistencia secundaria de la dirección
+        }
+      }
+    }
+
     try {
       await confirmMutation.mutateAsync({
         orderId,
-        shippingAddress: order?.shippingAddress ?? undefined,
-        shippingCoordinates: order?.shippingCoordinates ?? undefined,
+        shippingAddress: finalShippingAddress,
+        shippingCoordinates: finalCoordinates,
         customerEmail: order?.customerEmail ?? undefined,
       });
       await queryClient.invalidateQueries({ queryKey: ['catalogSearch'] });
@@ -114,6 +195,7 @@ export function CheckoutPage() {
       navigate('/cart');
     }
   };
+
 
   if (isLoading && !order && !initialOrder) {
     return (
@@ -216,18 +298,231 @@ export function CheckoutPage() {
                     </div>
                   )}
 
-                  <div className={styles.deliverySection}>
-                    <h2 className={styles.sectionTitle}>Datos de entrega confirmados</h2>
-                    <div className={styles.deliveryInfoBox}>
-                      <span>
-                        <strong>Dirección:</strong>{' '}
-                        {currentOrder?.shippingAddress || 'Dirección registrada del comprador'}
-                      </span>
-                      <span>
-                        <strong>Comprobante:</strong>{' '}
-                        {currentOrder?.customerEmail || 'correo@ejemplo.com'}
-                      </span>
-                    </div>
+                  <div className={styles.deliverySection} data-testid="delivery-address-section">
+                    <h2 className={styles.sectionTitle}>Dirección de entrega</h2>
+
+                    {/* Caso A: Usuario con dirección guardada y no editando */}
+                    {!isAddingNewAddress && !isChangingAddress && activeSavedAddress ? (
+                      <div className={styles.addressCard} data-testid="selected-address-card">
+                        <div className={styles.addressCardContent}>
+                          <div className={styles.addressHeaderRow}>
+                            <span className={styles.addressLabelBadge}>{activeSavedAddress.label}</span>
+                            {activeSavedAddress.isDefault && (
+                              <span className={styles.defaultBadge}>Principal</span>
+                            )}
+                          </div>
+                          <span className={styles.addressReceiver}>
+                            {activeSavedAddress.receiverName} ({activeSavedAddress.receiverPhone})
+                          </span>
+                          <span className={styles.addressLineText}>
+                            {activeSavedAddress.addressLine}
+                            {activeSavedAddress.additionalInfo ? ` • ${activeSavedAddress.additionalInfo}` : ''}
+                          </span>
+                          <span className={styles.addressCityText}>
+                            {activeSavedAddress.city}, {activeSavedAddress.department}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.addressActionBtn}
+                          onClick={() => setIsChangingAddress(true)}
+                          data-testid="change-address-btn"
+                        >
+                          Cambiar dirección
+                        </button>
+                      </div>
+                    ) : isChangingAddress && !isAddingNewAddress ? (
+                      /* Selector de Direcciones Guardadas (TC-ADDR-5) */
+                      <div className={styles.addressListContainer} data-testid="saved-addresses-list">
+                        <p className={styles.fieldLabel}>Selecciona una dirección de entrega:</p>
+                        {savedAddresses.map((addr) => (
+                          <div
+                            key={addr.id}
+                            className={`${styles.addressOptionItem} ${selectedAddressId === addr.id ? styles.addressOptionActive : ''}`}
+                            onClick={() => {
+                              setSelectedAddressId(addr.id);
+                              setIsChangingAddress(false);
+                            }}
+                            data-testid={`address-option-${addr.id}`}
+                          >
+                            <div className={styles.addressOptionInfo}>
+                              <div className={styles.addressHeaderRow}>
+                                <span className={styles.addressLabelBadge}>{addr.label}</span>
+                                {addr.isDefault && <span className={styles.defaultBadge}>Principal</span>}
+                              </div>
+                              <strong>{addr.receiverName}</strong>
+                              <span>{addr.addressLine}, {addr.city}</span>
+                            </div>
+                            <button type="button" className={styles.addressActionBtn}>
+                              {selectedAddressId === addr.id ? 'Seleccionada' : 'Elegir'}
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          className={styles.addNewBtn}
+                          onClick={() => setIsAddingNewAddress(true)}
+                          data-testid="add-new-address-btn"
+                        >
+                          + Agregar nueva dirección
+                        </button>
+                      </div>
+                    ) : (
+                      /* Caso B: Formulario de Dirección (TC-ADDR-1, TC-ADDR-2, TC-ADDR-3, TC-ADDR-4) */
+                      <div className={styles.addressForm} data-testid="address-form">
+                        <div className={styles.chipsContainer}>
+                          <label className={styles.fieldLabel}>¿Dónde entregamos tu pedido?</label>
+                          <div className={styles.chipsRow} data-testid="quick-chips-row">
+                            {QUICK_CHIPS.map((chip) => (
+                              <button
+                                key={chip}
+                                type="button"
+                                className={`${styles.chipBtn} ${selectedChip === chip ? styles.chipBtnActive : ''}`}
+                                onClick={() => setSelectedChip(chip)}
+                                data-testid={`chip-${chip.toLowerCase()}`}
+                              >
+                                {chip}
+                              </button>
+                            ))}
+                            <button
+                              type="button"
+                              className={`${styles.chipBtn} ${selectedChip === 'Otro' ? styles.chipBtnActive : ''}`}
+                              onClick={() => setSelectedChip('Otro')}
+                              data-testid="chip-otro"
+                            >
+                              Otro
+                            </button>
+                          </div>
+                          {selectedChip === 'Otro' && (
+                            <input
+                              type="text"
+                              className={styles.input}
+                              placeholder="Ej: Pareja, Finca, etc."
+                              value={customLabel}
+                              onChange={(e) => setCustomLabel(e.target.value)}
+                              data-testid="custom-label-input"
+                            />
+                          )}
+                        </div>
+
+                        <div className={styles.formGrid}>
+                          <div className={styles.inputGroup}>
+                            <label htmlFor="receiverName" className={styles.fieldLabel}>Nombre de quien recibe *</label>
+                            <input
+                              id="receiverName"
+                              type="text"
+                              className={styles.input}
+                              placeholder="Ej: Julio Cano"
+                              value={receiverName}
+                              onChange={(e) => setReceiverName(e.target.value)}
+                              data-testid="receiver-name-input"
+                              required
+                            />
+                          </div>
+
+                          <div className={styles.inputGroup}>
+                            <label htmlFor="receiverPhone" className={styles.fieldLabel}>Teléfono de contacto *</label>
+                            <input
+                              id="receiverPhone"
+                              type="tel"
+                              className={styles.input}
+                              placeholder="Ej: +57 300 123 4567"
+                              value={receiverPhone}
+                              onChange={(e) => setReceiverPhone(e.target.value)}
+                              data-testid="receiver-phone-input"
+                              required
+                            />
+                          </div>
+
+                          <div className={styles.inputGroup}>
+                            <label htmlFor="city" className={styles.fieldLabel}>Ciudad *</label>
+                            <input
+                              id="city"
+                              type="text"
+                              className={styles.input}
+                              placeholder="Medellín"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
+                              data-testid="city-input"
+                              required
+                            />
+                          </div>
+
+                          <div className={styles.inputGroup}>
+                            <label htmlFor="department" className={styles.fieldLabel}>Departamento *</label>
+                            <input
+                              id="department"
+                              type="text"
+                              className={styles.input}
+                              placeholder="Antioquia"
+                              value={department}
+                              onChange={(e) => setDepartment(e.target.value)}
+                              data-testid="department-input"
+                              required
+                            />
+                          </div>
+
+                          <div className={styles.inputGroupFull}>
+                            <label htmlFor="addressLine" className={styles.fieldLabel}>Dirección física (Nomenclatura) *</label>
+                            <input
+                              id="addressLine"
+                              type="text"
+                              className={styles.input}
+                              placeholder="Ej: Carrera 65A # 1 sur - 10"
+                              value={addressLine}
+                              onChange={(e) => setAddressLine(e.target.value)}
+                              data-testid="address-line-input"
+                              required
+                            />
+                          </div>
+
+                          <div className={styles.inputGroupFull}>
+                            <label htmlFor="additionalInfo" className={styles.fieldLabel}>Detalles adicionales (Opcional)</label>
+                            <input
+                              id="additionalInfo"
+                              type="text"
+                              className={styles.input}
+                              placeholder="Ej: Torre 2, Apto 402. Dejar en portería"
+                              value={additionalInfo}
+                              onChange={(e) => setAdditionalInfo(e.target.value)}
+                              data-testid="additional-info-input"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Google Maps Pin Picker como complemento de precisión opcional (TC-ADDR-3, TC-ADDR-4) */}
+                        <AddressMapPicker
+                          coordinates={coordinates}
+                          onChangeCoordinates={(coords) => setCoordinates(coords)}
+                        />
+
+                        {/* Checkbox "Guardar como mi dirección principal" marcado por default (TC-ADDR-2) */}
+                        <label className={styles.checkboxRow} data-testid="save-default-address-label">
+                          <input
+                            type="checkbox"
+                            className={styles.checkboxInput}
+                            checked={isDefaultAddress}
+                            onChange={(e) => setIsDefaultAddress(e.target.checked)}
+                            data-testid="save-default-address-checkbox"
+                          />
+                          Guardar como mi dirección principal
+                        </label>
+
+                        {savedAddresses.length > 0 && (
+                          <button
+                            type="button"
+                            className={styles.addNewBtn}
+                            onClick={() => {
+                              setIsAddingNewAddress(false);
+                              setIsChangingAddress(false);
+                            }}
+                            data-testid="cancel-new-address-btn"
+                          >
+                            Cancelar y usar dirección guardada
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {items.length > 0 && (
@@ -301,11 +596,17 @@ export function CheckoutPage() {
                 </div>
 
                 <div className={styles.actions}>
+                  {!isAddressValid && (
+                    <p className={styles.requiredNotice} role="alert" data-testid="address-required-alert">
+                      ⚠️ Debes ingresar o seleccionar una dirección de entrega antes de pagar.
+                    </p>
+                  )}
                   <button
                     type="button"
                     className={styles.payButton}
                     onClick={handleConfirm}
-                    disabled={confirmMutation.isPending || cancelMutation.isPending}
+                    disabled={!isAddressValid || confirmMutation.isPending || cancelMutation.isPending}
+                    data-testid="confirm-pay-button"
                   >
                     {confirmMutation.isPending ? 'Procesando pago...' : 'Confirmar y Pagar (Simular)'}
                   </button>
@@ -314,6 +615,7 @@ export function CheckoutPage() {
                     className={styles.cancelButton}
                     onClick={handleCancel}
                     disabled={confirmMutation.isPending || cancelMutation.isPending}
+                    data-testid="cancel-reservation-button"
                   >
                     {cancelMutation.isPending ? 'Cancelando...' : 'Cancelar reserva'}
                   </button>
@@ -326,4 +628,5 @@ export function CheckoutPage() {
     </>
   );
 }
+
 
