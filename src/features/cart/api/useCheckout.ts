@@ -54,12 +54,13 @@ export const useCheckoutConfirm = () => {
       const isString = typeof param === 'string';
       const orderId = isString ? param : param.orderId;
       const body = isString
-        ? undefined
+        ? JSON.stringify({ shippingAddress: 'Dirección confirmada del comprador' })
         : JSON.stringify({
             shippingAddress: param.shippingAddress,
             shippingCoordinates: param.shippingCoordinates,
             customerEmail: param.customerEmail,
           });
+
 
       const response = await fetch(`/storefront/api/checkout/confirm/${orderId}`, {
         method: 'POST',

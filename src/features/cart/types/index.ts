@@ -63,10 +63,31 @@ export interface ReserveResponse {
   order: OrderDetail;
 }
 
+export interface ShippingCoordinates {
+  lat: number;
+  lng: number;
+}
+
+export type AddressQuickChip = 'Casa' | 'Oficina' | 'Padres' | 'Pareja';
+
+export interface UserAddress {
+  id: string;
+  userId?: string;
+  label: string;
+  receiverName: string;
+  receiverPhone: string;
+  city: string;
+  department: string;
+  addressLine: string;
+  additionalInfo?: string | null;
+  coordinates?: ShippingCoordinates | null;
+  isDefault: boolean;
+}
+
 export interface ConfirmPaymentPayload {
   orderId: string;
-  shippingAddress?: string;
-  shippingCoordinates?: { lat: number; lng: number } | null;
+  shippingAddress: string;
+  shippingCoordinates?: ShippingCoordinates | null;
   customerEmail?: string;
 }
 
@@ -79,4 +100,5 @@ export interface CancelResponse {
   success: boolean;
   message: string;
 }
+
 

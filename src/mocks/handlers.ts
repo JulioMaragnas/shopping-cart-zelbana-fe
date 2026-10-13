@@ -8,7 +8,9 @@ import type {
   CancelResponse,
   OrderDetail,
   OrderItem,
+  UserAddress,
 } from '../features/cart/types';
+
 
 
 // Mock de categorías según api_contracts_catalogo.md
@@ -480,6 +482,49 @@ const handleCheckoutReserve = async ({ request }: { request: Request }) => {
   }
 };
 
+export let mockAddresses: UserAddress[] = [
+  {
+    id: 'addr-1',
+    userId: 'usr-123',
+    label: 'Casa',
+    receiverName: 'Julio Cano',
+    receiverPhone: '+57 300 123 4567',
+    city: 'Medellín',
+    department: 'Antioquia',
+    addressLine: 'Carrera 65A # 1 sur - 10',
+    additionalInfo: 'Torre 2, Apto 402. Dejar en portería',
+    coordinates: { lat: 6.2081, lng: -75.5684 },
+    isDefault: true,
+  },
+];
+
+const handleGetUserAddresses = () => {
+  return HttpResponse.json(mockAddresses);
+};
+
+const handleCreateUserAddress = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json()) as Omit<UserAddress, 'id'>;
+    const newId = `addr-${Date.now()}`;
+    const isFirst = mockAddresses.length === 0;
+    const isDefault = isFirst ? true : Boolean(body.isDefault);
+
+    if (isDefault) {
+      mockAddresses = mockAddresses.map((addr) => ({ ...addr, isDefault: false }));
+    }
+
+    const newAddress: UserAddress = {
+      ...body,
+      id: newId,
+      isDefault,
+    };
+    mockAddresses.push(newAddress);
+    return HttpResponse.json(newAddress, { status: 201 });
+  } catch {
+    return HttpResponse.json({ error: 'Error al registrar dirección' }, { status: 400 });
+  }
+};
+
 const handleCheckoutConfirm = async ({
   request,
   params,
@@ -488,22 +533,35 @@ const handleCheckoutConfirm = async ({
   params: { orderId?: string };
 }) => {
   const orderId = params.orderId || '';
-  if (mockOrders[orderId]) {
-    try {
-      const body = (await request.json().catch(() => ({}))) as {
-        shippingAddress?: string;
-        customerEmail?: string;
-      };
-      if (body.shippingAddress) {
-        mockOrders[orderId].shippingAddress = body.shippingAddress;
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      shippingAddress?: string;
+      shippingCoordinates?: { lat: number; lng: number } | null;
+      customerEmail?: string;
+    };
+
+    if (!body.shippingAddress || body.shippingAddress.trim() === '') {
+      return HttpResponse.json(
+        { error: 'La dirección de entrega es requerida para confirmar la compra.' },
+        { status: 400 }
+      );
+    }
+
+    if (mockOrders[orderId]) {
+      mockOrders[orderId].shippingAddress = body.shippingAddress;
+      if (body.shippingCoordinates !== undefined) {
+        mockOrders[orderId].shippingCoordinates = body.shippingCoordinates;
       }
       if (body.customerEmail) {
         mockOrders[orderId].customerEmail = body.customerEmail;
       }
-    } catch {
-      // Ignorar si el body viene vacío
+      mockOrders[orderId].status = 'PAID';
     }
-    mockOrders[orderId].status = 'PAID';
+  } catch {
+    return HttpResponse.json(
+      { error: 'La dirección de entrega es requerida para confirmar la compra.' },
+      { status: 400 }
+    );
   }
 
   const response: ConfirmResponse = {
@@ -558,5 +616,13 @@ export const handlers = [
 
   http.post('*/storefront/api/checkout/cancel/:orderId', handleCheckoutCancel),
   http.post('*/api/checkout/cancel/:orderId', handleCheckoutCancel),
+
+  // User Addresses
+  http.get('*/storefront/api/user/addresses', handleGetUserAddresses),
+  http.get('*/api/user/addresses', handleGetUserAddresses),
+
+  http.post('*/storefront/api/user/addresses', handleCreateUserAddress),
+  http.post('*/api/user/addresses', handleCreateUserAddress),
 ];
+
 
