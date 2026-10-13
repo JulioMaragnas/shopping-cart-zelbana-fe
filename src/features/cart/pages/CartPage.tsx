@@ -60,6 +60,17 @@ export function CartPage() {
     if (!isValid || reserveMutation.isPending) return;
     setReserveError(null);
     setAdjustNotice(null);
+
+    // Feature Flag: Permite validar checkout en test sin auth si VITE_REQUIRE_AUTH_CHECKOUT no es true
+    const requireAuth = import.meta.env.VITE_REQUIRE_AUTH_CHECKOUT === 'true';
+    if (requireAuth) {
+      const hasAuthToken = Boolean(localStorage.getItem('auth_token'));
+      if (!hasAuthToken) {
+        navigate('/login?redirect=/checkout');
+        return;
+      }
+    }
+
     try {
       const response = await reserveMutation.mutateAsync(
         cart.map((item) => ({ productId: item.id, quantity: item.quantity }))
@@ -73,6 +84,7 @@ export function CartPage() {
       refetch();
     }
   };
+
 
   return (
     <>
