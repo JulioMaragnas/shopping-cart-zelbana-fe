@@ -150,6 +150,7 @@ describe('CheckoutPage', () => {
     renderComponent();
 
     const payButton = screen.getByRole('button', { name: /confirmar y pagar|simular pago/i });
+    await waitFor(() => expect(payButton).not.toBeDisabled());
     fireEvent.click(payButton);
 
     await waitFor(() => {
@@ -206,6 +207,7 @@ describe('CheckoutPage', () => {
     renderComponent();
 
     const payButton = screen.getByRole('button', { name: /confirmar y pagar|simular pago/i });
+    await waitFor(() => expect(payButton).not.toBeDisabled());
     fireEvent.click(payButton);
 
     await waitFor(() => {
@@ -213,4 +215,5 @@ describe('CheckoutPage', () => {
     });
   });
 });
+
 
