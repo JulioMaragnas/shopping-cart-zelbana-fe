@@ -131,6 +131,13 @@ export function Navbar() {
 
       <div className={styles.rightSection}>
         <span className={styles.navLink}>Hola, Julio Cano</span>
+        <Link
+          to="/orders"
+          className={styles.navLink}
+          data-testid="nav-link-my-orders"
+        >
+          Mis Pedidos
+        </Link>
         <span className={styles.navLink}>Ayuda</span>
         <span className={styles.navLink}>Español ▾</span>
         <Link

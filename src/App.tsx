@@ -4,6 +4,7 @@ import { CartPage } from './features/cart/pages/CartPage';
 import { CheckoutPage } from './features/cart/pages/CheckoutPage';
 import { OrderSuccessPage } from './features/cart/pages/OrderSuccessPage';
 import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
+import { MyOrdersPage } from './features/orders/pages/MyOrdersPage';
 import { MiniCartDrawer } from './features/cart/components/MiniCartDrawer';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/checkout/:orderId" element={<CheckoutPage />} />
         <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+        <Route path="/orders" element={<MyOrdersPage />} />
       </Routes>
       <MiniCartDrawer />
     </BrowserRouter>

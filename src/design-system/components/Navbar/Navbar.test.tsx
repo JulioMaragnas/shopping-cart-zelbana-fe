@@ -150,5 +150,19 @@ describe('Navbar Component', () => {
       expect(screen.getByTestId('location-display').textContent).toBe('/cart');
     });
   });
+
+  describe('Mis Pedidos navigation (TDD-FE-ORD-02 / TC-UI-ORD-10)', () => {
+    it('renders Mis Pedidos link with data-testid="nav-link-my-orders" and navigates to /orders', async () => {
+      const user = userEvent.setup();
+      render(<Navbar />, { wrapper: createWrapper(['/']) });
+
+      const ordersLink = screen.getByTestId('nav-link-my-orders');
+      expect(ordersLink).toBeInTheDocument();
+      expect(ordersLink).toHaveTextContent(/Mis Pedidos/i);
+
+      await user.click(ordersLink);
+      expect(screen.getByTestId('location-display').textContent).toBe('/orders');
+    });
+  });
 });
 

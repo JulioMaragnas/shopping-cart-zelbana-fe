@@ -62,13 +62,23 @@ export function OrderSuccessPage() {
             </div>
           </section>
 
-          <button
-            type="button"
-            className={styles.continueButton}
-            onClick={() => navigate('/')}
-          >
-            Seguir comprando
-          </button>
+          <div className={styles.buttonGroup}>
+            <button
+              type="button"
+              className={styles.continueButton}
+              onClick={() => navigate('/')}
+            >
+              Seguir comprando
+            </button>
+            <button
+              type="button"
+              className={styles.ordersButton}
+              onClick={() => navigate('/orders')}
+              data-testid="view-in-my-orders-btn"
+            >
+              Ver en Mis Pedidos
+            </button>
+          </div>
         </div>
       </main>
     </>

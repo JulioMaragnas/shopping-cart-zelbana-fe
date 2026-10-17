@@ -97,3 +97,28 @@
 .continueButton:hover {
   background-color: #27272a;
 }
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ordersButton {
+  width: 100%;
+  background-color: #ffffff;
+  color: #18181b;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ordersButton:hover {
+  background-color: #f4f4f5;
+  border-color: #d4d4d8;
+}
+

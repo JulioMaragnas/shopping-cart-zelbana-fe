@@ -48,6 +48,20 @@ export function CheckoutPage() {
   const [coordinates, setCoordinates] = useState<ShippingCoordinates | null>(null);
   const [isDefaultAddress, setIsDefaultAddress] = useState(true); // Marcado por default (TC-ADDR-2)
 
+  // Estado de Correo Electrónico para comprobante (Épica 11)
+  const [customerEmail, setCustomerEmail] = useState<string>(() => {
+    const stored = typeof window !== 'undefined' ? localStorage.getItem('zelbana-customer-email') : null;
+    if (stored) return stored;
+    if (initialOrder?.customerEmail) return initialOrder.customerEmail;
+    return 'guest@zelbana.com';
+  });
+
+  useEffect(() => {
+    if ((!customerEmail || customerEmail === 'guest@zelbana.com') && order?.customerEmail) {
+      setCustomerEmail(order.customerEmail);
+    }
+  }, [order?.customerEmail, customerEmail]);
+
   // Sincronizar dirección seleccionada inicial
   useEffect(() => {
     if (savedAddresses.length > 0) {
@@ -128,12 +142,16 @@ export function CheckoutPage() {
     ? isFormValid
     : Boolean(activeSavedAddress);
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const isEmailValid = emailRegex.test(customerEmail.trim());
+
   const handleConfirm = async () => {
-    if (isExpired || !isAddressValid || confirmMutation.isPending) return;
+    if (isExpired || !isAddressValid || !isEmailValid || confirmMutation.isPending) return;
     setErrorMessage(null);
 
     let finalShippingAddress = '';
     let finalCoordinates: ShippingCoordinates | null = null;
+    const finalEmail = customerEmail.trim().toLowerCase();
 
     if (!isAddingNewAddress && activeSavedAddress) {
       finalShippingAddress = `${activeSavedAddress.addressLine}, ${activeSavedAddress.city}, ${activeSavedAddress.department} (Recibe: ${activeSavedAddress.receiverName} - ${activeSavedAddress.receiverPhone})${activeSavedAddress.additionalInfo ? ` [${activeSavedAddress.additionalInfo}]` : ''}`;
@@ -168,8 +186,9 @@ export function CheckoutPage() {
         orderId,
         shippingAddress: finalShippingAddress,
         shippingCoordinates: finalCoordinates,
-        customerEmail: order?.customerEmail ?? undefined,
+        customerEmail: finalEmail,
       });
+      localStorage.setItem('zelbana-customer-email', finalEmail);
       await queryClient.invalidateQueries({ queryKey: ['catalogSearch'] });
       await queryClient.invalidateQueries({ queryKey: ['productDetail'] });
       await queryClient.invalidateQueries({ queryKey: ['orderDetail', orderId] });
@@ -304,6 +323,22 @@ export function CheckoutPage() {
                       <p>{errorMessage}</p>
                     </div>
                   )}
+
+                  <div className={styles.emailSection} data-testid="checkout-email-section">
+                    <label htmlFor="checkoutCustomerEmail" className={styles.fieldLabel}>
+                      Correo electrónico para tu comprobante y seguimiento *
+                    </label>
+                    <input
+                      id="checkoutCustomerEmail"
+                      type="email"
+                      className={styles.input}
+                      placeholder="ej. maria.gonzalez@email.com"
+                      value={customerEmail}
+                      onChange={(e) => setCustomerEmail(e.target.value)}
+                      data-testid="checkout-customer-email-input"
+                      required
+                    />
+                  </div>
 
                   <div className={styles.deliverySection} data-testid="delivery-address-section">
                     <h2 className={styles.sectionTitle}>Dirección de entrega</h2>
@@ -612,6 +647,11 @@ export function CheckoutPage() {
                 </div>
 
                 <div className={styles.actions}>
+                  {!isEmailValid && (
+                    <p className={styles.requiredNotice} role="alert" data-testid="email-required-alert">
+                      ⚠️ Ingresa un correo electrónico válido para tu comprobante.
+                    </p>
+                  )}
                   {!isAddressValid && (
                     <p className={styles.requiredNotice} role="alert" data-testid="address-required-alert">
                       ⚠️ Debes ingresar o seleccionar una dirección de entrega antes de pagar.
@@ -621,7 +661,7 @@ export function CheckoutPage() {
                     type="button"
                     className={styles.payButton}
                     onClick={handleConfirm}
-                    disabled={!isAddressValid || confirmMutation.isPending || cancelMutation.isPending}
+                    disabled={!isAddressValid || !isEmailValid || confirmMutation.isPending || cancelMutation.isPending}
                     data-testid="confirm-pay-button"
                   >
                     {confirmMutation.isPending ? 'Procesando pago...' : 'Confirmar y Pagar (Simular)'}
