@@ -27,6 +27,7 @@ const createWrapper = () => {
 describe('TDD-FE-FS-02 & TDD-FE-FS-03: FreeShippingBanner Component', () => {
   beforeEach(() => {
     useCartStore.setState({ cart: [] });
+    useCartStore.getState().closeDrawer();
     server.use(
       http.get('*/storefront/api/settings', () => {
         return HttpResponse.json({
@@ -84,7 +85,12 @@ describe('TDD-FE-FS-02 & TDD-FE-FS-03: FreeShippingBanner Component', () => {
     const cartLink = screen.getByTestId('banner-cart-link');
     expect(cartLink).toHaveTextContent(/Ver carrito →/i);
     expect(cartLink).toHaveAttribute('href', '/cart');
+
+    expect(useCartStore.getState().isDrawerOpen).toBe(false);
+    cartLink.click();
+    expect(useCartStore.getState().isDrawerOpen).toBe(true);
   });
+
 
   it('TC-UI-FS-03: renders unlocked emerald banner with Ir a pagar link when cart exceeds threshold', async () => {
     useCartStore.setState({

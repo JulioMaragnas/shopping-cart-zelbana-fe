@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach } from 'vitest';
 import { MemoryRouter, Routes, Route } from 'react-router-dom';
@@ -35,7 +35,9 @@ const renderPDP = (productId = '1') => {
 describe('ProductDetailPage Component (Fases 3.1, 3.2, 3.3, 3.4)', () => {
   beforeEach(() => {
     useCartStore.getState().clearCart();
+    useCartStore.getState().closeDrawer();
   });
+
 
   it('TC-PDP-3.1.1 & TC-PDP-3.2.1: renders multi-photo gallery, switches active photo on thumbnail click, and displays -20% OFF without originalPrice', async () => {
     const user = userEvent.setup();
@@ -238,4 +240,97 @@ describe('ProductDetailPage Component (Fases 3.1, 3.2, 3.3, 3.4)', () => {
       expect(screen.getByText(/Producto no encontrado/i)).toBeInTheDocument();
     });
   });
+
+  describe('Mobile Sticky PDP Action Bar (TDD-FE-MC-09, TDD-FE-MC-10)', () => {
+    let observerCallback: (entries: IntersectionObserverEntry[]) => void;
+
+    beforeEach(() => {
+      class MockIntersectionObserver {
+        constructor(callback: (entries: IntersectionObserverEntry[]) => void) {
+          observerCallback = callback;
+        }
+        observe = vi.fn();
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      }
+
+      window.IntersectionObserver = MockIntersectionObserver as unknown as typeof IntersectionObserver;
+    });
+
+
+    it('TDD-FE-MC-09: renders MobileStickyPdpBar when main CTA leaves viewport', async () => {
+      renderPDP('1');
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Jeep wrangler' })).toBeInTheDocument();
+      });
+
+      const mainCta = screen.getByTestId('add-to-cart-main-btn');
+      expect(mainCta).toBeInTheDocument();
+
+      // Initially main CTA is visible so sticky bar is not rendered
+      expect(screen.queryByTestId('mobile-sticky-pdp-bar')).not.toBeInTheDocument();
+
+      // Trigger scroll out of viewport
+      act(() => {
+        observerCallback([
+          {
+            isIntersecting: false,
+            target: mainCta,
+          } as unknown as IntersectionObserverEntry,
+        ]);
+      });
+
+      expect(screen.getByTestId('mobile-sticky-pdp-bar')).toBeInTheDocument();
+      expect(screen.getByTestId('mobile-sticky-pdp-price')).toHaveTextContent('$45000.00');
+    });
+
+    it('TDD-FE-MC-10: synchronizes quantity and clicking Agregar in sticky bar adds to cart and opens drawer (0 -> 1)', async () => {
+      const user = userEvent.setup();
+      renderPDP('2'); // Low stock product (stock: 3)
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { name: 'Jeep grand cherokee' })).toBeInTheDocument();
+      });
+
+      const mainCta = screen.getByTestId('add-to-cart-main-btn');
+
+      // Trigger scroll out of viewport
+      act(() => {
+        observerCallback([
+          {
+            isIntersecting: false,
+            target: mainCta,
+          } as unknown as IntersectionObserverEntry,
+        ]);
+      });
+
+      const stickyBar = screen.getByTestId('mobile-sticky-pdp-bar');
+      expect(stickyBar).toBeInTheDocument();
+
+      // Low stock badge in sticky bar
+      expect(screen.getByTestId('mobile-sticky-pdp-low-stock-badge')).toBeInTheDocument();
+
+      // Increase quantity via sticky bar stepper
+      const stepper = screen.getByTestId('mobile-sticky-pdp-qty-stepper');
+      const incBtn = stepper.querySelector('button[aria-label="Aumentar"]') as HTMLButtonElement;
+      await user.click(incBtn);
+
+      // Verify input on PDP synchronized
+      const pdpQtyInput = screen.getByLabelText(/Cantidad/i) as HTMLInputElement;
+      expect(pdpQtyInput.value).toBe('2');
+
+      // Click Agregar from sticky bar
+      expect(useCartStore.getState().isDrawerOpen).toBe(false);
+      const stickyAddBtn = screen.getByTestId('mobile-sticky-pdp-add-btn');
+      await user.click(stickyAddBtn);
+
+      // 0 -> 1 transition opens drawer
+      expect(useCartStore.getState().cart).toHaveLength(1);
+      expect(useCartStore.getState().cart[0].id).toBe('2');
+      expect(useCartStore.getState().cart[0].quantity).toBe(2);
+      expect(useCartStore.getState().isDrawerOpen).toBe(true);
+    });
+  });
 });
+

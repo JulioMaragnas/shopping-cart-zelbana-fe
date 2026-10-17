@@ -11,6 +11,7 @@ export interface FreeShippingBannerProps {
 export function FreeShippingBanner({ className }: FreeShippingBannerProps) {
   const { data: settings } = useStoreSettings();
   const cart = useCartStore((state) => state.cart);
+  const openDrawer = useCartStore((state) => state.openDrawer);
 
   if (!settings?.freeShippingEnabled) {
     return null;
@@ -63,7 +64,15 @@ export function FreeShippingBanner({ className }: FreeShippingBannerProps) {
                 style={{ width: `${percentage}%` }}
               />
             </div>
-            <Link to="/cart" className={styles.actionLink} data-testid="banner-cart-link">
+            <Link
+              to="/cart"
+              className={styles.actionLink}
+              data-testid="banner-cart-link"
+              onClick={(e) => {
+                e.preventDefault();
+                openDrawer();
+              }}
+            >
               Ver carrito →
             </Link>
           </div>
