@@ -1,0 +1,609 @@
+.container {
+  max-width: 1080px;
+  margin: 32px auto;
+  padding: 0 20px;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+.header {
+  border-bottom: 1px solid #f4f4f5;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 6px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #71717a;
+  margin: 0;
+}
+
+.orderBadgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+.orderId {
+  font-family: ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #27272a;
+}
+
+.statusBadge {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timerBox {
+  background-color: #fcfcfc;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 18px;
+  text-align: center;
+}
+
+.timerBoxUrgent {
+  background-color: #fff1f2;
+  border-color: #fecdd3;
+}
+
+.timerLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #71717a;
+  margin: 0 0 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.timerCountdown {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 32px;
+  font-weight: 700;
+  color: #18181b;
+  letter-spacing: 0.05em;
+}
+
+.timerCountdownUrgent {
+  color: #e11d48;
+}
+
+.timerExplanation {
+  font-size: 13px;
+  color: #71717a;
+  margin: 8px 0 0 0;
+  line-height: 1.4;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 12px 0;
+}
+
+.deliverySection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f4f4f5;
+}
+
+.addressCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 16px;
+  gap: 16px;
+}
+
+.addressCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #27272a;
+}
+
+.addressHeaderRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.addressLabelBadge {
+  background-color: #f4f4f5;
+  color: #18181b;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #e4e4e7;
+}
+
+.defaultBadge {
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.addressReceiver {
+  font-weight: 600;
+  color: #09090b;
+}
+
+.addressLineText {
+  color: #27272a;
+}
+
+.addressCityText {
+  font-size: 13px;
+  color: #71717a;
+}
+
+.addressActionBtn {
+  background-color: #ffffff;
+  color: #18181b;
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+
+.addressActionBtn:hover {
+  background-color: #f4f4f5;
+  border-color: #a1a1aa;
+}
+
+/* Formulario de Dirección */
+.addressForm {
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.chipsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: #27272a;
+}
+
+.chipsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chipBtn {
+  background-color: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #3f3f46;
+  border-radius: 9999px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chipBtn:hover {
+  border-color: #71717a;
+  background-color: #f4f4f5;
+}
+
+.chipBtnActive {
+  background-color: #18181b;
+  border-color: #18181b;
+  color: #ffffff;
+}
+
+.chipBtnActive:hover {
+  background-color: #27272a;
+  border-color: #27272a;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.inputGroupFull {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.input {
+  border: 1px solid #d4d4d8;
+  border-radius: 6px;
+  padding: 9px 12px;
+  font-size: 14px;
+  color: #18181b;
+  background-color: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.input:focus {
+  border-color: #18181b;
+  box-shadow: 0 0 0 1px #18181b;
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #27272a;
+  margin-top: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkboxInput {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #18181b;
+}
+
+.addressListContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.addressOptionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.addressOptionItem:hover {
+  border-color: #a1a1aa;
+}
+
+.addressOptionActive {
+  border-color: #18181b;
+  background-color: #fcfcfc;
+  box-shadow: 0 0 0 1px #18181b;
+}
+
+.addressOptionInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+}
+
+.addNewBtn {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed #71717a;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #18181b;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.addNewBtn:hover {
+  background-color: #f4f4f5;
+}
+
+.requiredNotice {
+  font-size: 12px;
+  color: #b91c1c;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.itemRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f4f4f5;
+}
+
+.itemRow:last-child {
+  border-bottom: none;
+}
+
+.itemThumb {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e4e4e7;
+  background-color: #f4f4f5;
+  flex-shrink: 0;
+}
+
+.itemThumbPlaceholder {
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
+  border: 1px solid #e4e4e7;
+  background-color: #f4f4f5;
+  color: #a1a1aa;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.itemInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.itemName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #18181b;
+}
+
+.itemQty {
+  font-size: 12px;
+  color: #71717a;
+}
+
+.itemPrice {
+  font-size: 14px;
+  font-weight: 600;
+  color: #09090b;
+  text-align: right;
+}
+
+/* Columna Derecha: Sticky Summary Card */
+.stickyCard {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 24px;
+}
+
+.summaryTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid #f4f4f5;
+  padding-bottom: 12px;
+}
+
+.breakdownList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.breakdownRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #3f3f46;
+}
+
+.breakdownName {
+  flex: 1;
+  padding-right: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breakdownPrice {
+  font-weight: 500;
+  color: #18181b;
+}
+
+.breakdownDiscountRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.discountAmount {
+  color: #16a34a;
+}
+
+.divider {
+  height: 1px;
+  background-color: #e4e4e7;
+  margin: 16px 0;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 20px;
+}
+
+.totalLabel {
+  font-size: 16px;
+  font-weight: 700;
+  color: #18181b;
+}
+
+.totalValue {
+  font-size: 22px;
+  font-weight: 800;
+  color: #09090b;
+}
+
+.alertBox {
+  background-color: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+  padding: 14px 18px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.alertBox h4 {
+  margin: 0 0 6px 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payButton {
+  width: 100%;
+  background-color: #18181b;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.payButton:hover:not(:disabled) {
+  background-color: #27272a;
+}
+
+.payButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancelButton {
+  width: 100%;
+  background-color: transparent;
+  color: #71717a;
+  border: 1px solid #e4e4e7;
+  border-radius: 6px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

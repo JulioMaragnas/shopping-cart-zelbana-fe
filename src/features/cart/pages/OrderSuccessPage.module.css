@@ -1,0 +1,99 @@
+.container {
+  max-width: 600px;
+  margin: 60px auto;
+  padding: 0 16px;
+}
+
+.card {
+  background-color: #ffffff;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.iconWrapper {
+  width: 64px;
+  height: 64px;
+  background-color: #dcfce7;
+  color: #16a34a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  margin: 0 auto 20px auto;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #18181b;
+  margin: 0 0 12px 0;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #52525b;
+  line-height: 1.5;
+  margin: 0 0 28px 0;
+}
+
+.detailsBox {
+  background-color: #fcfcfc;
+  border: 1px solid #f4f4f5;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 28px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.detailLabel {
+  color: #71717a;
+}
+
+.detailValue {
+  font-weight: 600;
+  color: #18181b;
+}
+
+.orderId {
+  font-family: ui-monospace, monospace;
+}
+
+.statusPaid {
+  background-color: #dcfce7;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.continueButton {
+  width: 100%;
+  background-color: #18181b;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.continueButton:hover {
+  background-color: #27272a;
+}

@@ -1,0 +1,117 @@
+.mapWrapper {
+  margin-top: 14px;
+  background-color: #fafafa;
+  border: 1px solid #e4e4e7;
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.mapHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.mapTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #27272a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.optionalBadge {
+  font-size: 11px;
+  font-weight: 500;
+  color: #71717a;
+  background-color: #f4f4f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.mapContainer {
+  height: 180px;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  border-radius: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px dashed #94a3b8;
+  cursor: crosshair;
+}
+
+.mapPin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateY(-50%);
+  user-select: none;
+  cursor: grab;
+  transition: transform 0.15s ease;
+}
+
+.mapPin:active {
+  cursor: grabbing;
+  transform: translateY(-55%) scale(1.08);
+}
+
+.pinIcon {
+  font-size: 28px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+}
+
+.pinPulse {
+  width: 14px;
+  height: 6px;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  margin-top: -4px;
+}
+
+.pinLabel {
+  background-color: #18181b;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.fallbackNotice {
+  font-size: 12px;
+  color: #52525b;
+  margin-top: 10px;
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.coordsInfo {
+  font-size: 11px;
+  color: #71717a;
+  font-family: ui-monospace, monospace;
+  margin-top: 6px;
+}
+
+.toggleMapBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.toggleMapBtn:hover {
+  color: #1d4ed8;
+}

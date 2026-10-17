@@ -4,6 +4,7 @@ import { persist } from 'zustand/middleware';
 export interface CartItem {
   id: string;
   name: string;
+  thumbnailUrl?: string | null;
   priceWhenAdded: number;
   quantity: number;
 }
@@ -26,7 +27,13 @@ export const useCartStore = create<CartState>()(
         if (existingItem) {
           return {
             cart: state.cart.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+              i.id === item.id
+                ? {
+                    ...i,
+                    thumbnailUrl: item.thumbnailUrl ?? i.thumbnailUrl,
+                    quantity: i.quantity + item.quantity,
+                  }
+                : i
             ),
           };
         }

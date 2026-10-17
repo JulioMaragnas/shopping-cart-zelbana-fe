@@ -1,105 +1,628 @@
 import { http, HttpResponse } from 'msw';
-import type { Product } from '../features/search/types';
+import type { Category, PaginatedCatalogResponse, ProductDetailResponse } from '../features/search/types';
+import type {
+  CartValidationResponse,
+  CartValidatedItem,
+  ReserveResponse,
+  ConfirmResponse,
+  CancelResponse,
+  OrderDetail,
+  OrderItem,
+  UserAddress,
+} from '../features/cart/types';
 
-// Mock de la base de datos de productos para testing y UI
-const mockProducts: Product[] = [
+
+
+// Mock de categorías según api_contracts_catalogo.md
+export const mockCategories: Category[] = [
+  {
+    id: 'cat-1',
+    name: 'Cuidado Corporal',
+    children: [
+      {
+        id: 'cat-3',
+        name: 'Jabones Artesanales',
+        children: []
+      },
+      {
+        id: 'cat-4',
+        name: 'Sales de Baño',
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'cat-2',
+    name: 'Cuidado Facial',
+    children: []
+  }
+];
+
+export interface MockCatalogEntry {
+  id: string;
+  name: string;
+  description: string;
+  thumbnailUrl: string | null;
+  photos: string[];
+  salePrice: number;
+  discountPercentage: number;
+  categoryId: string;
+  categoryName: string;
+  specs: Array<{ label: string; value: string }>;
+  currentStock: number;
+}
+
+const minioUrl = (file: string) =>
+  `/products/${file}?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20261007%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20261007T204131Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7d3b730f64ddf56d85928d4573158adade43fdaf`;
+
+export const mockCatalogItems: MockCatalogEntry[] = [
   {
     id: '1',
     name: 'Jeep wrangler',
     description: 'Todoterreno clásico, ideal para aventuras extremas.',
-    photos: ['https://via.placeholder.com/150'],
+    thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+    photos: [
+      minioUrl('prod-1-1.webp'),
+      minioUrl('prod-1-2.webp'),
+      minioUrl('prod-1-3.webp'),
+    ],
     salePrice: 45000,
-    originalPrice: 48000,
-    disponible: true,
-    lowStock: false,
+    discountPercentage: 20,
+    categoryId: 'cat-3',
+    categoryName: 'Jabones Artesanales',
+    specs: [
+      { label: 'Tracción', value: '4x4 Command-Trac' },
+      { label: 'Capacidad', value: '5 pasajeros' },
+    ],
+    currentStock: 15,
   },
   {
     id: '2',
     name: 'Jeep grand cherokee',
     description: 'SUV de lujo con gran capacidad 4x4.',
-    photos: ['https://via.placeholder.com/150'],
+    thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+    photos: [minioUrl('prod-2-1.webp')],
     salePrice: 55000,
-    originalPrice: 55000,
-    disponible: true,
-    lowStock: true,
+    discountPercentage: 0,
+    categoryId: 'cat-3',
+    categoryName: 'Jabones Artesanales',
+    specs: [
+      { label: 'Motor', value: 'V6 Pentastar' },
+    ],
+    currentStock: 3, // Low stock <= 5
   },
   {
     id: '3',
     name: 'Jeep rubicon',
     description: 'La versión más extrema para el off-road.',
-    photos: ['https://via.placeholder.com/150'],
+    thumbnailUrl: minioUrl('prod-3-thumb.webp'),
+    photos: [minioUrl('prod-3-1.webp'), minioUrl('prod-3-2.webp')],
     salePrice: 50000,
-    originalPrice: 52000,
-    disponible: false,
-    lowStock: false,
+    discountPercentage: 10,
+    categoryId: 'cat-4',
+    categoryName: 'Sales de Baño',
+    specs: [
+      { label: 'Diferenciales', value: 'Tru-Lok electrónicos' },
+    ],
+    currentStock: 0, // Agotado
   },
   {
     id: '4',
     name: 'Jeep cherokee',
     description: 'SUV compacta y versátil.',
-    photos: ['https://via.placeholder.com/150'],
+    thumbnailUrl: minioUrl('prod-4-thumb.webp'),
+    photos: [minioUrl('prod-4-1.webp')],
     salePrice: 35000,
-    originalPrice: 37000,
-    disponible: true,
-    lowStock: false,
+    discountPercentage: 15,
+    categoryId: 'cat-2',
+    categoryName: 'Cuidado Facial',
+    specs: [
+      { label: 'Transmisión', value: 'Automática 9 velocidades' },
+    ],
+    currentStock: 25,
   },
   {
     id: '5',
     name: 'Jeep compass',
     description: 'Diseño moderno y eficiencia urbana.',
-    photos: ['https://via.placeholder.com/150'],
+    thumbnailUrl: minioUrl('prod-5-thumb.webp'),
+    photos: [minioUrl('prod-5-1.webp')],
     salePrice: 28000,
-    originalPrice: 30000,
-    disponible: true,
-    lowStock: false,
-  }
+    discountPercentage: 0,
+    categoryId: 'cat-1',
+    categoryName: 'Cuidado Corporal',
+    specs: [
+      { label: 'Consumo', value: 'Eficiente en ciudad' },
+    ],
+    currentStock: 10,
+  },
 ];
 
-export const handlers = [
-  // 1. Catálogo unificado y Búsqueda (Fuzzy)
-  http.get('/api/products', async ({ request }) => {
-    const url = new URL(request.url);
-    const q = url.searchParams.get('q') || '';
-    const limit = Number(url.searchParams.get('limit')) || 20;
-    
-    let results = mockProducts;
-    
-    if (q) {
-      const lowerQ = q.toLowerCase();
-      // Simula búsqueda "fuzzy" o "trigram" simple
-      results = mockProducts.filter(p => 
-        p.name.toLowerCase().includes(lowerQ) || 
-        p.description.toLowerCase().includes(lowerQ)
+const handleCategories = () => {
+  return HttpResponse.json(mockCategories);
+};
+
+const handleProducts = ({ request }: { request: Request }) => {
+  const url = new URL(request.url);
+  const query = url.searchParams.get('query') || url.searchParams.get('q') || '';
+  const categoryId = url.searchParams.get('categoryId') || '';
+  const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
+  const limit = Math.max(1, Number(url.searchParams.get('limit')) || 20);
+
+  let filtered = mockCatalogItems;
+
+  if (categoryId) {
+    filtered = filtered.filter(item => {
+      if (item.categoryId === categoryId) return true;
+      const parent = mockCategories.find(c => c.id === categoryId);
+      if (parent && parent.children?.some(ch => ch.id === item.categoryId)) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  if (query) {
+    const lowerQuery = query.toLowerCase();
+    filtered = filtered.filter(item =>
+      item.name.toLowerCase().includes(lowerQuery) ||
+      item.description.toLowerCase().includes(lowerQuery)
+    );
+  }
+
+  const totalItems = filtered.length;
+  const totalPages = Math.ceil(totalItems / limit) || 1;
+  const startIndex = (page - 1) * limit;
+  const paginatedItems = filtered.slice(startIndex, startIndex + limit).map(item => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    thumbnailUrl: item.thumbnailUrl,
+    salePrice: item.salePrice,
+    discountPercentage: item.discountPercentage,
+    categoryId: item.categoryId,
+    categoryName: item.categoryName,
+    disponible: item.currentStock > 0,
+    lowStock: item.currentStock > 0 && item.currentStock <= 5,
+    maxOrderQuantity: Math.min(item.currentStock, 10),
+  }));
+
+  const response: PaginatedCatalogResponse = {
+    items: paginatedItems,
+    totalItems,
+    totalPages,
+    currentPage: page
+  };
+
+  return HttpResponse.json(response);
+};
+
+const handleProductDetail = ({ params }: { params: Record<string, string | readonly string[] | undefined> }) => {
+  const { id } = params;
+  const item = mockCatalogItems.find(i => i.id === id);
+
+  if (!item) {
+    return HttpResponse.json({ error: 'Producto no encontrado' }, { status: 404 });
+  }
+
+  const response: ProductDetailResponse = {
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    thumbnailUrl: item.thumbnailUrl,
+    photos: item.photos,
+    salePrice: item.salePrice,
+    discountPercentage: item.discountPercentage,
+    categoryId: item.categoryId,
+    categoryName: item.categoryName,
+    specs: item.specs,
+    disponible: item.currentStock > 0,
+    lowStock: item.currentStock > 0 && item.currentStock <= 5,
+    maxOrderQuantity: Math.min(item.currentStock, 10),
+  };
+  return HttpResponse.json(response);
+};
+
+const handleSuggestions = ({ request }: { request: Request }) => {
+  const url = new URL(request.url);
+  const query = url.searchParams.get('q') || url.searchParams.get('query') || '';
+
+  if (!query) {
+    return HttpResponse.json([]);
+  }
+
+  const lowerQuery = query.toLowerCase();
+  const suggestions = mockCatalogItems
+    .filter(item => item.name.toLowerCase().includes(lowerQuery))
+    .map(item => item.name);
+
+  return HttpResponse.json(suggestions);
+};
+
+// Handlers Carrito & Checkout según api_contracts_carrito.md
+const handleCartValidate = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json()) as { cart?: Array<{ productId: string; quantity: number }> };
+    const cart = body.cart || [];
+
+    const items: CartValidatedItem[] = cart.map(item => {
+      const found = mockCatalogItems.find(c => c.id === item.productId);
+      if (!found) {
+        return {
+          productId: item.productId,
+          name: 'Producto eliminado',
+          thumbnailUrl: null,
+          quantityRequested: item.quantity,
+          quantityFulfilled: 0,
+          availableStock: 0,
+          salePrice: 0,
+          unitPrice: 0,
+          discountPercentage: 0,
+          subtotal: 0,
+          message: 'El producto ya no existe en el catálogo.',
+        };
+      }
+
+      const availableStock = Math.min(Math.max(0, found.currentStock), 10);
+      const salePrice = found.salePrice;
+      const quantityFulfilled = Math.min(item.quantity, availableStock);
+      const subtotal = Number((quantityFulfilled * salePrice).toFixed(2));
+
+      let message = 'Stock disponible';
+      if (availableStock === 0) {
+        message = 'Producto agotado';
+      } else if (quantityFulfilled < item.quantity) {
+        message = `Stock parcial: solo quedan ${availableStock}`;
+      }
+
+      return {
+        productId: item.productId,
+        name: found.name,
+        thumbnailUrl: found.thumbnailUrl,
+        quantityRequested: item.quantity,
+        quantityFulfilled,
+        availableStock,
+        salePrice,
+        unitPrice: salePrice,
+        discountPercentage: found.discountPercentage,
+        subtotal,
+        message,
+      };
+    });
+
+    const isValid =
+      items.length > 0 &&
+      items.every(
+        i =>
+          i.quantityFulfilled === i.quantityRequested &&
+          i.quantityFulfilled > 0 &&
+          i.name !== 'Producto eliminado'
+      );
+    const totalAmount = Number(items.reduce((acc, i) => acc + i.subtotal, 0).toFixed(2));
+
+    const response: CartValidationResponse = {
+      items,
+      totalAmount,
+      isValid,
+    };
+
+    return HttpResponse.json(response);
+  } catch {
+    return HttpResponse.json({ error: 'Formato de carrito inválido' }, { status: 400 });
+  }
+};
+
+export const mockOrders: Record<string, OrderDetail> = {};
+
+export const resetMockOrders = () => {
+  Object.keys(mockOrders).forEach((k) => delete mockOrders[k]);
+  mockOrders['ord-12345'] = {
+    id: 'ord-12345',
+    status: 'RESERVED',
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    customerEmail: 'julio@ejemplo.com',
+    shippingAddress: 'Carrera 65A 1 sur-10',
+    shippingCoordinates: { lat: 6.2081, lng: -75.5684 },
+    subtotalAmount: 65.0,
+    discountAmount: 15.0,
+    totalAmount: 50.0,
+    items: [
+      {
+        productId: '1',
+        name: 'Jabón de coco',
+        thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+        quantity: 2,
+        unitPrice: 20.0,
+        salePrice: 12.5,
+        discountPercentage: 37,
+        lineSubtotal: 40.0,
+        lineTotal: 25.0,
+      },
+      {
+        productId: '2',
+        name: 'Sal hidratante',
+        thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+        quantity: 1,
+        unitPrice: 25.0,
+        salePrice: 25.0,
+        discountPercentage: 0,
+        lineSubtotal: 25.0,
+        lineTotal: 25.0,
+      },
+    ],
+  };
+};
+
+resetMockOrders();
+
+
+const handleOrderDetail = ({ params }: { params: { orderId?: string } }) => {
+  const orderId = params.orderId || '';
+  const existing = mockOrders[orderId];
+  if (existing) {
+    // Si ya expiró por tiempo, devolver EXPIRED
+    if (existing.status === 'RESERVED' && new Date(existing.expiresAt).getTime() <= Date.now()) {
+      return HttpResponse.json({ ...existing, status: 'EXPIRED' });
+    }
+    return HttpResponse.json(existing);
+  }
+
+  // Fallback si no existe previamente
+  const fallbackOrder: OrderDetail = {
+    id: orderId,
+    status: 'RESERVED',
+    createdAt: new Date().toISOString(),
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    customerEmail: 'julio@ejemplo.com',
+    shippingAddress: 'Carrera 65A 1 sur-10',
+    shippingCoordinates: { lat: 6.2081, lng: -75.5684 },
+    subtotalAmount: 65.0,
+    discountAmount: 15.0,
+    totalAmount: 50.0,
+    items: [
+      {
+        productId: '1',
+        name: 'Jabón de coco',
+        thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+        quantity: 2,
+        unitPrice: 20.0,
+        salePrice: 12.5,
+        discountPercentage: 37,
+        lineSubtotal: 40.0,
+        lineTotal: 25.0,
+      },
+      {
+        productId: '2',
+        name: 'Sal hidratante',
+        thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+        quantity: 1,
+        unitPrice: 25.0,
+        salePrice: 25.0,
+        discountPercentage: 0,
+        lineSubtotal: 25.0,
+        lineTotal: 25.0,
+      },
+    ],
+  };
+  mockOrders[orderId] = fallbackOrder;
+  return HttpResponse.json(fallbackOrder);
+};
+
+const handleCheckoutReserve = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json()) as { cart?: Array<{ productId: string; quantity: number }> };
+    const cart = body.cart || [];
+
+    // Si algún item tiene stock 0 (ej. rubicon id 3), responder 409 Conflict
+    const hasOutOfStock = cart.some(item => {
+      const found = mockCatalogItems.find(c => c.id === item.productId);
+      return !found || found.currentStock < item.quantity;
+    });
+
+    if (hasOutOfStock) {
+      return HttpResponse.json(
+        { error: 'Stock insuficiente para uno o más productos de tu carrito.' },
+        { status: 409 }
       );
     }
-    
-    // Retraso para simular carga pesada (catálogo)
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(HttpResponse.json(results.slice(0, limit)));
-      }, 500); // 500ms delay para simular DB real
-    });
-  }),
 
-  // 2. Typeahead ultrarrápido (Sugerencias)
-  http.get('/api/search/suggestions', async ({ request }) => {
-    const url = new URL(request.url);
-    const q = url.searchParams.get('q');
-    
-    if (!q) {
-      return HttpResponse.json([]);
-    }
-    
-    const lowerQ = q.toLowerCase();
-    const suggestions = mockProducts
-      .filter(p => p.name.toLowerCase().includes(lowerQ))
-      .map(p => p.name);
-      
-    // Retraso mínimo, simula indexación rápida sin Kardex
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(HttpResponse.json(suggestions));
-      }, 100); // 100ms delay 
+    const orderId = `ord-${Date.now().toString().slice(-6)}`;
+    const items: OrderItem[] = cart.map((item) => {
+      const found = mockCatalogItems.find((c) => c.id === item.productId);
+      const unitPrice = found ? found.salePrice * 1.25 : 20.0;
+      const salePrice = found ? found.salePrice : 20.0;
+      const discountPercentage = found ? found.discountPercentage : 0;
+      const lineSubtotal = unitPrice * item.quantity;
+      const lineTotal = salePrice * item.quantity;
+
+      return {
+        productId: item.productId,
+        name: found ? found.name : `Producto ${item.productId}`,
+        thumbnailUrl: found ? found.thumbnailUrl : null,
+        quantity: item.quantity,
+        unitPrice,
+        salePrice,
+        discountPercentage,
+        lineSubtotal,
+        lineTotal,
+      };
     });
-  })
+
+    const subtotalAmount = items.reduce((acc, item) => acc + item.lineSubtotal, 0);
+    const totalAmount = items.reduce((acc, item) => acc + item.lineTotal, 0);
+    const discountAmount = Math.max(0, subtotalAmount - totalAmount);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
+
+    const order: OrderDetail = {
+      id: orderId,
+      status: 'RESERVED',
+      createdAt: now.toISOString(),
+      expiresAt,
+      customerEmail: 'julio@ejemplo.com',
+      shippingAddress: 'Carrera 65A 1 sur-10',
+      shippingCoordinates: { lat: 6.2081, lng: -75.5684 },
+      subtotalAmount,
+      discountAmount,
+      totalAmount,
+      items,
+    };
+
+    mockOrders[orderId] = order;
+
+    const response: ReserveResponse = {
+      success: true,
+      order,
+    };
+
+    return HttpResponse.json(response);
+  } catch {
+    return HttpResponse.json({ error: 'Error al reservar' }, { status: 400 });
+  }
+};
+
+export let mockAddresses: UserAddress[] = [
+  {
+    id: 'addr-1',
+    userId: 'usr-123',
+    label: 'Casa',
+    receiverName: 'Julio Cano',
+    receiverPhone: '+57 300 123 4567',
+    city: 'Medellín',
+    department: 'Antioquia',
+    addressLine: 'Carrera 65A # 1 sur - 10',
+    additionalInfo: 'Torre 2, Apto 402. Dejar en portería',
+    coordinates: { lat: 6.2081, lng: -75.5684 },
+    isDefault: true,
+  },
 ];
+
+const handleGetUserAddresses = () => {
+  return HttpResponse.json(mockAddresses);
+};
+
+const handleCreateUserAddress = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json()) as Omit<UserAddress, 'id'>;
+    const newId = `addr-${Date.now()}`;
+    const isFirst = mockAddresses.length === 0;
+    const isDefault = isFirst ? true : Boolean(body.isDefault);
+
+    if (isDefault) {
+      mockAddresses = mockAddresses.map((addr) => ({ ...addr, isDefault: false }));
+    }
+
+    const newAddress: UserAddress = {
+      ...body,
+      id: newId,
+      isDefault,
+    };
+    mockAddresses.push(newAddress);
+    return HttpResponse.json(newAddress, { status: 201 });
+  } catch {
+    return HttpResponse.json({ error: 'Error al registrar dirección' }, { status: 400 });
+  }
+};
+
+const handleCheckoutConfirm = async ({
+  request,
+  params,
+}: {
+  request: Request;
+  params: { orderId?: string };
+}) => {
+  const orderId = params.orderId || '';
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      shippingAddress?: string;
+      shippingCoordinates?: { lat: number; lng: number } | null;
+      customerEmail?: string;
+    };
+
+    if (!body.shippingAddress || body.shippingAddress.trim() === '') {
+      return HttpResponse.json(
+        { error: 'La dirección de entrega es requerida para confirmar la compra.' },
+        { status: 400 }
+      );
+    }
+
+    if (mockOrders[orderId]) {
+      mockOrders[orderId].shippingAddress = body.shippingAddress;
+      if (body.shippingCoordinates !== undefined) {
+        mockOrders[orderId].shippingCoordinates = body.shippingCoordinates;
+      }
+      if (body.customerEmail) {
+        mockOrders[orderId].customerEmail = body.customerEmail;
+      }
+      mockOrders[orderId].status = 'PAID';
+    }
+  } catch {
+    return HttpResponse.json(
+      { error: 'La dirección de entrega es requerida para confirmar la compra.' },
+      { status: 400 }
+    );
+  }
+
+  const response: ConfirmResponse = {
+    success: true,
+    message: 'Pago consolidado en Kardex.',
+  };
+  return HttpResponse.json(response);
+};
+
+const handleCheckoutCancel = ({ params }: { params: { orderId?: string } }) => {
+  const orderId = params.orderId || '';
+  if (mockOrders[orderId]) {
+    mockOrders[orderId].status = 'CANCELLED';
+  }
+  const response: CancelResponse = {
+    success: true,
+    message: 'Reserva anulada y stock liberado.',
+  };
+  return HttpResponse.json(response);
+};
+
+export const handlers = [
+  // Categories
+  http.get('*/storefront/api/categories', handleCategories),
+  http.get('*/api/categories', handleCategories),
+
+  // Products PLP
+  http.get('*/storefront/api/products', handleProducts),
+  http.get('*/api/products', handleProducts),
+
+  // Search Suggestions (Typeahead)
+  http.get('*/storefront/api/search/suggestions', handleSuggestions),
+  http.get('*/api/search/suggestions', handleSuggestions),
+
+  // Product Detail (PDP)
+  http.get('*/storefront/api/products/:id', handleProductDetail),
+  http.get('*/api/products/:id', handleProductDetail),
+
+  // Cart & Checkout (Zero Trust)
+  http.post('*/storefront/api/cart/validate', handleCartValidate),
+  http.post('*/api/cart/validate', handleCartValidate),
+
+  // Orders & Checkout
+  http.get('*/storefront/api/orders/:orderId', handleOrderDetail),
+  http.get('*/api/orders/:orderId', handleOrderDetail),
+
+  http.post('*/storefront/api/checkout/reserve', handleCheckoutReserve),
+  http.post('*/api/checkout/reserve', handleCheckoutReserve),
+
+  http.post('*/storefront/api/checkout/confirm/:orderId', handleCheckoutConfirm),
+  http.post('*/api/checkout/confirm/:orderId', handleCheckoutConfirm),
+
+  http.post('*/storefront/api/checkout/cancel/:orderId', handleCheckoutCancel),
+  http.post('*/api/checkout/cancel/:orderId', handleCheckoutCancel),
+
+  // User Addresses
+  http.get('*/storefront/api/user/addresses', handleGetUserAddresses),
+  http.get('*/api/user/addresses', handleGetUserAddresses),
+
+  http.post('*/storefront/api/user/addresses', handleCreateUserAddress),
+  http.post('*/api/user/addresses', handleCreateUserAddress),
+];
+
+
