@@ -1,22 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
 import { CartItemRow } from '../../../design-system/components/CartItemRow/CartItemRow';
 import { OrderSummaryCard } from '../../../design-system/components/OrderSummaryCard/OrderSummaryCard';
+import { FreeShippingUpsellCarousel } from '../components/FreeShippingUpsellCarousel/FreeShippingUpsellCarousel';
 import { useCartStore } from '../store/useCartStore';
 import { useCartValidate } from '../api/useCartValidate';
 import { useCheckoutReserve } from '../api/useCheckout';
+import type { UpsellProductDTO } from '../types';
 import styles from './CartPage.module.css';
 import { Helmet } from 'react-helmet-async';
 
 export function CartPage() {
   const navigate = useNavigate();
   const cart = useCartStore((state) => state.cart);
+  const addItem = useCartStore((state) => state.addItem);
   const removeItem = useCartStore((state) => state.removeItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
 
   const [reserveError, setReserveError] = useState<string | null>(null);
   const [adjustNotice, setAdjustNotice] = useState<string | null>(null);
+  const [addingUpsellId, setAddingUpsellId] = useState<string | null>(null);
 
   const { data: validationData, isFetching, refetch } = useCartValidate();
   const reserveMutation = useCheckoutReserve();
@@ -85,6 +89,23 @@ export function CartPage() {
     }
   };
 
+  useEffect(() => {
+    if (!isFetching) {
+      setAddingUpsellId(null);
+    }
+  }, [isFetching]);
+
+  const handleAddUpsellProduct = (product: UpsellProductDTO) => {
+    setAddingUpsellId(product.id);
+    setAdjustNotice(null);
+    addItem({
+      id: product.id,
+      name: product.name,
+      thumbnailUrl: product.thumbnailUrl,
+      priceWhenAdded: product.salePrice,
+      quantity: 1,
+    });
+  };
 
   return (
     <>
@@ -97,6 +118,14 @@ export function CartPage() {
       <main className={styles.container}>
         <div className={styles.leftCol}>
           <h2 className={styles.title}>Tu Carrito</h2>
+
+          {validationData?.shippingPromotion && (
+            <FreeShippingUpsellCarousel
+              promotion={validationData.shippingPromotion}
+              onAddUpsellProduct={handleAddUpsellProduct}
+              isAddingId={addingUpsellId}
+            />
+          )}
 
           {reserveError && (
             <div className={styles.errorAlert} role="alert">
@@ -183,6 +212,8 @@ export function CartPage() {
             isValidating={isFetching || reserveMutation.isPending}
             isValid={isValid}
             onPay={handlePay}
+            isFreeShippingUnlocked={Boolean(validationData?.shippingPromotion?.isFreeShippingUnlocked)}
+            missingAmountForFreeShipping={validationData?.shippingPromotion?.missingAmount}
           />
         </div>
       </main>

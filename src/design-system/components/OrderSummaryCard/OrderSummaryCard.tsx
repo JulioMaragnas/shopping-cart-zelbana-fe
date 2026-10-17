@@ -7,6 +7,10 @@ export interface OrderSummaryProps {
   onPay: () => void;
   isValidating: boolean;
   isValid: boolean;
+  /** Indica si la orden o carrito califica para envío gratis */
+  isFreeShippingUnlocked?: boolean;
+  /** Monto restante en caso de no alcanzar aún la meta */
+  missingAmountForFreeShipping?: number;
 }
 
 export function OrderSummaryCard({
@@ -15,6 +19,8 @@ export function OrderSummaryCard({
   onPay,
   isValidating,
   isValid,
+  isFreeShippingUnlocked,
+  missingAmountForFreeShipping,
 }: OrderSummaryProps) {
   const formattedTotal = `$${total.toFixed(2)}`;
 
@@ -25,6 +31,21 @@ export function OrderSummaryCard({
       <div className={styles.row}>
         <span>Productos ({totalUnits} unidades):</span>
         <span>{formattedTotal}</span>
+      </div>
+
+      <div className={styles.row} data-testid="summary-shipping-row">
+        <span>Envío estimado:</span>
+        {isFreeShippingUnlocked ? (
+          <span className={styles.freeShippingBadge} data-testid="summary-shipping-free">
+            GRATIS ($0.00) 🎉
+          </span>
+        ) : typeof missingAmountForFreeShipping === 'number' && missingAmountForFreeShipping > 0 ? (
+          <span className={styles.pendingShippingText} data-testid="summary-shipping-pending">
+            Por calcular <small>(Faltan ${missingAmountForFreeShipping.toFixed(2)})</small>
+          </span>
+        ) : (
+          <span className={styles.pendingShippingText}>Por calcular</span>
+        )}
       </div>
 
       <div className={styles.divider} />

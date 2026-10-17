@@ -24,6 +24,16 @@
   color: #3f3f46;
 }
 
+.freeShippingBadge {
+  color: #059669;
+  font-weight: 600;
+}
+
+.pendingShippingText {
+  color: #64748b;
+  font-size: 13px;
+}
+
 .divider {
   height: 1px;
   background-color: #d4d4d8;

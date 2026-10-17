@@ -473,6 +473,20 @@
   padding-bottom: 12px;
 }
 
+.freeShippingBadge {
+  background-color: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .breakdownList {
   display: flex;
   flex-direction: column;

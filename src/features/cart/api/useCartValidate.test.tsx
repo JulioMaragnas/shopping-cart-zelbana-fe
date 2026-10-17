@@ -46,6 +46,8 @@ describe('useCartValidate Hook', () => {
     expect(result.current.data?.items[0].discountPercentage).toBe(20);
     expect(result.current.data?.items[0].thumbnailUrl).toMatch(/^\/products\/prod-1-thumb\.webp\?X-Amz-/);
     expect(result.current.data?.items[0].message).toBe('Stock disponible');
+    expect(result.current.data?.shippingPromotion).toBeDefined();
+    expect(result.current.data?.shippingPromotion?.isFreeShippingUnlocked).toBe(true);
   });
 
   it('TC-CART-3: Flags partial stock when requested quantity exceeds available stock', async () => {

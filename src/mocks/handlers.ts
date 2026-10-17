@@ -9,6 +9,8 @@ import type {
   OrderDetail,
   OrderItem,
   UserAddress,
+  ShippingPromotionDTO,
+  UpsellProductDTO,
 } from '../features/cart/types';
 
 
@@ -322,10 +324,26 @@ const handleSuggestions = ({ request }: { request: Request }) => {
   return HttpResponse.json(suggestions);
 };
 
+export let mockStoreSettings = {
+  freeShippingEnabled: true,
+  freeShippingThreshold: 50.0,
+};
+
+export const resetMockStoreSettings = () => {
+  mockStoreSettings = {
+    freeShippingEnabled: true,
+    freeShippingThreshold: 50.0,
+  };
+};
+
 // Handlers Carrito & Checkout según api_contracts_carrito.md
 const handleCartValidate = async ({ request }: { request: Request }) => {
   try {
-    const body = (await request.json()) as { cart?: Array<{ productId: string; quantity: number }> };
+    const body = (await request.json()) as {
+      cart?: Array<{ productId: string; quantity: number }>;
+      affinityTerms?: string[];
+      affinityCategories?: string[];
+    };
     const cart = body.cart || [];
 
     const items: CartValidatedItem[] = cart.map(item => {
@@ -383,10 +401,58 @@ const handleCartValidate = async ({ request }: { request: Request }) => {
       );
     const totalAmount = Number(items.reduce((acc, i) => acc + i.subtotal, 0).toFixed(2));
 
+    const threshold = mockStoreSettings.freeShippingThreshold;
+    const enabled = mockStoreSettings.freeShippingEnabled;
+    const isFreeShippingUnlocked = enabled && totalAmount >= threshold;
+    const missingAmount = isFreeShippingUnlocked
+      ? 0
+      : Number(Math.max(0, threshold - totalAmount).toFixed(2));
+    const percentage = enabled
+      ? Math.min(100, Math.round((totalAmount / threshold) * 100))
+      : 0;
+
+    let upsellProducts: UpsellProductDTO[] = [];
+    if (enabled && !isFreeShippingUnlocked) {
+      const inCartIds = cart.map(c => c.productId);
+      const candidates = mockCatalogItems
+        .filter(item => !inCartIds.includes(item.id) && item.currentStock > 0)
+        .sort((a, b) => {
+          const aSweet = a.salePrice >= missingAmount && a.salePrice <= missingAmount + 20;
+          const bSweet = b.salePrice >= missingAmount && b.salePrice <= missingAmount + 20;
+          if (aSweet !== bSweet) return bSweet ? 1 : -1;
+          return a.salePrice - b.salePrice;
+        })
+        .slice(0, 3);
+
+      upsellProducts = candidates.map(item => ({
+        id: item.id,
+        name: item.name,
+        thumbnailUrl: item.thumbnailUrl,
+        salePrice: item.salePrice,
+        discountPercentage: item.discountPercentage,
+        categoryId: item.categoryId,
+        categoryName: item.categoryName,
+        disponible: item.currentStock > 0,
+        maxOrderQuantity: Math.min(item.currentStock, 10),
+        coversMissingAmount: item.salePrice >= missingAmount,
+      }));
+    }
+
+    const shippingPromotion: ShippingPromotionDTO = {
+      enabled,
+      threshold,
+      currentAmount: totalAmount,
+      missingAmount,
+      percentage,
+      isFreeShippingUnlocked,
+      upsellProducts,
+    };
+
     const response: CartValidationResponse = {
       items,
       totalAmount,
       isValid,
+      shippingPromotion,
     };
 
     return HttpResponse.json(response);
@@ -706,6 +772,10 @@ export const handlers = [
 
   http.post('*/storefront/api/user/addresses', handleCreateUserAddress),
   http.post('*/api/user/addresses', handleCreateUserAddress),
+
+  // Store Settings (Epic 09)
+  http.get('*/storefront/api/settings', () => HttpResponse.json(mockStoreSettings)),
+  http.get('*/api/settings', () => HttpResponse.json(mockStoreSettings)),
 ];
 
 
