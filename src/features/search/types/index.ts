@@ -74,5 +74,9 @@ export interface SearchParams {
   page?: number;
   limit?: number;
   offset?: number;
+  sort?: string;
+  affinityCategories?: string;
+  affinityTerms?: string;
 }
+
 

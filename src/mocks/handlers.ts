@@ -50,6 +50,7 @@ export interface MockCatalogEntry {
   categoryName: string;
   specs: Array<{ label: string; value: string }>;
   currentStock: number;
+  totalSold?: number;
 }
 
 const minioUrl = (file: string) =>
@@ -75,6 +76,7 @@ export const mockCatalogItems: MockCatalogEntry[] = [
       { label: 'Capacidad', value: '5 pasajeros' },
     ],
     currentStock: 15,
+    totalSold: 25,
   },
   {
     id: '2',
@@ -90,6 +92,7 @@ export const mockCatalogItems: MockCatalogEntry[] = [
       { label: 'Motor', value: 'V6 Pentastar' },
     ],
     currentStock: 3, // Low stock <= 5
+    totalSold: 10,
   },
   {
     id: '3',
@@ -105,6 +108,7 @@ export const mockCatalogItems: MockCatalogEntry[] = [
       { label: 'Diferenciales', value: 'Tru-Lok electrónicos' },
     ],
     currentStock: 0, // Agotado
+    totalSold: 50,
   },
   {
     id: '4',
@@ -113,13 +117,14 @@ export const mockCatalogItems: MockCatalogEntry[] = [
     thumbnailUrl: minioUrl('prod-4-thumb.webp'),
     photos: [minioUrl('prod-4-1.webp')],
     salePrice: 35000,
-    discountPercentage: 15,
+    discountPercentage: 0,
     categoryId: 'cat-2',
     categoryName: 'Cuidado Facial',
     specs: [
       { label: 'Transmisión', value: 'Automática 9 velocidades' },
     ],
     currentStock: 25,
+    totalSold: 5,
   },
   {
     id: '5',
@@ -135,6 +140,7 @@ export const mockCatalogItems: MockCatalogEntry[] = [
       { label: 'Consumo', value: 'Eficiente en ciudad' },
     ],
     currentStock: 10,
+    totalSold: 2,
   },
 ];
 
@@ -148,6 +154,17 @@ const handleProducts = ({ request }: { request: Request }) => {
   const categoryId = url.searchParams.get('categoryId') || '';
   const page = Math.max(1, Number(url.searchParams.get('page')) || 1);
   const limit = Math.max(1, Number(url.searchParams.get('limit')) || 20);
+
+  const rawSort = url.searchParams.get('sort') || 'recommended';
+  const sort = rawSort === 'discount_desc' ? 'highest_discount' : rawSort;
+  const affinityTerms = (url.searchParams.get('affinityTerms') || '')
+    .split(',')
+    .map(t => t.trim().toLowerCase())
+    .filter(Boolean);
+  const affinityCategories = (url.searchParams.get('affinityCategories') || '')
+    .split(',')
+    .map(c => c.trim())
+    .filter(Boolean);
 
   let filtered = mockCatalogItems;
 
@@ -169,6 +186,72 @@ const handleProducts = ({ request }: { request: Request }) => {
       item.description.toLowerCase().includes(lowerQuery)
     );
   }
+
+  // Ordenamiento con Regla Universal #0: Disponibles primero
+  filtered = [...filtered].sort((a, b) => {
+    const aStock = a.currentStock > 0 ? 1 : 0;
+    const bStock = b.currentStock > 0 ? 1 : 0;
+    if (aStock !== bStock) {
+      return bStock - aStock;
+    }
+
+    if (sort === 'best_selling') {
+      const aSold = a.totalSold ?? 0;
+      const bSold = b.totalSold ?? 0;
+      if (bSold !== aSold) return bSold - aSold;
+      if (a.salePrice !== b.salePrice) return a.salePrice - b.salePrice;
+      return a.id.localeCompare(b.id);
+    }
+
+    if (sort === 'highest_discount') {
+      if (b.discountPercentage !== a.discountPercentage) return b.discountPercentage - a.discountPercentage;
+      if (a.salePrice !== b.salePrice) return a.salePrice - b.salePrice;
+      return a.id.localeCompare(b.id);
+    }
+
+    if (sort === 'price_asc') {
+      if (a.salePrice !== b.salePrice) return a.salePrice - b.salePrice;
+      return a.id.localeCompare(b.id);
+    }
+
+    if (sort === 'price_desc') {
+      if (b.salePrice !== a.salePrice) return b.salePrice - a.salePrice;
+      return a.id.localeCompare(b.id);
+    }
+
+    // Default: 'recommended'
+    const computeBuyBoxScore = (item: MockCatalogEntry) => {
+      let score = 0;
+      if (affinityTerms.length > 0) {
+        const itemText = `${item.name} ${item.description}`.toLowerCase();
+        if (affinityTerms.some(term => itemText.includes(term))) {
+          score += 50;
+        }
+      }
+      if (affinityCategories.length > 0 && affinityCategories.includes(item.categoryId)) {
+        score += 30;
+      }
+      if ((item.totalSold ?? 0) > 0) {
+        score += 15;
+      }
+      if (item.discountPercentage > 0) {
+        score += 5;
+      }
+      return score;
+    };
+
+    const scoreA = computeBuyBoxScore(a);
+    const scoreB = computeBuyBoxScore(b);
+    if (scoreB !== scoreA) return scoreB - scoreA;
+
+    const aSold = a.totalSold ?? 0;
+    const bSold = b.totalSold ?? 0;
+    if (bSold !== aSold) return bSold - aSold;
+
+    if (b.discountPercentage !== a.discountPercentage) return b.discountPercentage - a.discountPercentage;
+    if (a.salePrice !== b.salePrice) return a.salePrice - b.salePrice;
+    return a.id.localeCompare(b.id);
+  });
 
   const totalItems = filtered.length;
   const totalPages = Math.ceil(totalItems / limit) || 1;

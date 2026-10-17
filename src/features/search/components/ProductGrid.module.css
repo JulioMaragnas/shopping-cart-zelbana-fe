@@ -44,4 +44,25 @@
 .emptyDesc {
   color: #6b7280;
   font-size: 16px;
+  margin-bottom: 16px;
 }
+
+.clearFiltersBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #ffffff;
+  border: 1px solid #1e293b;
+  color: #1e293b;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.clearFiltersBtn:hover {
+  background-color: #f1f5f9;
+}
+

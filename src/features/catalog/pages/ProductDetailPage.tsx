@@ -6,6 +6,7 @@ import { useProductDetail } from '../api/useProductDetail';
 import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
 import { findCategoryName } from '../utils/findCategoryName';
+import { recordCategoryAffinity } from '../../search/utils/affinityStorage';
 import styles from './ProductDetailPage.module.css';
 
 export function ProductDetailPage() {
@@ -28,6 +29,12 @@ export function ProductDetailPage() {
     setBrokenThumbnails({});
     setQuantity(1);
   }, [id]);
+
+  useEffect(() => {
+    if (product?.categoryId) {
+      recordCategoryAffinity(product.categoryId);
+    }
+  }, [product?.categoryId]);
 
   useEffect(() => {
     return () => {

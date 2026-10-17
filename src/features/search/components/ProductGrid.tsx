@@ -8,12 +8,13 @@ interface ProductGridProps {
   isLoading: boolean;
   query: string;
   onAdd: (product: Product) => void;
+  onClearFilters?: () => void;
 }
 
-export const ProductGrid = ({ products, isLoading, query, onAdd }: ProductGridProps) => {
+export const ProductGrid = ({ products, isLoading, query, onAdd, onClearFilters }: ProductGridProps) => {
   if (isLoading) {
     return (
-      <div className={styles.grid}>
+      <div className={styles.grid} data-testid="catalog-skeleton-grid">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className={styles.skeletonCard} />
         ))}
@@ -23,11 +24,23 @@ export const ProductGrid = ({ products, isLoading, query, onAdd }: ProductGridPr
 
   if (products.length === 0) {
     return (
-      <div className={styles.emptyState}>
-        <h2 className={styles.emptyTitle}>Sin resultados para "{query}"</h2>
+      <div className={styles.emptyState} data-testid="catalog-empty-state">
+        <h2 className={styles.emptyTitle}>
+          {query ? `Sin resultados para "${query}"` : 'No hay productos disponibles'}
+        </h2>
         <p className={styles.emptyDesc}>
-          Intenta verificar la ortografía o usar palabras más generales.
+          Intenta verificar la ortografía, buscar términos más generales o limpiar los filtros activos.
         </p>
+        {onClearFilters && (
+          <button
+            type="button"
+            className={styles.clearFiltersBtn}
+            onClick={onClearFilters}
+            data-testid="clear-filters-btn"
+          >
+            ✕ Limpiar filtros
+          </button>
+        )}
       </div>
     );
   }
