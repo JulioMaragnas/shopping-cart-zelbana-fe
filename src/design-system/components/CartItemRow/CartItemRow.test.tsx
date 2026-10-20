@@ -16,6 +16,7 @@ const renderRow = (props: Partial<CartItemProps> = {}) => {
     currentPrice: 15,
     discountPercentage: 20,
     availableStock: 8,
+    isAvailable: true,
     disponible: true,
     isDeleted: false,
     onRemove: () => {},
@@ -134,6 +135,17 @@ describe('CartItemRow Component (Fases 4.1 y 4.2)', () => {
     expect(screen.getByRole('combobox')).toBeDisabled();
     expect(screen.getByText('No disponible')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Jabón Cacao y Avena' })).not.toBeInTheDocument();
+  });
+
+  it('disables <select> and shows "Agotado" when isAvailable is false', () => {
+    renderRow({
+      isAvailable: false,
+      availableStock: 0,
+      isDeleted: false,
+    });
+
+    expect(screen.getByRole('combobox')).toBeDisabled();
+    expect(screen.getByText('Agotado')).toBeInTheDocument();
   });
 
   it('calls onRemove and onChangeQuantity callbacks', () => {

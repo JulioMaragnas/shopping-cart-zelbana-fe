@@ -16,6 +16,7 @@ const mockProduct: Product = {
   discountPercentage: 20,
   categoryId: 'cat-3',
   categoryName: 'Jabones Artesanales',
+  isAvailable: true,
   disponible: true,
   lowStock: false,
   maxOrderQuantity: 5,
@@ -111,6 +112,12 @@ describe('ProductCard Component (Fases 2.2, 2.3, 2.4)', () => {
 
   it('TC-PLP-2.4.4: disables Add to Cart button and shows "Agotado" when disponible is false', () => {
     renderCard({ ...mockProduct, disponible: false, maxOrderQuantity: 0 });
+    const button = screen.getByRole('button', { name: /Agotado/i });
+    expect(button).toBeDisabled();
+  });
+
+  it('TDD-POL-FE-02: disables Add to Cart button and shows "Agotado" when isAvailable is false', () => {
+    renderCard({ ...mockProduct, isAvailable: false, maxOrderQuantity: 0 });
     const button = screen.getByRole('button', { name: /Agotado/i });
     expect(button).toBeDisabled();
   });

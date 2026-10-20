@@ -195,4 +195,25 @@ describe('MyOrdersPage Component (TC-UI-ORD-01 to TC-UI-ORD-08)', () => {
       expect(screen.getByTestId('reorder-banner-view-cart-link')).toBeInTheDocument();
     });
   });
+
+  it('TC-POL-UI-07: clicking "Ver comprobante detallado" opens OrderReceiptModal', async () => {
+    localStorage.setItem('zelbana-customer-email', 'maria@email.com');
+    renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('order-card-ORD-1760731845000')).toBeInTheDocument();
+    });
+
+    const voucherBtn = screen.getByTestId('view-voucher-link-ORD-1760731845000');
+    fireEvent.click(voucherBtn);
+
+    expect(screen.getByTestId('receipt-modal')).toBeInTheDocument();
+    expect(screen.getByTestId('receipt-order-id')).toHaveTextContent('ORD-1760731845000');
+    expect(screen.getByTestId('receipt-status-badge')).toHaveTextContent(/Pago Confirmado/i);
+
+    // Clicking close button dismisses modal
+    const closeBtn = screen.getByTestId('receipt-modal-close-btn');
+    fireEvent.click(closeBtn);
+    expect(screen.queryByTestId('receipt-modal')).not.toBeInTheDocument();
+  });
 });

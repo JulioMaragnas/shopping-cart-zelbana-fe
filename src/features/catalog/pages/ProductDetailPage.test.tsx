@@ -96,6 +96,7 @@ describe('ProductDetailPage Component (Fases 3.1, 3.2, 3.3, 3.4)', () => {
             '/products/f6.webp',
             '/products/f7.webp',
           ],
+          isAvailable: true,
           disponible: true,
           lowStock: false,
           maxOrderQuantity: 5,

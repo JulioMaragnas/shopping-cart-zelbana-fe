@@ -13,7 +13,8 @@ export interface CartItemProps {
   currentPrice: number;
   discountPercentage?: number;
   availableStock?: number;
-  disponible: boolean;
+  isAvailable?: boolean;
+  disponible?: boolean;
   isDeleted?: boolean;
   validationMessage?: string;
   onRemove: (id: string) => void;
@@ -25,7 +26,8 @@ export function CartItemRow({
   currentPrice,
   discountPercentage = 0,
   availableStock,
-  disponible,
+  isAvailable: isAvailableProp,
+  disponible: disponibleProp,
   isDeleted = false,
   validationMessage,
   onRemove,
@@ -47,14 +49,15 @@ export function CartItemRow({
       ? Math.max(0, availableStock)
       : Math.max(item.quantity, 10);
 
-  const isSelectDisabled = !disponible || maxStock === 0 || isDeleted;
+  const isAvailable = isAvailableProp ?? disponibleProp ?? true;
+  const isSelectDisabled = !isAvailable || maxStock === 0 || isDeleted;
   const optionCount = maxStock > 0 ? maxStock : 1;
   const quantityOptions = Array.from({ length: optionCount }, (_, idx) => idx + 1);
   const hasExcessQuantity = item.quantity > optionCount;
 
   const availabilityLabel = isDeleted
     ? 'No disponible'
-    : disponible
+    : isAvailable
     ? 'Disponible'
     : 'Agotado';
 

@@ -172,7 +172,7 @@ export function CartPage() {
               const availableStock = vItem
                 ? vItem.availableStock ?? vItem.quantityFulfilled
                 : undefined;
-              const disponible = isDeleted ? false : vItem ? vItem.quantityFulfilled > 0 : true;
+              const isAvailable = isDeleted ? false : vItem ? vItem.quantityFulfilled > 0 : true;
               const validationMessage =
                 vItem?.message ?? (isDeleted ? 'El producto ya no existe en el catálogo.' : undefined);
               const thumbnailUrl =
@@ -188,7 +188,8 @@ export function CartPage() {
                   currentPrice={currentPrice}
                   discountPercentage={discountPercentage}
                   availableStock={availableStock}
-                  disponible={disponible}
+                  isAvailable={isAvailable}
+                  disponible={isAvailable}
                   isDeleted={isDeleted}
                   validationMessage={validationMessage}
                   onRemove={(id) => {

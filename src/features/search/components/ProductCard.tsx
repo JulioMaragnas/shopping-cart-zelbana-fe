@@ -12,6 +12,7 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd?: () =
     photos,
     salePrice,
     discountPercentage = 0,
+    isAvailable: isAvailableProp,
     disponible,
     lowStock,
     maxOrderQuantity = 1,
@@ -37,7 +38,7 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd?: () =
     };
   }, []);
 
-  const isAvailable = disponible && maxOrderQuantity > 0;
+  const isAvailable = (isAvailableProp ?? disponible ?? false) && maxOrderQuantity > 0;
   const isLimitReached = isAvailable && quantityInCart >= maxOrderQuantity;
   const isButtonDisabled = !isAvailable || isLimitReached;
 

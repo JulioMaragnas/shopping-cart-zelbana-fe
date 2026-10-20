@@ -4,6 +4,7 @@ import styles from './Navbar.module.css';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
 import { SearchBar } from '../../../features/search/components/SearchBar';
 import { useCategories } from '../../../features/catalog/api/useCategories';
+import { HelpModal } from '../../../features/help/components/HelpModal/HelpModal';
 
 export function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -68,6 +69,15 @@ export function Navbar() {
     };
   }, [isDropdownOpen]);
 
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [customerName] = useState<string | null>(() => {
+    return typeof window !== 'undefined'
+      ? localStorage.getItem('zelbana-customer-name')
+      : null;
+  });
+
+  const firstName = customerName ? customerName.trim().split(/\s+/)[0] : '';
+
   return (
     <header className={styles.navbar}>
       <div className={styles.leftSection}>
@@ -130,7 +140,21 @@ export function Navbar() {
       </div>
 
       <div className={styles.rightSection}>
-        <span className={styles.navLink}>Hola, Julio Cano</span>
+        {firstName ? (
+          <span className={styles.navGreeting} data-testid="navbar-greeting">
+            Hola, {firstName}
+          </span>
+        ) : (
+          <div className={styles.authLinks} data-testid="navbar-auth-links">
+            <Link to="/login" className={styles.authLink}>
+              Iniciar Sesión
+            </Link>
+            <Link to="/register" className={styles.authLink}>
+              Registrarse
+            </Link>
+          </div>
+        )}
+
         <Link
           to="/orders"
           className={styles.navLink}
@@ -138,7 +162,17 @@ export function Navbar() {
         >
           Mis Pedidos
         </Link>
-        <span className={styles.navLink}>Ayuda</span>
+
+        <button
+          type="button"
+          className={styles.navButton}
+          onClick={() => setIsHelpOpen(true)}
+          data-testid="navbar-help-btn"
+          aria-label="Abrir Centro de Ayuda"
+        >
+          Ayuda
+        </button>
+
         <span className={styles.navLink}>Español ▾</span>
         <Link
           to="/cart"
@@ -157,6 +191,8 @@ export function Navbar() {
           </div>
         </Link>
       </div>
+
+      <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
     </header>
   );
 }

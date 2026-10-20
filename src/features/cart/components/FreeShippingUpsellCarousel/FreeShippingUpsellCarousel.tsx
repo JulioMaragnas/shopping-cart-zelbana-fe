@@ -169,7 +169,7 @@ export function FreeShippingUpsellCarousel({
                     type="button"
                     className={styles.addBtn}
                     onClick={() => onAddUpsellProduct(item)}
-                    disabled={isCurrentlyAdding || !item.disponible}
+                    disabled={isCurrentlyAdding || !(item.isAvailable ?? item.disponible)}
                     aria-label={`Agregar ${item.name} al carrito`}
                     data-testid={`upsell-add-btn-${item.id}`}
                   >

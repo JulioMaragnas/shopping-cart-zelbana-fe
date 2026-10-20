@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
 import { OrderLookupForm } from '../components/OrderLookupForm/OrderLookupForm';
 import { OrderHistoryCard } from '../components/OrderHistoryCard/OrderHistoryCard';
+import { OrderReceiptModal } from '../components/OrderReceiptModal/OrderReceiptModal';
 import { ReorderFeedbackBanner } from '../components/ReorderFeedbackBanner/ReorderFeedbackBanner';
 import { usePaidOrders, useOrderLookup } from '../api/useOrders';
 import { useReorder } from '../hooks/useReorder';
@@ -64,6 +65,19 @@ export const MyOrdersPage: React.FC = () => {
   const allOrders = Array.from(mergedOrdersMap.values());
   const hasOrders = allOrders.length > 0;
   const isInitialLoading = isLoadingOrders && !hasOrders;
+
+  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<PaidOrder | null>(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+
+  const handleOpenReceipt = (order: PaidOrder) => {
+    setSelectedReceiptOrder(order);
+    setIsReceiptModalOpen(true);
+  };
+
+  const handleCloseReceipt = () => {
+    setIsReceiptModalOpen(false);
+    setSelectedReceiptOrder(null);
+  };
 
   const handleViewCart = () => {
     if (typeof openDrawer === 'function') {
@@ -180,9 +194,7 @@ export const MyOrdersPage: React.FC = () => {
                     order={order}
                     isReordering={isReordering}
                     onReorder={reorder}
-                    onViewVoucher={() => {
-                      // Comprobante simple o navegación a comprobante
-                    }}
+                    onViewVoucher={() => handleOpenReceipt(order)}
                   />
                 ))}
               </div>
@@ -190,6 +202,12 @@ export const MyOrdersPage: React.FC = () => {
           )}
         </div>
       </main>
+
+      <OrderReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={handleCloseReceipt}
+        order={selectedReceiptOrder}
+      />
     </>
   );
 };

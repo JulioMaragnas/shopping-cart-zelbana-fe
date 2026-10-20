@@ -267,6 +267,7 @@ const handleProducts = ({ request }: { request: Request }) => {
     discountPercentage: item.discountPercentage,
     categoryId: item.categoryId,
     categoryName: item.categoryName,
+    isAvailable: item.currentStock > 0,
     disponible: item.currentStock > 0,
     lowStock: item.currentStock > 0 && item.currentStock <= 5,
     maxOrderQuantity: Math.min(item.currentStock, 10),
@@ -301,6 +302,7 @@ const handleProductDetail = ({ params }: { params: Record<string, string | reado
     categoryId: item.categoryId,
     categoryName: item.categoryName,
     specs: item.specs,
+    isAvailable: item.currentStock > 0,
     disponible: item.currentStock > 0,
     lowStock: item.currentStock > 0 && item.currentStock <= 5,
     maxOrderQuantity: Math.min(item.currentStock, 10),
@@ -432,6 +434,7 @@ const handleCartValidate = async ({ request }: { request: Request }) => {
         discountPercentage: item.discountPercentage,
         categoryId: item.categoryId,
         categoryName: item.categoryName,
+        isAvailable: item.currentStock > 0,
         disponible: item.currentStock > 0,
         maxOrderQuantity: Math.min(item.currentStock, 10),
         coversMissingAmount: item.salePrice >= missingAmount,
@@ -925,6 +928,53 @@ const handleCheckoutCancel = ({ params }: { params: { orderId?: string } }) => {
   return HttpResponse.json(response);
 };
 
+export const mockHelpTopics = [
+  {
+    id: 'help-shipping',
+    title: 'Envíos y Tiempos de Entrega',
+    category: 'shipping',
+    icon: 'truck',
+    content:
+      'Ofrecemos envíos a todo el país. Todas las compras con valor igual o superior a $50.00 cuentan con Envío Gratis automático aplicado en el carrito. Los tiempos de despacho habituales oscilan entre 2 y 4 días hábiles dependiendo de tu ciudad de destino. Recibirás notificaciones por correo electrónico con el estado de tu despacho.',
+    displayOrder: 1,
+    isActive: true,
+  },
+  {
+    id: 'help-payment',
+    title: 'Medios de Pago y Transacciones Seguras',
+    category: 'payment',
+    icon: 'credit-card',
+    content:
+      'Procesamos pagos mediante pasarelas cifradas de alta seguridad (tarjetas de crédito, débito y PSE). Al iniciar tu proceso de pago, nuestro sistema reserva tu inventario de forma exclusiva durante 15 minutos en el Kardex para asegurar que nadie compre tus productos mientras completas la transacción.',
+    displayOrder: 2,
+    isActive: true,
+  },
+  {
+    id: 'help-orders',
+    title: 'Seguimiento de Pedidos y Recompra',
+    category: 'orders',
+    icon: 'package',
+    content:
+      'Puedes consultar en cualquier momento tus compras confirmadas en la sección Mis Pedidos ingresando tu correo electrónico o tu número de orden (ORD-...). Desde allí puedes descargar tu comprobante de pago oficial e incluso repetir tu rutina favorita en 1 clic gracias a nuestro botón de Recompra Inteligente.',
+    displayOrder: 3,
+    isActive: true,
+  },
+  {
+    id: 'help-support',
+    title: 'Contacto y Soporte Directo',
+    category: 'support',
+    icon: 'message-circle',
+    content:
+      '¿Tienes alguna duda sobre los ingredientes botánicos de nuestros productos o un requerimiento especial con tu orden? Escríbenos a soporte@zelbana.com o contáctanos por WhatsApp al +57 (300) 123-4567. Nuestro equipo de atención botánica te responderá en menos de 2 horas hábiles.',
+    displayOrder: 4,
+    isActive: true,
+  },
+];
+
+const handleGetHelpTopics = () => {
+  return HttpResponse.json({ helpTopics: mockHelpTopics });
+};
+
 export const handlers = [
   // Categories
   http.get('*/storefront/api/categories', handleCategories),
@@ -976,6 +1026,10 @@ export const handlers = [
   // Store Settings (Epic 09)
   http.get('*/storefront/api/settings', () => HttpResponse.json(mockStoreSettings)),
   http.get('*/api/settings', () => HttpResponse.json(mockStoreSettings)),
+
+  // Help Topics (Epic 12)
+  http.get('*/storefront/api/help', handleGetHelpTopics),
+  http.get('*/api/help', handleGetHelpTopics),
 ];
 
 

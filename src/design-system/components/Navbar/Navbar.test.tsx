@@ -32,17 +32,18 @@ const createWrapper = (initialEntries = ['/']) => {
 
 describe('Navbar Component', () => {
   beforeEach(() => {
+    localStorage.clear();
     useCartStore.getState().clearCart();
     useCartStore.getState().closeDrawer();
   });
 
-
-  it('renders correctly with all base elements', () => {
+  it('renders correctly with all base elements and defaults to auth links', () => {
     render(<Navbar />, { wrapper: createWrapper() });
     expect(screen.getByText('[ LOGO ]')).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/Buscar productos/i)).toBeInTheDocument();
-    expect(screen.getByText(/Hola, Julio Cano/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Categorías/i })).toBeInTheDocument();
+    expect(screen.getByTestId('navbar-auth-links')).toBeInTheDocument();
+    expect(screen.getByTestId('navbar-help-btn')).toBeInTheDocument();
   });
 
   it('does not display badge when cart is empty', () => {
@@ -162,6 +163,42 @@ describe('Navbar Component', () => {
 
       await user.click(ordersLink);
       expect(screen.getByTestId('location-display').textContent).toBe('/orders');
+    });
+  });
+
+  describe('Dynamic Guest Identity & Help Center (TC-UI-POL-11, TC-UI-POL-12)', () => {
+    it('TC-UI-POL-11: renders "Hola, {primerNombre}" with data-testid="navbar-greeting" when customer name exists in localStorage', () => {
+      localStorage.setItem('zelbana-customer-name', 'Julio Cano');
+      render(<Navbar />, { wrapper: createWrapper(['/']) });
+
+      const greeting = screen.getByTestId('navbar-greeting');
+      expect(greeting).toBeInTheDocument();
+      expect(greeting).toHaveTextContent('Hola, Julio');
+      expect(screen.queryByTestId('navbar-auth-links')).not.toBeInTheDocument();
+    });
+
+    it('TC-UI-POL-12: renders login and register links with data-testid="navbar-auth-links" when visitor is anonymous', () => {
+      render(<Navbar />, { wrapper: createWrapper(['/']) });
+
+      const authLinks = screen.getByTestId('navbar-auth-links');
+      expect(authLinks).toBeInTheDocument();
+      expect(screen.getByText(/Iniciar Sesión/i)).toBeInTheDocument();
+      expect(screen.getByText(/Registrarse/i)).toBeInTheDocument();
+      expect(screen.queryByTestId('navbar-greeting')).not.toBeInTheDocument();
+    });
+
+    it('opens HelpModal when clicking navbar-help-btn', async () => {
+      const user = userEvent.setup();
+      render(<Navbar />, { wrapper: createWrapper(['/']) });
+
+      const helpBtn = screen.getByTestId('navbar-help-btn');
+      expect(helpBtn).toBeInTheDocument();
+
+      await user.click(helpBtn);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('help-modal')).toBeInTheDocument();
+      });
     });
   });
 });

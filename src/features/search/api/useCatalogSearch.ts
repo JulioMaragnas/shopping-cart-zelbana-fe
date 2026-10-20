@@ -34,13 +34,15 @@ export const normalizeProduct = (item: RawCatalogInput): Product => {
       ? photos[0]
       : null;
 
-  const rawDisponible = item.disponible ?? source.disponible;
-  const disponible = Boolean(rawDisponible);
+  // Soporte primario para isAvailable con fallback resiliente a disponible
+  const rawAvailable = (item as any).isAvailable ?? item.disponible ?? (source as any).isAvailable ?? source.disponible;
+  const isAvailable = Boolean(rawAvailable);
+
   const rawMaxOrderQuantity = item.maxOrderQuantity ?? source.maxOrderQuantity;
   const maxOrderQuantity =
     typeof rawMaxOrderQuantity === 'number'
       ? Math.max(0, rawMaxOrderQuantity)
-      : disponible
+      : isAvailable
       ? 1
       : 0;
   const lowStock = Boolean(item.lowStock ?? source.lowStock);
@@ -60,7 +62,8 @@ export const normalizeProduct = (item: RawCatalogInput): Product => {
     categoryId: source.categoryId,
     categoryName: source.categoryName,
     specs: Array.isArray(source.specs) ? source.specs : [],
-    disponible: disponible && maxOrderQuantity > 0,
+    isAvailable: isAvailable && maxOrderQuantity > 0,
+    disponible: isAvailable && maxOrderQuantity > 0,
     lowStock,
     maxOrderQuantity,
   };

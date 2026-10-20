@@ -25,7 +25,8 @@ export interface UpsellProductDTO {
   discountPercentage: number;
   categoryId: string;
   categoryName: string;
-  disponible: boolean;
+  isAvailable: boolean;
+  disponible?: boolean;
   maxOrderQuantity: number;
   coversMissingAmount: boolean;
 }

@@ -116,6 +116,7 @@ export function ProductDetailPage() {
     categoryId,
     categoryName,
     specs = [],
+    isAvailable: isAvailableProp,
     disponible,
     lowStock,
     maxOrderQuantity = 0,
@@ -128,7 +129,7 @@ export function ProductDetailPage() {
 
   const quantityInCart = cart.find((item) => item.id === product.id)?.quantity ?? 0;
   const remainingAvailable = Math.max(0, maxOrderQuantity - quantityInCart);
-  const isAvailable = disponible && maxOrderQuantity > 0;
+  const isAvailable = (isAvailableProp ?? disponible ?? false) && maxOrderQuantity > 0;
   const isLimitReached = isAvailable && remainingAvailable === 0;
   const isPurchaseDisabled = !isAvailable || isLimitReached;
 
