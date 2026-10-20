@@ -1,5 +1,24 @@
 import { authFetch } from '../../../shared/api/apiClient';
-import type { AuthResponseDTO, LoginInput, RegisterInput, UserDTO } from '../types';
+import type { AuthResponseDTO, LoginInput, RegisterInput, SocialAuthPayload, UserDTO } from '../types';
+
+export const socialLogin = async (payload: SocialAuthPayload): Promise<AuthResponseDTO> => {
+  const response = await fetch('/storefront/api/auth/social', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await response.json();
+  if (!response.ok) {
+    const error: any = new Error(data.error || 'No se pudo completar el inicio de sesión con Google.');
+    error.status = response.status;
+    throw error;
+  }
+
+  return data;
+};
 
 export const loginUser = async (credentials: LoginInput): Promise<AuthResponseDTO> => {
   const response = await fetch('/storefront/api/auth/login', {

@@ -329,12 +329,16 @@ const handleSuggestions = ({ request }: { request: Request }) => {
 export let mockStoreSettings = {
   freeShippingEnabled: true,
   freeShippingThreshold: 50.0,
+  enabledSocialProviders: ['google'],
+  googleClientId: 'mock-google-client-id',
 };
 
 export const resetMockStoreSettings = () => {
   mockStoreSettings = {
     freeShippingEnabled: true,
     freeShippingThreshold: 50.0,
+    enabledSocialProviders: ['google'],
+    googleClientId: 'mock-google-client-id',
   };
 };
 
@@ -1078,6 +1082,54 @@ const handleAuthRegister = async ({ request }: { request: Request }) => {
   }
 };
 
+const handleAuthSocial = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      provider?: string;
+      idToken?: string;
+    };
+    const { provider, idToken } = body;
+
+    if (!provider || !idToken) {
+      return HttpResponse.json(
+        { error: 'Proveedor y token de acceso son requeridos.' },
+        { status: 400 }
+      );
+    }
+
+    if (provider !== 'google') {
+      return HttpResponse.json(
+        { error: `Proveedor '${provider}' no soportado en esta fase.` },
+        { status: 400 }
+      );
+    }
+
+    if (idToken === 'invalid-token' || idToken === 'invalid_token') {
+      return HttpResponse.json(
+        { error: 'Token de Google inválido o correo no verificado.' },
+        { status: 401 }
+      );
+    }
+
+    return HttpResponse.json({
+      success: true,
+      token: 'mock-jwt-token-google-7d',
+      user: {
+        id: 'usr-google-12345',
+        name: 'Julio Cano',
+        email: 'julio@ejemplo.com',
+        avatarUrl: 'https://lh3.googleusercontent.com/a/ACg8oc...',
+        authProvider: 'google',
+      },
+    });
+  } catch {
+    return HttpResponse.json(
+      { error: 'Error interno al procesar la autenticación social.' },
+      { status: 500 }
+    );
+  }
+};
+
 const handleAuthMe = ({ request }: { request: Request }) => {
   const authHeader = request.headers.get('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.includes('expired')) {
@@ -1097,12 +1149,15 @@ const handleAuthMe = ({ request }: { request: Request }) => {
 };
 
 export const handlers = [
-  // Auth Endpoints (Epic 13)
+  // Auth Endpoints (Epic 13 & 14)
   http.post('*/storefront/api/auth/login', handleAuthLogin),
   http.post('*/api/auth/login', handleAuthLogin),
 
   http.post('*/storefront/api/auth/register', handleAuthRegister),
   http.post('*/api/auth/register', handleAuthRegister),
+
+  http.post('*/storefront/api/auth/social', handleAuthSocial),
+  http.post('*/api/auth/social', handleAuthSocial),
 
   http.get('*/storefront/api/auth/me', handleAuthMe),
   http.get('*/api/auth/me', handleAuthMe),

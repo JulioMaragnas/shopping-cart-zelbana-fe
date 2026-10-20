@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { registerUser } from '../api/authApi';
+import { GoogleSocialButton } from '../components/GoogleSocialButton';
+import { SocialDivider } from '../components/SocialDivider';
+import { useSocialAuth } from '../hooks/useSocialAuth';
+import { useStoreSettings } from '../../catalog/api/useStoreSettings';
 import styles from './RegisterPage.module.css';
 
 export const RegisterPage: React.FC = () => {
@@ -10,6 +14,13 @@ export const RegisterPage: React.FC = () => {
   const redirectTarget = searchParams.get('redirect') || '/';
 
   const login = useAuthStore((state) => state.login);
+  const { data: storeSettings } = useStoreSettings();
+  const { isVerifying, socialError, handleGoogleSuccess, handleDismiss } = useSocialAuth();
+
+  const isGoogleEnabled = Boolean(
+    storeSettings?.enabledSocialProviders?.includes('google') &&
+    storeSettings?.googleClientId
+  );
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -82,6 +93,39 @@ export const RegisterPage: React.FC = () => {
           </p>
         </div>
 
+        {socialError && (
+          <div
+            className={styles.alertError}
+            role="alert"
+            aria-live="assertive"
+            data-testid="social-error-alert"
+          >
+            <span>⚠️</span>
+            <span>{socialError}</span>
+          </div>
+        )}
+
+        {isGoogleEnabled && (
+          <>
+            <GoogleSocialButton
+              mode="register"
+              clientId={storeSettings?.googleClientId || undefined}
+              isLoading={isVerifying}
+              disabled={isLoading || isVerifying}
+              onSuccess={async (idToken) => {
+                try {
+                  await handleGoogleSuccess(idToken);
+                  navigate(redirectTarget, { replace: true });
+                } catch {
+                  // Handled by useSocialAuth
+                }
+              }}
+              onDismiss={handleDismiss}
+            />
+            <SocialDivider label="o regístrate con correo" />
+          </>
+        )}
+
         {errorMessage && (
           <div
             className={styles.alertError}
@@ -109,7 +153,7 @@ export const RegisterPage: React.FC = () => {
                 placeholder="Ej. María Pérez"
                 required
                 autoComplete="name"
-                disabled={isLoading}
+                disabled={isLoading || isVerifying}
                 data-testid="register-name-input"
               />
             </div>
@@ -129,7 +173,7 @@ export const RegisterPage: React.FC = () => {
                 placeholder="tu@correo.com"
                 required
                 autoComplete="email"
-                disabled={isLoading}
+                disabled={isLoading || isVerifying}
                 data-testid="register-email-input"
               />
             </div>
@@ -149,7 +193,7 @@ export const RegisterPage: React.FC = () => {
                 placeholder="Mínimo 8 caracteres"
                 required
                 autoComplete="new-password"
-                disabled={isLoading}
+                disabled={isLoading || isVerifying}
                 data-testid="register-password-input"
               />
             </div>
@@ -205,7 +249,7 @@ export const RegisterPage: React.FC = () => {
           <button
             type="submit"
             className={styles.submitBtn}
-            disabled={isLoading}
+            disabled={isLoading || isVerifying}
             data-testid="register-submit-btn"
           >
             {isLoading ? (

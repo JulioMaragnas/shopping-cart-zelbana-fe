@@ -3,6 +3,10 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import { loginUser } from '../api/authApi';
 import { SmartResumeCard } from '../components/SmartResumeCard';
+import { GoogleSocialButton } from '../components/GoogleSocialButton';
+import { SocialDivider } from '../components/SocialDivider';
+import { useSocialAuth } from '../hooks/useSocialAuth';
+import { useStoreSettings } from '../../catalog/api/useStoreSettings';
 import styles from './LoginPage.module.css';
 
 export const LoginPage: React.FC = () => {
@@ -11,19 +15,29 @@ export const LoginPage: React.FC = () => {
   const redirectTarget = searchParams.get('redirect') || '/';
 
   const login = useAuthStore((state) => state.login);
+  const { data: storeSettings } = useStoreSettings();
+  const { isVerifying, socialError, handleGoogleSuccess, handleDismiss } = useSocialAuth();
+
+  const isGoogleEnabled = Boolean(
+    storeSettings?.enabledSocialProviders?.includes('google') &&
+    storeSettings?.googleClientId
+  );
 
   // Smart Resume state detection
   const [lastAuthName, setLastAuthName] = useState<string | null>(null);
   const [lastAuthEmail, setLastAuthEmail] = useState<string | null>(null);
+  const [lastAuthProvider, setLastAuthProvider] = useState<string | null>(null);
   const [isSwitchingAccount, setIsSwitchingAccount] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const name = localStorage.getItem('zelbana-last-auth-name');
       const email = localStorage.getItem('zelbana-last-auth-email');
+      const provider = localStorage.getItem('zelbana-last-auth-provider');
       if (name && email) {
         setLastAuthName(name);
         setLastAuthEmail(email);
+        setLastAuthProvider(provider);
       }
     }
   }, []);
@@ -124,6 +138,7 @@ export const LoginPage: React.FC = () => {
           <SmartResumeCard
             name={lastAuthName!}
             email={lastAuthEmail!}
+            provider={lastAuthProvider || undefined}
             isLoading={isLoading}
             onContinue={handleSmartResumeContinue}
             onChangeAccount={() => {
@@ -133,6 +148,39 @@ export const LoginPage: React.FC = () => {
           />
         ) : (
           <>
+            {socialError && (
+              <div
+                className={styles.alertError}
+                role="alert"
+                aria-live="assertive"
+                data-testid="social-error-alert"
+              >
+                <span>⚠️</span>
+                <span>{socialError}</span>
+              </div>
+            )}
+
+            {isGoogleEnabled && (
+              <>
+                <GoogleSocialButton
+                  mode="login"
+                  clientId={storeSettings?.googleClientId || undefined}
+                  isLoading={isVerifying}
+                  disabled={isLoading || isVerifying || rateLimitSeconds !== null}
+                  onSuccess={async (idToken) => {
+                    try {
+                      await handleGoogleSuccess(idToken);
+                      navigate(redirectTarget, { replace: true });
+                    } catch {
+                      // Error handled by useSocialAuth
+                    }
+                  }}
+                  onDismiss={handleDismiss}
+                />
+                <SocialDivider label="o con tu correo" />
+              </>
+            )}
+
             {errorMessage && (
               <div
                 className={rateLimitSeconds !== null ? styles.alertWarning : styles.alertError}
@@ -164,7 +212,7 @@ export const LoginPage: React.FC = () => {
                     placeholder="tu@correo.com"
                     required
                     autoComplete="email"
-                    disabled={isLoading || rateLimitSeconds !== null}
+                    disabled={isLoading || isVerifying || rateLimitSeconds !== null}
                     data-testid="login-email-input"
                   />
                 </div>
@@ -186,7 +234,7 @@ export const LoginPage: React.FC = () => {
                     placeholder="••••••••"
                     required
                     autoComplete="current-password"
-                    disabled={isLoading || rateLimitSeconds !== null}
+                    disabled={isLoading || isVerifying || rateLimitSeconds !== null}
                     data-testid="login-password-input"
                   />
                   <button
@@ -215,7 +263,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 className={styles.submitBtn}
-                disabled={isLoading || rateLimitSeconds !== null}
+                disabled={isLoading || isVerifying || rateLimitSeconds !== null}
                 data-testid="login-submit-btn"
               >
                 {isLoading ? (
