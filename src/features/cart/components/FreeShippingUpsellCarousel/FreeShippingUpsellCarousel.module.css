@@ -1,0 +1,245 @@
+.container {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 24px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.containerUnlocked {
+  background-color: #f0fdf4;
+  border-color: #a7f3d0;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+}
+
+.missingNotice,
+.unlockedNotice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #1e293b;
+  flex-wrap: wrap;
+}
+
+.unlockedNotice {
+  color: #059669;
+  font-weight: 600;
+}
+
+.truckIcon,
+.celebrationIcon {
+  font-size: 18px;
+}
+
+.missingText strong,
+.unlockedText strong {
+  font-weight: 700;
+}
+
+.thresholdMeta {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: normal;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 10px;
+  background-color: #e2e8f0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin: 12px 0 8px;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #0284c7;
+  border-radius: 9999px;
+  transition: width 0.4s ease-out;
+}
+
+.progressFillUnlocked {
+  background-color: #059669;
+}
+
+.progressMetaRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.percentageText {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.carouselSection {
+  margin-top: 20px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 16px;
+}
+
+.carouselHeader {
+  margin-bottom: 12px;
+}
+
+.carouselTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.carouselSubtitle {
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+
+.carouselTrack {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.miniCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.miniCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.badgeRow {
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+}
+
+.badgeFreeShipping {
+  background-color: #ecfdf5;
+  color: #059669;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #a7f3d0;
+  display: inline-block;
+}
+
+.badgeDiscount {
+  background-color: #ffe4e6;
+  color: #e11d48;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #fecdd3;
+  display: inline-block;
+}
+
+.thumbWrapper {
+  width: 100%;
+  height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.thumbImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.thumbPlaceholder {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.productName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.productPrice {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.addBtn {
+  background-color: #ffffff;
+  border: 1px solid #1e293b;
+  color: #1e293b;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.addBtn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+.addBtn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Mobile responsive scroll-snap */
+@media (max-width: 768px) {
+  .carouselTrack {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .carouselTrack::-webkit-scrollbar {
+    display: none;
+  }
+
+  .miniCard {
+    flex: 0 0 170px;
+    scroll-snap-align: start;
+  }
+}

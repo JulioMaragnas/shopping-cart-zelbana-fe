@@ -94,7 +94,7 @@ describe('CartPage Component (Zero Trust — Fases 4.1 a 4.4)', () => {
     await waitFor(() => {
       const cart = useCartStore.getState().cart;
       expect(cart[0].quantity).toBe(3);
-      expect(screen.getByRole('status')).toHaveTextContent(/Hemos ajustado tu carrito/i);
+      expect(screen.getByText(/Hemos ajustado tu carrito/i)).toBeInTheDocument();
     });
 
     await waitFor(() => {
@@ -139,7 +139,7 @@ describe('CartPage Component (Zero Trust — Fases 4.1 a 4.4)', () => {
       const cart = useCartStore.getState().cart;
       expect(cart).toHaveLength(1);
       expect(cart[0].id).toBe('1');
-      expect(screen.getByRole('status')).toHaveTextContent(/fueron removidos/i);
+      expect(screen.getByText(/fueron removidos/i)).toBeInTheDocument();
     });
   });
 
@@ -197,6 +197,195 @@ describe('CartPage Component (Zero Trust — Fases 4.1 a 4.4)', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('alert')).toHaveTextContent(/Stock insuficiente/i);
+    });
+  });
+
+  it('TDD-FE-FS-04 & TC-UI-FS-05: renders FreeShippingUpsellCarousel with progress bar and upsell cards when goal is in progress', async () => {
+    server.use(
+      http.post('*/storefront/api/cart/validate', () => {
+        return HttpResponse.json({
+          items: [
+            {
+              productId: 'prod-item-1',
+              name: 'Contorno Cafeína',
+              thumbnailUrl: null,
+              quantityRequested: 1,
+              quantityFulfilled: 1,
+              availableStock: 10,
+              salePrice: 35.0,
+              unitPrice: 35.0,
+              discountPercentage: 0,
+              subtotal: 35.0,
+              message: 'Stock disponible',
+            },
+          ],
+          totalAmount: 35.0,
+          isValid: true,
+          shippingPromotion: {
+            enabled: true,
+            threshold: 50.0,
+            currentAmount: 35.0,
+            missingAmount: 15.0,
+            percentage: 70,
+            isFreeShippingUnlocked: false,
+            upsellProducts: [
+              {
+                id: 'prod-upsell-1',
+                name: 'Serum Vitamina C',
+                thumbnailUrl: '/products/serum.webp',
+                salePrice: 16.5,
+                discountPercentage: 0,
+                categoryId: 'cat-facial',
+                categoryName: 'Cuidado Facial',
+                disponible: true,
+                maxOrderQuantity: 10,
+                coversMissingAmount: true,
+              },
+            ],
+          },
+        });
+      })
+    );
+
+    useCartStore.getState().addItem({
+      id: 'prod-item-1',
+      name: 'Contorno Cafeína',
+      priceWhenAdded: 35.0,
+      quantity: 1,
+    });
+
+    renderCartPage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('free-shipping-upsell-container')).toBeInTheDocument();
+      expect(screen.getByTestId('free-shipping-goal-missing')).toHaveTextContent(/¡Te faltan \$15\.00 para tener ENVÍO GRATIS!/i);
+      expect(screen.getByTestId('free-shipping-percentage-text')).toHaveTextContent('70%');
+      expect(screen.getByTestId('upsell-carousel-section')).toBeInTheDocument();
+      expect(screen.getByTestId('upsell-card-prod-upsell-1')).toBeInTheDocument();
+      expect(screen.getByTestId('upsell-badge-covers-prod-upsell-1')).toHaveTextContent(/✨ ¡Te da Envío Gratis!/i);
+      expect(screen.getByTestId('summary-shipping-pending')).toHaveTextContent(/Faltan \$15\.00/i);
+    });
+  });
+
+  it('TDD-FE-FS-05 & TC-UI-FS-07: adds upsell product to cart on "+ Agregar" click', async () => {
+    const user = userEvent.setup();
+
+    server.use(
+      http.post('*/storefront/api/cart/validate', () => {
+        return HttpResponse.json({
+          items: [
+            {
+              productId: 'prod-item-1',
+              name: 'Contorno Cafeína',
+              thumbnailUrl: null,
+              quantityRequested: 1,
+              quantityFulfilled: 1,
+              availableStock: 10,
+              salePrice: 35.0,
+              unitPrice: 35.0,
+              discountPercentage: 0,
+              subtotal: 35.0,
+              message: 'Stock disponible',
+            },
+          ],
+          totalAmount: 35.0,
+          isValid: true,
+          shippingPromotion: {
+            enabled: true,
+            threshold: 50.0,
+            currentAmount: 35.0,
+            missingAmount: 15.0,
+            percentage: 70,
+            isFreeShippingUnlocked: false,
+            upsellProducts: [
+              {
+                id: 'prod-upsell-1',
+                name: 'Serum Vitamina C',
+                thumbnailUrl: '/products/serum.webp',
+                salePrice: 16.5,
+                discountPercentage: 0,
+                categoryId: 'cat-facial',
+                categoryName: 'Cuidado Facial',
+                disponible: true,
+                maxOrderQuantity: 10,
+                coversMissingAmount: true,
+              },
+            ],
+          },
+        });
+      })
+    );
+
+    useCartStore.getState().addItem({
+      id: 'prod-item-1',
+      name: 'Contorno Cafeína',
+      priceWhenAdded: 35.0,
+      quantity: 1,
+    });
+
+    renderCartPage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('upsell-add-btn-prod-upsell-1')).toBeInTheDocument();
+    });
+
+    const addBtn = screen.getByTestId('upsell-add-btn-prod-upsell-1');
+    await user.click(addBtn);
+
+    await waitFor(() => {
+      const cart = useCartStore.getState().cart;
+      expect(cart.some((item) => item.id === 'prod-upsell-1')).toBe(true);
+    });
+  });
+
+  it('TDD-FE-FS-06 & TC-UI-FS-08: transitions to unlocked state with 100% green bar, folds upsell carousel, and shows GRATIS in summary', async () => {
+    server.use(
+      http.post('*/storefront/api/cart/validate', () => {
+        return HttpResponse.json({
+          items: [
+            {
+              productId: 'prod-item-1',
+              name: 'Serum Vitamina C',
+              thumbnailUrl: null,
+              quantityRequested: 2,
+              quantityFulfilled: 2,
+              availableStock: 10,
+              salePrice: 30.0,
+              unitPrice: 30.0,
+              discountPercentage: 0,
+              subtotal: 60.0,
+              message: 'Stock disponible',
+            },
+          ],
+          totalAmount: 60.0,
+          isValid: true,
+          shippingPromotion: {
+            enabled: true,
+            threshold: 50.0,
+            currentAmount: 60.0,
+            missingAmount: 0,
+            percentage: 100,
+            isFreeShippingUnlocked: true,
+            upsellProducts: [],
+          },
+        });
+      })
+    );
+
+    useCartStore.getState().addItem({
+      id: 'prod-item-1',
+      name: 'Serum Vitamina C',
+      priceWhenAdded: 30.0,
+      quantity: 2,
+    });
+
+    renderCartPage();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('free-shipping-goal-unlocked')).toHaveTextContent(/¡Felicidades! Desbloqueaste ENVÍO GRATIS/i);
+      expect(screen.getByTestId('free-shipping-progress-fill')).toHaveStyle({ width: '100%' });
+      expect(screen.queryByTestId('upsell-carousel-section')).not.toBeInTheDocument();
+      expect(screen.getByTestId('summary-shipping-free')).toHaveTextContent(/GRATIS \(\$0\.00\) 🎉/i);
     });
   });
 });

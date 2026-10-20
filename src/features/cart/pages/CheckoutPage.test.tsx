@@ -214,6 +214,122 @@ describe('CheckoutPage', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(/tiempo de reserva expiró/i);
     });
   });
+
+  it('TDD-FE-FS-07 & TC-UI-FS-10: renders free shipping badge when order meets or exceeds free shipping threshold', async () => {
+    server.use(
+      http.get('*/storefront/api/settings', () => {
+        return HttpResponse.json({
+          freeShippingEnabled: true,
+          freeShippingThreshold: 50.0,
+        });
+      })
+    );
+
+    renderComponent('ord-12345', {
+      order: {
+        id: 'ord-12345',
+        status: 'RESERVED',
+        totalAmount: 50.0,
+        subtotalAmount: 65.0,
+        discountAmount: 15.0,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        customerEmail: 'julio@ejemplo.com',
+        shippingAddress: 'Carrera 65A 1 sur-10',
+        items: [
+          {
+            productId: '1',
+            name: 'Jabón de coco',
+            quantity: 2,
+            unitPrice: 20.0,
+            salePrice: 12.5,
+            discountPercentage: 37,
+            lineSubtotal: 40.0,
+            lineTotal: 25.0,
+          },
+          {
+            productId: '2',
+            name: 'Sal hidratante',
+            quantity: 1,
+            unitPrice: 25.0,
+            salePrice: 25.0,
+            discountPercentage: 0,
+            lineSubtotal: 25.0,
+            lineTotal: 25.0,
+          },
+        ],
+      },
+    });
+
+    const badge = await screen.findByTestId('checkout-free-shipping-badge');
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent(/🚚 Envío GRATIS incluido en tu pedido/i);
+  });
+
+  it('TDD-FE-FS-07: does NOT render free shipping badge when order does not meet threshold', async () => {
+    server.use(
+      http.get('*/storefront/api/settings', () => {
+        return HttpResponse.json({
+          freeShippingEnabled: true,
+          freeShippingThreshold: 50.0,
+        });
+      }),
+      http.get('*/storefront/api/orders/:orderId', () => {
+        return HttpResponse.json({
+          id: 'ord-small',
+          status: 'RESERVED',
+          totalAmount: 30.0,
+          subtotalAmount: 30.0,
+          discountAmount: 0,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+          customerEmail: 'julio@ejemplo.com',
+          shippingAddress: 'Carrera 65A 1 sur-10',
+          items: [
+            {
+              productId: '1',
+              name: 'Jabón de coco',
+              quantity: 1,
+              unitPrice: 30.0,
+              salePrice: 30.0,
+              discountPercentage: 0,
+              lineSubtotal: 30.0,
+              lineTotal: 30.0,
+            },
+          ],
+        });
+      })
+    );
+
+    renderComponent('ord-small', {
+      order: {
+        id: 'ord-small',
+        status: 'RESERVED',
+        totalAmount: 30.0,
+        subtotalAmount: 30.0,
+        discountAmount: 0,
+        createdAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        customerEmail: 'julio@ejemplo.com',
+        shippingAddress: 'Carrera 65A 1 sur-10',
+        items: [
+          {
+            productId: '1',
+            name: 'Jabón de coco',
+            quantity: 1,
+            unitPrice: 30.0,
+            salePrice: 30.0,
+            discountPercentage: 0,
+            lineSubtotal: 30.0,
+            lineTotal: 30.0,
+          },
+        ],
+      },
+    });
+
+    await screen.findByText('Resumen de la compra');
+    expect(screen.queryByTestId('checkout-free-shipping-badge')).not.toBeInTheDocument();
+  });
 });
 
 

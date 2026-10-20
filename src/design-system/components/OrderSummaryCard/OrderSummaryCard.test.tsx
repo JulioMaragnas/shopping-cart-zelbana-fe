@@ -61,4 +61,59 @@ describe('OrderSummaryCard Component (Fase 4.3)', () => {
     expect(screen.getByRole('button')).toBeDisabled();
     expect(screen.getByRole('button')).toHaveTextContent('Pagar');
   });
+
+  it('TC-UI-FS-09: renders GRATIS ($0.00) 🎉 badge when isFreeShippingUnlocked is true', () => {
+    render(
+      <OrderSummaryCard
+        totalUnits={2}
+        total={60}
+        onPay={() => {}}
+        isValidating={false}
+        isValid={true}
+        isFreeShippingUnlocked={true}
+      />
+    );
+
+    expect(screen.getByTestId('summary-shipping-row')).toBeInTheDocument();
+    const freeBadge = screen.getByTestId('summary-shipping-free');
+    expect(freeBadge).toHaveTextContent(/GRATIS \(\$0\.00\) 🎉/i);
+    expect(screen.queryByTestId('summary-shipping-pending')).not.toBeInTheDocument();
+  });
+
+  it('TC-UI-FS-09: renders Por calcular (Faltan $X.XX) when goal is in progress', () => {
+    render(
+      <OrderSummaryCard
+        totalUnits={1}
+        total={35}
+        onPay={() => {}}
+        isValidating={false}
+        isValid={true}
+        isFreeShippingUnlocked={false}
+        missingAmountForFreeShipping={15.0}
+      />
+    );
+
+    expect(screen.getByTestId('summary-shipping-row')).toBeInTheDocument();
+    const pendingText = screen.getByTestId('summary-shipping-pending');
+    expect(pendingText).toHaveTextContent(/Por calcular/i);
+    expect(pendingText).toHaveTextContent(/\(Faltan \$15\.00\)/i);
+    expect(screen.queryByTestId('summary-shipping-free')).not.toBeInTheDocument();
+  });
+
+  it('renders standard Por calcular when shipping props are not provided', () => {
+    render(
+      <OrderSummaryCard
+        totalUnits={1}
+        total={35}
+        onPay={() => {}}
+        isValidating={false}
+        isValid={true}
+      />
+    );
+
+    const shippingRow = screen.getByTestId('summary-shipping-row');
+    expect(shippingRow).toHaveTextContent(/Por calcular/i);
+    expect(screen.queryByTestId('summary-shipping-free')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('summary-shipping-pending')).not.toBeInTheDocument();
+  });
 });

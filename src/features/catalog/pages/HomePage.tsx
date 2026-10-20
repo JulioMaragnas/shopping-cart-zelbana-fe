@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
+import { FreeShippingBanner } from '../../../design-system/components/FreeShippingBanner/FreeShippingBanner';
 import { Jumbotron } from '../../../design-system/components/Jumbotron/Jumbotron';
 import { ProductGrid } from '../../search/components/ProductGrid';
 import { useCatalogSearch } from '../../search/api/useCatalogSearch';
@@ -145,6 +146,7 @@ export function HomePage() {
       </Helmet>
 
       <Navbar />
+      <FreeShippingBanner />
 
       <main className={styles.container}>
         {!isFiltering && <Jumbotron />}

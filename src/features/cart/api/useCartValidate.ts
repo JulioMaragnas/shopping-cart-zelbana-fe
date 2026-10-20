@@ -1,18 +1,26 @@
 import { useQuery } from '@tanstack/react-query';
 import { useCartStore } from '../store/useCartStore';
+import { getAffinityData } from '../../search/store/useAffinityStore';
 import type { CartValidationResponse } from '../types';
 
 export const useCartValidate = () => {
   const cart = useCartStore((state) => state.cart);
+  const affinity = getAffinityData();
 
   return useQuery<CartValidationResponse>({
-    queryKey: ['cartValidate', cart],
+    queryKey: ['cartValidate', cart, affinity.recentSearches, affinity.recentCategories],
     queryFn: async () => {
-      const payload = {
+      const payload: {
+        cart: Array<{ productId: string; quantity: number }>;
+        affinityTerms?: string[];
+        affinityCategories?: string[];
+      } = {
         cart: cart.map((item) => ({
           productId: item.id,
           quantity: item.quantity,
         })),
+        ...(affinity.recentSearches.length > 0 ? { affinityTerms: affinity.recentSearches } : {}),
+        ...(affinity.recentCategories.length > 0 ? { affinityCategories: affinity.recentCategories } : {}),
       };
 
       const response = await fetch('/storefront/api/cart/validate', {

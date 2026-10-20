@@ -6,6 +6,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCartStore } from '../store/useCartStore';
 import { useCheckoutConfirm, useCheckoutCancel, useOrderDetail } from '../api/useCheckout';
 import { useUserAddresses, useCreateUserAddress } from '../api/useAddresses';
+import { useStoreSettings } from '../../catalog/api/useStoreSettings';
 import { AddressMapPicker } from '../components/AddressMapPicker/AddressMapPicker';
 import type { OrderDetail, OrderItem, AddressQuickChip, ShippingCoordinates } from '../types';
 import styles from './CheckoutPage.module.css';
@@ -27,6 +28,7 @@ export function CheckoutPage() {
 
   const { data: order, isLoading, isError, error } = useOrderDetail(orderId, initialOrder);
   const { data: savedAddresses = [] } = useUserAddresses();
+  const { data: storeSettings } = useStoreSettings();
   const createAddressMutation = useCreateUserAddress();
 
   // Estados de Dirección de Entrega (Fase 5.4)
@@ -236,6 +238,11 @@ export function CheckoutPage() {
   const currentOrder: OrderDetail | undefined = order || initialOrder;
   const items: OrderItem[] = currentOrder?.items || [];
   const currentTotal = currentOrder?.totalAmount ?? initialTotal;
+  const shippingThreshold = storeSettings?.freeShippingThreshold ?? 50.0;
+  const isFreeShipping = Boolean(
+    storeSettings?.freeShippingEnabled &&
+      (currentTotal >= shippingThreshold || (currentOrder?.subtotalAmount ?? 0) >= shippingThreshold)
+  );
 
   return (
     <>
@@ -565,6 +572,15 @@ export function CheckoutPage() {
             <aside className={styles.rightCol}>
               <div className={styles.stickyCard}>
                 <h2 className={styles.summaryTitle}>Resumen de la compra</h2>
+
+                {isFreeShipping && (
+                  <div
+                    className={styles.freeShippingBadge}
+                    data-testid="checkout-free-shipping-badge"
+                  >
+                    🚚 Envío GRATIS incluido en tu pedido
+                  </div>
+                )}
 
                 <div className={styles.breakdownList}>
                   {items.map((item) => (

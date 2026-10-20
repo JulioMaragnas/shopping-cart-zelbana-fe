@@ -17,10 +17,34 @@ export interface CartValidatedItem {
   message: string;
 }
 
+export interface UpsellProductDTO {
+  id: string;
+  name: string;
+  thumbnailUrl: string | null;
+  salePrice: number;
+  discountPercentage: number;
+  categoryId: string;
+  categoryName: string;
+  disponible: boolean;
+  maxOrderQuantity: number;
+  coversMissingAmount: boolean;
+}
+
+export interface ShippingPromotionDTO {
+  enabled: boolean;
+  threshold: number;
+  currentAmount: number;
+  missingAmount: number;
+  percentage: number;
+  isFreeShippingUnlocked: boolean;
+  upsellProducts: UpsellProductDTO[];
+}
+
 export interface CartValidationResponse {
   items: CartValidatedItem[];
   totalAmount: number;
   isValid: boolean;
+  shippingPromotion?: ShippingPromotionDTO;
 }
 
 export interface OrderItem {

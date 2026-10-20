@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Navbar } from '../../../design-system/components/Navbar/Navbar';
+import { FreeShippingBanner } from '../../../design-system/components/FreeShippingBanner/FreeShippingBanner';
 import { useProductDetail } from '../api/useProductDetail';
 import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
@@ -145,6 +146,7 @@ export function ProductDetailPage() {
       </Helmet>
 
       <Navbar />
+      <FreeShippingBanner />
 
       <main className={styles.container}>
         <nav className={styles.breadcrumb}>
