@@ -501,10 +501,203 @@ export const resetMockOrders = () => {
       },
     ],
   };
+
+  mockOrders['ORD-1760731845000'] = {
+    id: 'ORD-1760731845000',
+    status: 'PAID',
+    createdAt: '2026-10-14T15:42:00.000Z',
+    expiresAt: '2026-10-14T15:57:00.000Z',
+    customerEmail: 'maria@email.com',
+    shippingAddress: 'Calle 93 # 14-20, Apto 402, Bogotá',
+    shippingCoordinates: { lat: 4.6759, lng: -74.0536 },
+    subtotalAmount: 142500,
+    discountAmount: 0,
+    totalAmount: 142500,
+    items: [
+      {
+        productId: '1',
+        name: 'Serum Niacinamida 10%',
+        thumbnailUrl: minioUrl('prod-1-thumb.webp'),
+        quantity: 1,
+        unitPrice: 62000,
+        salePrice: 62000,
+        discountPercentage: 0,
+        lineSubtotal: 62000,
+        lineTotal: 62000,
+      },
+      {
+        productId: '2',
+        name: 'Gel Limpiador Purificante',
+        thumbnailUrl: minioUrl('prod-2-thumb.webp'),
+        quantity: 2,
+        unitPrice: 35000,
+        salePrice: 35000,
+        discountPercentage: 0,
+        lineSubtotal: 70000,
+        lineTotal: 70000,
+      },
+      {
+        productId: '3',
+        name: 'Exfoliante Corporal Café & Coco',
+        thumbnailUrl: minioUrl('prod-3-thumb.webp'),
+        quantity: 1,
+        unitPrice: 45500,
+        salePrice: 45500,
+        discountPercentage: 0,
+        lineSubtotal: 45500,
+        lineTotal: 45500,
+      },
+    ],
+  };
+
+  mockOrders['ORD-1758920100000'] = {
+    id: 'ORD-1758920100000',
+    status: 'PAID',
+    createdAt: '2026-09-28T10:15:00.000Z',
+    expiresAt: '2026-09-28T10:30:00.000Z',
+    customerEmail: 'maria@email.com',
+    shippingAddress: 'Calle 93 # 14-20, Bogotá',
+    shippingCoordinates: { lat: 4.6759, lng: -74.0536 },
+    subtotalAmount: 89900,
+    discountAmount: 0,
+    totalAmount: 89900,
+    items: [
+      {
+        productId: '4',
+        name: 'Crema Ceramidas',
+        thumbnailUrl: minioUrl('prod-4-thumb.webp'),
+        quantity: 1,
+        unitPrice: 54900,
+        salePrice: 54900,
+        discountPercentage: 0,
+        lineSubtotal: 54900,
+        lineTotal: 54900,
+      },
+      {
+        productId: '5',
+        name: 'Bálsamo Labial',
+        thumbnailUrl: minioUrl('prod-5-thumb.webp'),
+        quantity: 2,
+        unitPrice: 17500,
+        salePrice: 17500,
+        discountPercentage: 0,
+        lineSubtotal: 35000,
+        lineTotal: 35000,
+      },
+    ],
+  };
 };
 
 resetMockOrders();
 
+const handleGetOrders = ({ request }: { request: Request }) => {
+  const url = new URL(request.url);
+  const rawEmail = url.searchParams.get('email');
+  if (!rawEmail || typeof rawEmail !== 'string' || !rawEmail.trim()) {
+    return HttpResponse.json(
+      { error: 'El parámetro email es obligatorio para consultar pedidos.' },
+      { status: 400 }
+    );
+  }
+
+  const normalizedEmail = rawEmail.trim().toLowerCase();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(normalizedEmail)) {
+    return HttpResponse.json(
+      { error: 'Formato de correo electrónico inválido.' },
+      { status: 400 }
+    );
+  }
+
+  const limitParam = url.searchParams.get('limit');
+  const limit = limitParam ? Math.min(100, Math.max(1, parseInt(limitParam, 10))) : 50;
+
+  const paidOrders = Object.values(mockOrders)
+    .filter(
+      (order) =>
+        order.status === 'PAID' &&
+        Boolean(order.customerEmail) &&
+        order.customerEmail!.trim().toLowerCase() === normalizedEmail
+    )
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, limit)
+    .map((order) => ({
+      ...order,
+      orderId: order.id,
+      paidAt: order.createdAt,
+      currency: 'COP' as const,
+    }));
+
+  return HttpResponse.json({ orders: paidOrders });
+};
+
+const handleOrderLookup = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      orderId?: string;
+      email?: string;
+    };
+
+    const orderId = body.orderId;
+    const email = body.email;
+
+    if (!orderId || typeof orderId !== 'string' || !orderId.trim()) {
+      return HttpResponse.json(
+        { error: 'El número de orden es requerido.' },
+        { status: 400 }
+      );
+    }
+
+    if (!email || typeof email !== 'string' || !email.trim()) {
+      return HttpResponse.json(
+        { error: 'El correo electrónico es requerido.' },
+        { status: 400 }
+      );
+    }
+
+    const trimmedOrderId = orderId.trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      return HttpResponse.json(
+        { error: 'Formato de correo electrónico inválido.' },
+        { status: 400 }
+      );
+    }
+
+    const existing = Object.values(mockOrders).find(
+      (o) =>
+        o.id.toLowerCase() === trimmedOrderId.toLowerCase() &&
+        o.status === 'PAID' &&
+        Boolean(o.customerEmail) &&
+        o.customerEmail!.trim().toLowerCase() === normalizedEmail
+    );
+
+    if (!existing) {
+      return HttpResponse.json(
+        {
+          error:
+            'No encontramos un pedido pagado asociado a ese número de orden y correo electrónico.',
+        },
+        { status: 404 }
+      );
+    }
+
+    const resolvedOrder = {
+      ...existing,
+      orderId: existing.id,
+      paidAt: existing.createdAt,
+      currency: 'COP' as const,
+    };
+
+    return HttpResponse.json({ order: resolvedOrder });
+  } catch {
+    return HttpResponse.json(
+      { error: 'Error interno al consultar la orden.' },
+      { status: 500 }
+    );
+  }
+};
 
 const handleOrderDetail = ({ params }: { params: { orderId?: string } }) => {
   const orderId = params.orderId || '';
@@ -752,6 +945,13 @@ export const handlers = [
   // Cart & Checkout (Zero Trust)
   http.post('*/storefront/api/cart/validate', handleCartValidate),
   http.post('*/api/cart/validate', handleCartValidate),
+
+  // Orders & Lookup (Epic 11)
+  http.get('*/storefront/api/orders', handleGetOrders),
+  http.get('*/api/orders', handleGetOrders),
+
+  http.post('*/storefront/api/orders/lookup', handleOrderLookup),
+  http.post('*/api/orders/lookup', handleOrderLookup),
 
   // Orders & Checkout
   http.get('*/storefront/api/orders/:orderId', handleOrderDetail),

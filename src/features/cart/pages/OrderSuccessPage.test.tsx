@@ -67,4 +67,15 @@ describe('OrderSuccessPage', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith('/');
   });
+
+  it('TDD-FE-ORD-03 / TC-UI-ORD-10: botón Ver en Mis Pedidos navega a /orders', () => {
+    renderComponent();
+
+    const ordersBtn = screen.getByTestId('view-in-my-orders-btn');
+    expect(ordersBtn).toBeInTheDocument();
+    expect(ordersBtn).toHaveTextContent(/Ver en Mis Pedidos/i);
+
+    fireEvent.click(ordersBtn);
+    expect(mockNavigate).toHaveBeenCalledWith('/orders');
+  });
 });

@@ -330,6 +330,35 @@ describe('CheckoutPage', () => {
     await screen.findByText('Resumen de la compra');
     expect(screen.queryByTestId('checkout-free-shipping-badge')).not.toBeInTheDocument();
   });
+
+  describe('Customer email for invoice and tracking (TDD-FE-ORD-01 / TC-UI-ORD-09)', () => {
+    it('captures customerEmail with data-testid="checkout-customer-email-input", preloads from localStorage, validates before pay, and persists upon confirmation', async () => {
+      localStorage.setItem('zelbana-customer-email', 'maria.preloaded@zelbana.com');
+      renderComponent();
+
+      const emailInput = screen.getByTestId('checkout-customer-email-input') as HTMLInputElement;
+      expect(emailInput).toBeInTheDocument();
+      expect(emailInput.value).toBe('maria.preloaded@zelbana.com');
+
+      const payButton = screen.getByRole('button', { name: /confirmar y pagar|simular pago/i });
+      await waitFor(() => expect(payButton).not.toBeDisabled());
+
+      // Change to invalid email
+      fireEvent.change(emailInput, { target: { value: 'invalid-email-format' } });
+      expect(payButton).toBeDisabled();
+
+      // Change to valid new email
+      fireEvent.change(emailInput, { target: { value: 'maria.new@zelbana.com' } });
+      await waitFor(() => expect(payButton).not.toBeDisabled());
+
+      fireEvent.click(payButton);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/order-success/ord-12345', expect.any(Object));
+        expect(localStorage.getItem('zelbana-customer-email')).toBe('maria.new@zelbana.com');
+      });
+    });
+  });
 });
 
 
