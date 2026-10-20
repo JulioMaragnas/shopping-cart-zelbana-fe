@@ -14,7 +14,8 @@ export interface Product {
   categoryId?: string;
   categoryName?: string;
   specs?: ProductSpec[];
-  disponible: boolean;
+  isAvailable: boolean;
+  disponible?: boolean;
   lowStock: boolean;
   maxOrderQuantity: number;
 }
@@ -36,6 +37,7 @@ export interface CatalogProductPayload {
   categoryId?: string;
   categoryName?: string;
   specs?: ProductSpec[];
+  isAvailable?: boolean;
   disponible?: boolean;
   lowStock?: boolean;
   maxOrderQuantity?: number;
@@ -53,6 +55,7 @@ export interface CatalogItem {
   categoryId?: string;
   categoryName?: string;
   specs?: ProductSpec[];
+  isAvailable?: boolean;
   disponible?: boolean;
   lowStock?: boolean;
   maxOrderQuantity?: number;

@@ -6,6 +6,7 @@ import { OrderSuccessPage } from './features/cart/pages/OrderSuccessPage';
 import { ProductDetailPage } from './features/catalog/pages/ProductDetailPage';
 import { MyOrdersPage } from './features/orders/pages/MyOrdersPage';
 import { MiniCartDrawer } from './features/cart/components/MiniCartDrawer';
+import { WelcomeModal } from './features/marketing/components/WelcomeModal/WelcomeModal';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/orders" element={<MyOrdersPage />} />
       </Routes>
       <MiniCartDrawer />
+      <WelcomeModal />
     </BrowserRouter>
   );
 }

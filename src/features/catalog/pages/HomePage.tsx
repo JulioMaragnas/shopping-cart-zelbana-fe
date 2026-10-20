@@ -115,7 +115,8 @@ export function HomePage() {
 
   const handleAdd = (product: Product) => {
     const quantityInCart = cart.find((i) => i.id === product.id)?.quantity ?? 0;
-    if (!product.disponible || quantityInCart >= product.maxOrderQuantity) {
+    const isAvailable = product.isAvailable ?? product.disponible;
+    if (!isAvailable || quantityInCart >= product.maxOrderQuantity) {
       return;
     }
     addItem({

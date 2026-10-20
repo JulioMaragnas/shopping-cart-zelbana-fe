@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http, HttpResponse } from 'msw';
 import { server } from '../../../mocks/server';
-import { useCatalogSearch } from './useCatalogSearch';
+import { useCatalogSearch, normalizeProduct } from './useCatalogSearch';
 import { describe, it, expect } from 'vitest';
 import React from 'react';
 
@@ -188,6 +188,46 @@ describe('useCatalogSearch', () => {
     expect(parsedUrl.searchParams.get('sort')).toBe('highest_discount');
     expect(parsedUrl.searchParams.get('affinityTerms')).toBe('vitamina c,crema');
     expect(parsedUrl.searchParams.get('affinityCategories')).toBe('cat-1,cat-3');
+  });
+
+  describe('normalizeProduct with isAvailable (TDD-POL-FE-01)', () => {
+    it('correctly maps modern payload with isAvailable: true', () => {
+      const normalized = normalizeProduct({
+        id: 'prod-100',
+        name: 'Serum Reparador',
+        salePrice: 35.0,
+        isAvailable: true,
+        maxOrderQuantity: 5,
+      });
+
+      expect(normalized.isAvailable).toBe(true);
+      expect(normalized.maxOrderQuantity).toBe(5);
+    });
+
+    it('tolerantly falls back to legacy disponible when isAvailable is not present', () => {
+      const normalized = normalizeProduct({
+        id: 'prod-101',
+        name: 'Jabón Botánico',
+        salePrice: 12.0,
+        disponible: true,
+        maxOrderQuantity: 2,
+      });
+
+      expect(normalized.isAvailable).toBe(true);
+    });
+
+    it('sets isAvailable: false when maxOrderQuantity is 0 or stock is exhausted', () => {
+      const normalized = normalizeProduct({
+        id: 'prod-102',
+        name: 'Crema Facial Agotada',
+        salePrice: 40.0,
+        isAvailable: true,
+        maxOrderQuantity: 0,
+      });
+
+      expect(normalized.isAvailable).toBe(false);
+      expect(normalized.maxOrderQuantity).toBe(0);
+    });
   });
 });
 
