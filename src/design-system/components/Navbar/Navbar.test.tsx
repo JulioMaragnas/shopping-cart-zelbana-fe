@@ -6,6 +6,7 @@ import { MemoryRouter, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Navbar } from './Navbar';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
+import { useAuthStore } from '../../../features/auth/store/useAuthStore';
 
 const LocationDisplay = () => {
   const location = useLocation();
@@ -33,6 +34,11 @@ const createWrapper = (initialEntries = ['/']) => {
 describe('Navbar Component', () => {
   beforeEach(() => {
     localStorage.clear();
+    useAuthStore.setState({
+      token: null,
+      user: null,
+      isAuthenticated: false,
+    });
     useCartStore.getState().clearCart();
     useCartStore.getState().closeDrawer();
   });
@@ -199,6 +205,32 @@ describe('Navbar Component', () => {
       await waitFor(() => {
         expect(screen.getByTestId('help-modal')).toBeInTheDocument();
       });
+    });
+
+    it('TC-UI-AUTH-12: renders NavbarUserMenu when user is authenticated, and toggles dropdown', async () => {
+      const user = userEvent.setup();
+      useAuthStore.setState({
+        token: 'valid-jwt',
+        user: { id: 'usr-1', name: 'Julio Cano', email: 'julio@ejemplo.com' },
+        isAuthenticated: true,
+      });
+
+      render(<Navbar />, { wrapper: createWrapper(['/']) });
+
+      expect(screen.getByTestId('navbar-user-dropdown-btn')).toBeInTheDocument();
+      expect(screen.getByText('Hola, Julio')).toBeInTheDocument();
+      expect(screen.queryByTestId('navbar-auth-links')).not.toBeInTheDocument();
+
+      // Click to open dropdown
+      await user.click(screen.getByTestId('navbar-user-dropdown-btn'));
+      expect(screen.getByTestId('navbar-user-dropdown-menu')).toBeInTheDocument();
+      expect(screen.getByTestId('navbar-user-orders-link')).toBeInTheDocument();
+      expect(screen.getByTestId('navbar-user-logout-btn')).toBeInTheDocument();
+
+      // Logout
+      await user.click(screen.getByTestId('navbar-user-logout-btn'));
+      expect(useAuthStore.getState().isAuthenticated).toBe(false);
+      expect(screen.getByTestId('navbar-auth-links')).toBeInTheDocument();
     });
   });
 });
