@@ -3,11 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 export interface StoreSettingsResponse {
   freeShippingEnabled: boolean;
   freeShippingThreshold: number;
+  enabledSocialProviders?: string[];
+  googleClientId?: string | null;
 }
 
 export const DEFAULT_SETTINGS: StoreSettingsResponse = {
   freeShippingEnabled: true,
   freeShippingThreshold: 50.0,
+  enabledSocialProviders: ['google'],
+  googleClientId: 'mock-google-client-id',
 };
 
 export const useStoreSettings = () => {
@@ -26,6 +30,13 @@ export const useStoreSettings = () => {
             typeof data?.freeShippingThreshold === 'number'
               ? data.freeShippingThreshold
               : DEFAULT_SETTINGS.freeShippingThreshold,
+          enabledSocialProviders: Array.isArray(data?.enabledSocialProviders)
+            ? data.enabledSocialProviders
+            : DEFAULT_SETTINGS.enabledSocialProviders,
+          googleClientId:
+            data && 'googleClientId' in data
+              ? data.googleClientId
+              : DEFAULT_SETTINGS.googleClientId,
         };
       } catch {
         return DEFAULT_SETTINGS;

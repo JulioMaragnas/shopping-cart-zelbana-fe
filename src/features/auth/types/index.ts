@@ -1,9 +1,11 @@
+export type AuthProvider = 'local' | 'google' | 'apple' | 'meta';
+
 export interface UserDTO {
   id: string;
   name: string;
   email: string;
   avatarUrl?: string | null;
-  authProvider?: string;
+  authProvider?: AuthProvider | string;
 }
 
 export interface AuthResponseDTO {
@@ -11,6 +13,10 @@ export interface AuthResponseDTO {
   token: string;
   user: UserDTO;
 }
+
+export type AuthResponse = AuthResponseDTO;
+
+export * from './socialAuth.types';
 
 export interface LoginInput {
   email: string;

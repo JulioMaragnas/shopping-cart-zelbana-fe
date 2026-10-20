@@ -1,0 +1,24 @@
+.divider {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 20px 0;
+  position: relative;
+  text-align: center;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background-color: #e2e8f0;
+}
+
+.dividerText {
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  background-color: #ffffff;
+  white-space: nowrap;
+  text-transform: lowercase;
+}

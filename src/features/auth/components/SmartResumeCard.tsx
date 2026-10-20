@@ -5,6 +5,7 @@ import styles from './SmartResumeCard.module.css';
 export const SmartResumeCard: React.FC<SmartResumeCardProps> = ({
   name,
   email,
+  provider,
   onContinue,
   onChangeAccount,
   isLoading = false,
@@ -27,7 +28,13 @@ export const SmartResumeCard: React.FC<SmartResumeCardProps> = ({
           {initials}
         </div>
         <div className={styles.info}>
-          <h3 className={styles.title}>Continuar como {name}</h3>
+          {provider === 'google' ? (
+            <h3 className={styles.title} data-testid="smart-resume-provider-badge">
+              Continuar como {name} <span className={styles.providerBadge}>(Google)</span>
+            </h3>
+          ) : (
+            <h3 className={styles.title}>Continuar como {name}</h3>
+          )}
           <p className={styles.email}>{email}</p>
         </div>
       </div>

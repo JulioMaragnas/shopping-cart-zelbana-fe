@@ -7,23 +7,39 @@ import { RegisterPage } from './RegisterPage';
 import { useAuthStore } from '../store/useAuthStore';
 import { useCartStore } from '../../cart/store/useCartStore';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { http, HttpResponse } from 'msw';
+import { server } from '../../../mocks/server';
+import { resetMockStoreSettings } from '../../../mocks/handlers';
+
 const LocationTracker = () => {
   const location = useLocation();
   return <div data-testid="location-display">{location.pathname + location.search}</div>;
 };
 
 const renderRegisterPage = (initialEntries = ['/register']) => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
+
   return render(
-    <MemoryRouter initialEntries={initialEntries}>
-      <RegisterPage />
-      <LocationTracker />
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={initialEntries}>
+        <RegisterPage />
+        <LocationTracker />
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 };
 
-describe('RegisterPage Component (TC-UI-AUTH-08 .. TC-UI-AUTH-11)', () => {
+describe('RegisterPage Component (TC-UI-AUTH-08 .. TC-UI-AUTH-11, TC-UI-SOC-02, TC-UI-SOC-03)', () => {
   beforeEach(() => {
     localStorage.clear();
+    resetMockStoreSettings();
     useAuthStore.setState({
       token: null,
       user: null,
@@ -118,5 +134,47 @@ describe('RegisterPage Component (TC-UI-AUTH-08 .. TC-UI-AUTH-11)', () => {
     renderRegisterPage(['/register?redirect=%2Fcheckout%2FORD-123']);
     const loginLink = screen.getByTestId('register-to-login-link');
     expect(loginLink).toHaveAttribute('href', '/login?redirect=%2Fcheckout%2FORD-123');
+  });
+
+  it('TC-UI-SOC-02: renders google-register-btn with text "Registrarse con Google", social-divider with "o regístrate con correo", and traditional register inputs', async () => {
+    renderRegisterPage();
+
+    const googleBtn = await screen.findByTestId('google-register-btn');
+    expect(googleBtn).toBeInTheDocument();
+    expect(googleBtn).toHaveTextContent('Registrarse con Google');
+
+    const divider = screen.getByTestId('social-divider');
+    expect(divider).toBeInTheDocument();
+    expect(screen.getByTestId('social-divider-text')).toHaveTextContent('o regístrate con correo');
+
+    // Traditional inputs exist
+    expect(screen.getByTestId('register-name-input')).toBeInTheDocument();
+    expect(screen.getByTestId('register-email-input')).toBeInTheDocument();
+    expect(screen.getByTestId('register-password-input')).toBeInTheDocument();
+    expect(screen.getByTestId('register-submit-btn')).toBeInTheDocument();
+  });
+
+  it('TC-UI-SOC-03: hides google-register-btn and social-divider when enabledSocialProviders is empty or googleClientId is empty', async () => {
+    server.use(
+      http.get('*/storefront/api/settings', () => {
+        return HttpResponse.json({
+          freeShippingEnabled: true,
+          freeShippingThreshold: 50.0,
+          enabledSocialProviders: [],
+          googleClientId: null,
+        });
+      })
+    );
+
+    renderRegisterPage();
+
+    // Traditional form loads
+    expect(await screen.findByTestId('register-name-input')).toBeInTheDocument();
+
+    // Google button and divider should NOT be in the DOM once settings resolve
+    await waitFor(() => {
+      expect(screen.queryByTestId('google-register-btn')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('social-divider')).not.toBeInTheDocument();
+    });
   });
 });
