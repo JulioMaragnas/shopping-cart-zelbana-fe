@@ -13,6 +13,9 @@ export interface UseCatalogSearchOptions {
   categoryId?: string;
   page?: number;
   limit?: number;
+  sort?: string;
+  affinityCategories?: string;
+  affinityTerms?: string;
 }
 
 export type RawCatalogInput = CatalogItem | (Partial<Product> & { id: string | number; name: string; salePrice: number });
@@ -72,11 +75,11 @@ export const useCatalogSearch = (
     ? { query: queryOrOptions, categoryId: categoryIdParam, page: pageParam, limit: 20 }
     : { page: 1, limit: 20, ...queryOrOptions };
 
-  const { query = '', categoryId, page = 1, limit = 20 } = options;
+  const { query = '', categoryId, page = 1, limit = 20, sort, affinityCategories, affinityTerms } = options;
   const safePage = Math.max(1, page);
 
   return useQuery<CatalogSearchResult>({
-    queryKey: ['catalogSearch', query, categoryId, safePage, limit],
+    queryKey: ['catalogSearch', query, categoryId, safePage, limit, sort, affinityCategories, affinityTerms],
     queryFn: async () => {
       const offset = (safePage - 1) * limit;
       const params = new URLSearchParams();
@@ -90,6 +93,15 @@ export const useCatalogSearch = (
       params.append('page', String(safePage));
       params.append('limit', String(limit));
       params.append('offset', String(offset));
+      if (sort) {
+        params.append('sort', sort);
+      }
+      if (affinityCategories) {
+        params.append('affinityCategories', affinityCategories);
+      }
+      if (affinityTerms) {
+        params.append('affinityTerms', affinityTerms);
+      }
 
       const response = await fetch(`/storefront/api/products?${params.toString()}`);
       if (!response.ok) {

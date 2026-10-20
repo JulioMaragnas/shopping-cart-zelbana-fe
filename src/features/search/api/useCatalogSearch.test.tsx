@@ -152,4 +152,42 @@ describe('useCatalogSearch', () => {
     expect(lowStockProduct?.lowStock).toBe(true);
     expect(lowStockProduct?.maxOrderQuantity).toBe(3);
   });
+
+  it('TDD-FE-03: propagates sort, affinityCategories, and affinityTerms query parameters to the API', async () => {
+    let capturedUrl = '';
+    server.use(
+      http.get('*/storefront/api/products', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json({
+          items: [],
+          totalItems: 0,
+          totalPages: 1,
+          currentPage: 1,
+        });
+      })
+    );
+
+    const { result } = renderHook(
+      () =>
+        useCatalogSearch({
+          query: 'serum',
+          sort: 'highest_discount',
+          affinityTerms: 'vitamina c,crema',
+          affinityCategories: 'cat-1,cat-3',
+        }),
+      {
+        wrapper: createWrapper(),
+      }
+    );
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    const parsedUrl = new URL(capturedUrl);
+    expect(parsedUrl.searchParams.get('sort')).toBe('highest_discount');
+    expect(parsedUrl.searchParams.get('affinityTerms')).toBe('vitamina c,crema');
+    expect(parsedUrl.searchParams.get('affinityCategories')).toBe('cat-1,cat-3');
+  });
 });
+

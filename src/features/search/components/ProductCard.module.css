@@ -13,6 +13,11 @@
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
+.cardSoldOut {
+  opacity: 0.7;
+}
+
+
 .imageContainer {
   position: relative;
   width: 100%;

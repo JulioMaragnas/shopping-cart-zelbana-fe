@@ -65,7 +65,10 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd?: () =
   }
 
   return (
-    <div className={styles.card}>
+    <div
+      className={`${styles.card} ${!isAvailable ? styles.cardSoldOut : ''}`}
+      data-testid={!isAvailable ? 'product-card-sold-out' : undefined}
+    >
       <Link to={`/products/${id}`} className={styles.cardLink} aria-label={`Ver detalle de ${name}`}>
         <div className={styles.imageContainer}>
           {resolvedThumbnail && !hasImageError ? (
@@ -91,12 +94,16 @@ export const ProductCard = ({ product, onAdd }: { product: Product; onAdd?: () =
         <div className={styles.priceContainer}>
           <span className={styles.salePrice}>${salePrice.toFixed(2)}</span>
           {discountPercentage > 0 && (
-            <span className={styles.discountBadge}>-{discountPercentage}% OFF</span>
+            <span className={styles.discountBadge} data-testid="product-badge-discount">
+              -{discountPercentage}% OFF
+            </span>
           )}
         </div>
 
         {lowStock && isAvailable && (
-          <span className={styles.lowStockBadge}>¡Pocas unidades disponibles!</span>
+          <span className={styles.lowStockBadge} data-testid="product-badge-lowstock">
+            ¡Pocas unidades disponibles!
+          </span>
         )}
 
         {quantityInCart > 0 && (
