@@ -8,6 +8,7 @@ import { useCategories } from '../api/useCategories';
 import { useCartStore } from '../../cart/store/useCartStore';
 import { findCategoryName } from '../utils/findCategoryName';
 import { recordCategoryAffinity } from '../../search/utils/affinityStorage';
+import { MobileStickyPdpBar } from '../components/MobileStickyPdpBar';
 import styles from './ProductDetailPage.module.css';
 
 export function ProductDetailPage() {
@@ -23,6 +24,9 @@ export function ProductDetailPage() {
   const [quantity, setQuantity] = useState<number | ''>(1);
   const [addedQuantityNotice, setAddedQuantityNotice] = useState<number | null>(null);
   const noticeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const mainCtaRef = useRef<HTMLButtonElement>(null);
+  const [isMainCtaVisible, setIsMainCtaVisible] = useState(true);
+
 
   useEffect(() => {
     setSelectedPhoto(0);
@@ -44,6 +48,35 @@ export function ProductDetailPage() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (typeof IntersectionObserver === 'undefined') {
+      setIsMainCtaVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsMainCtaVisible(entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0.1,
+      }
+    );
+
+    const currentEl = mainCtaRef.current;
+    if (currentEl) {
+      observer.observe(currentEl);
+    }
+
+    return () => {
+      if (currentEl) {
+        observer.unobserve(currentEl);
+      }
+    };
+  }, [product]);
+
 
   if (isLoading) {
     return (
@@ -273,13 +306,16 @@ export function ProductDetailPage() {
               </div>
 
               <button
+                ref={mainCtaRef}
                 type="button"
                 className={`${styles.addToCartBtn} ${isPurchaseDisabled ? styles.disabledBtn : ''}`}
                 disabled={isPurchaseDisabled}
                 onClick={handleAddToCart}
+                data-testid="add-to-cart-main-btn"
               >
                 {buttonLabel}
               </button>
+
             </div>
 
             {addedQuantityNotice !== null && (
@@ -323,7 +359,24 @@ export function ProductDetailPage() {
             </div>
           </div>
         </div>
+
+        {!isMainCtaVisible && (
+          <MobileStickyPdpBar
+            name={name}
+            thumbnailUrl={thumbnailUrl ?? galleryPhotos[0] ?? null}
+            salePrice={salePrice}
+            lowStock={lowStock}
+            quantity={quantity}
+            maxOrderQuantity={maxOrderQuantity}
+            remainingAvailable={remainingAvailable}
+            isPurchaseDisabled={isPurchaseDisabled}
+            buttonLabel={buttonLabel}
+            onQuantityChange={setQuantity}
+            onAddToCart={handleAddToCart}
+          />
+        )}
       </main>
     </>
   );
 }
+

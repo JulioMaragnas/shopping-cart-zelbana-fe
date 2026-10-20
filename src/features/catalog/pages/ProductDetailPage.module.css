@@ -26,11 +26,16 @@
 }
 
 @media (max-width: 768px) {
+  .container {
+    padding-bottom: 84px;
+  }
+
   .contentGrid {
     grid-template-columns: 1fr;
     gap: 24px;
   }
 }
+
 
 .galleryColumn {
   display: flex;

@@ -33,7 +33,9 @@ const createWrapper = (initialEntries = ['/']) => {
 describe('Navbar Component', () => {
   beforeEach(() => {
     useCartStore.getState().clearCart();
+    useCartStore.getState().closeDrawer();
   });
+
 
   it('renders correctly with all base elements', () => {
     render(<Navbar />, { wrapper: createWrapper() });
@@ -120,4 +122,33 @@ describe('Navbar Component', () => {
     expect(loc).toContain('query=cacao');
     expect(loc).toContain('page=1');
   });
+
+  describe('Mini-Cart Drawer integration (TDD-FE-MC-04, TDD-FE-MC-05)', () => {
+    it('TDD-FE-MC-04: clicking cart-button in catalog routes intercepts navigation and toggles drawer', async () => {
+      const user = userEvent.setup();
+      render(<Navbar />, { wrapper: createWrapper(['/']) });
+
+      expect(useCartStore.getState().isDrawerOpen).toBe(false);
+
+      const cartBtn = screen.getByTestId('cart-button');
+      await user.click(cartBtn);
+
+      expect(useCartStore.getState().isDrawerOpen).toBe(true);
+      expect(screen.getByTestId('location-display').textContent).toBe('/');
+    });
+
+    it('TDD-FE-MC-05: clicking cart-button in /cart or /checkout routes does not open drawer', async () => {
+      const user = userEvent.setup();
+      render(<Navbar />, { wrapper: createWrapper(['/cart']) });
+
+      expect(useCartStore.getState().isDrawerOpen).toBe(false);
+
+      const cartBtn = screen.getByTestId('cart-button');
+      await user.click(cartBtn);
+
+      expect(useCartStore.getState().isDrawerOpen).toBe(false);
+      expect(screen.getByTestId('location-display').textContent).toBe('/cart');
+    });
+  });
 });
+

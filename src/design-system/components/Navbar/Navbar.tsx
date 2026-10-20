@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import styles from './Navbar.module.css';
 import { useCartStore } from '../../../features/cart/store/useCartStore';
 import { SearchBar } from '../../../features/search/components/SearchBar';
@@ -9,13 +9,24 @@ export function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const cart = useCartStore((state) => state.cart);
+  const toggleDrawer = useCartStore((state) => state.toggleDrawer);
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const currentQuery = searchParams.get('query') || searchParams.get('q') || '';
   const currentCategoryId = searchParams.get('categoryId') || '';
 
   const { data: categories = [] } = useCategories();
+
+  const handleCartClick = (e: React.MouseEvent) => {
+    if (location.pathname === '/cart' || location.pathname.startsWith('/checkout')) {
+      return;
+    }
+    e.preventDefault();
+    toggleDrawer();
+  };
+
 
   const handleSearch = (q: string) => {
     const nextParams = new URLSearchParams();
@@ -122,7 +133,13 @@ export function Navbar() {
         <span className={styles.navLink}>Hola, Julio Cano</span>
         <span className={styles.navLink}>Ayuda</span>
         <span className={styles.navLink}>Español ▾</span>
-        <Link to="/cart" className={styles.cartLink} aria-label="Ver carrito de compras">
+        <Link
+          to="/cart"
+          className={styles.cartLink}
+          data-testid="cart-button"
+          aria-label="Ver carrito de compras"
+          onClick={handleCartClick}
+        >
           <div className={styles.cartContainer}>
             <span>🛒</span>
             {totalItems > 0 && (
