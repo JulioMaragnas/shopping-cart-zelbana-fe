@@ -975,7 +975,138 @@ const handleGetHelpTopics = () => {
   return HttpResponse.json({ helpTopics: mockHelpTopics });
 };
 
+// Auth Handlers (Epic 13)
+const handleAuthLogin = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      email?: string;
+      password?: string;
+    };
+    const { email, password } = body;
+
+    if (!email || !password) {
+      return HttpResponse.json(
+        { error: 'Correo y contraseña son requeridos.' },
+        { status: 400 }
+      );
+    }
+
+    if (email === 'rate.limit@ejemplo.com' || password === 'ratelimit') {
+      return HttpResponse.json(
+        { error: 'Demasiados intentos fallidos. Por tu seguridad, espera 1 minuto.' },
+        { status: 429 }
+      );
+    }
+
+    if (password === 'wrong-password' || email === 'invalid@ejemplo.com' || password === 'wrongpassword') {
+      return HttpResponse.json(
+        { error: 'El correo o la contraseña son incorrectos.' },
+        { status: 401 }
+      );
+    }
+
+    const userName = email.includes('maria') ? 'María Pérez' : 'Julio Cano';
+    return HttpResponse.json({
+      success: true,
+      token: 'mock-jwt-token-valid-7d',
+      user: {
+        id: 'usr-12345',
+        name: userName,
+        email: email.trim().toLowerCase(),
+        avatarUrl: null,
+        authProvider: 'local',
+      },
+    });
+  } catch {
+    return HttpResponse.json({ error: 'Error interno de autenticación' }, { status: 500 });
+  }
+};
+
+const handleAuthRegister = async ({ request }: { request: Request }) => {
+  try {
+    const body = (await request.json().catch(() => ({}))) as {
+      name?: string;
+      email?: string;
+      password?: string;
+    };
+    const { name, email, password } = body;
+
+    if (!name || !email || !password) {
+      return HttpResponse.json(
+        { error: 'Todos los campos son requeridos. (Contraseña de mínimo 8 caracteres y correo válido)' },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return HttpResponse.json(
+        { error: 'La contraseña debe tener al menos 8 caracteres.' },
+        { status: 400 }
+      );
+    }
+
+    if (email === 'existente@ejemplo.com' || email === 'duplicado@ejemplo.com') {
+      return HttpResponse.json(
+        { error: 'El correo electrónico ya está registrado.' },
+        { status: 409 }
+      );
+    }
+
+    if (email === 'rate.limit@ejemplo.com') {
+      return HttpResponse.json(
+        { error: 'Demasiados intentos fallidos. Por tu seguridad, espera 1 minuto.' },
+        { status: 429 }
+      );
+    }
+
+    return HttpResponse.json(
+      {
+        success: true,
+        token: 'mock-jwt-token-registered-7d',
+        user: {
+          id: `usr-${Date.now()}`,
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          avatarUrl: null,
+          authProvider: 'local',
+        },
+      },
+      { status: 201 }
+    );
+  } catch {
+    return HttpResponse.json({ error: 'Error interno de registro' }, { status: 500 });
+  }
+};
+
+const handleAuthMe = ({ request }: { request: Request }) => {
+  const authHeader = request.headers.get('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ') || authHeader.includes('expired')) {
+    return HttpResponse.json(
+      { error: 'Token de acceso no válido o expirado.' },
+      { status: 401 }
+    );
+  }
+
+  return HttpResponse.json({
+    id: 'usr-12345',
+    name: 'Julio Cano',
+    email: 'julio@ejemplo.com',
+    avatarUrl: null,
+    authProvider: 'local',
+  });
+};
+
 export const handlers = [
+  // Auth Endpoints (Epic 13)
+  http.post('*/storefront/api/auth/login', handleAuthLogin),
+  http.post('*/api/auth/login', handleAuthLogin),
+
+  http.post('*/storefront/api/auth/register', handleAuthRegister),
+  http.post('*/api/auth/register', handleAuthRegister),
+
+  http.get('*/storefront/api/auth/me', handleAuthMe),
+  http.get('*/api/auth/me', handleAuthMe),
+
   // Categories
   http.get('*/storefront/api/categories', handleCategories),
   http.get('*/api/categories', handleCategories),
@@ -1031,5 +1162,6 @@ export const handlers = [
   http.get('*/storefront/api/help', handleGetHelpTopics),
   http.get('*/api/help', handleGetHelpTopics),
 ];
+
 
 

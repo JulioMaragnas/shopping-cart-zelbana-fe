@@ -5,6 +5,8 @@ import { useCartStore } from '../../../features/cart/store/useCartStore';
 import { SearchBar } from '../../../features/search/components/SearchBar';
 import { useCategories } from '../../../features/catalog/api/useCategories';
 import { HelpModal } from '../../../features/help/components/HelpModal/HelpModal';
+import { useAuthStore } from '../../../features/auth/store/useAuthStore';
+import { NavbarUserMenu } from './NavbarUserMenu';
 
 export function Navbar() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -70,6 +72,7 @@ export function Navbar() {
   }, [isDropdownOpen]);
 
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const { isAuthenticated, user, logout } = useAuthStore();
   const [customerName] = useState<string | null>(() => {
     return typeof window !== 'undefined'
       ? localStorage.getItem('zelbana-customer-name')
@@ -140,7 +143,9 @@ export function Navbar() {
       </div>
 
       <div className={styles.rightSection}>
-        {firstName ? (
+        {isAuthenticated && user ? (
+          <NavbarUserMenu user={user} onLogout={logout} />
+        ) : firstName ? (
           <span className={styles.navGreeting} data-testid="navbar-greeting">
             Hola, {firstName}
           </span>
