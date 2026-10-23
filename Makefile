@@ -7,13 +7,18 @@ REMOTE_APP  := /opt/zelbana-shopping-cart/shopping-cart-zelbana-fe
 REPO        := git@github-zelbana-fe:JulioMaragnas/shopping-cart-zelbana-fe.git
 BRANCH      ?= $$(shell git rev-parse --abbrev-ref HEAD)
 
-ifneq ($(MAKECMDGOALS),git-push)
+ifeq ($(filter $(MAKECMDGOALS),git-push sanitize-lock),)
 ifndef TAG
 $$(error ❌ Error: Debes especificar la variable TAG obligatoriamente (ej: make deploy-test BRANCH=develop TAG=v1.0.0))
 endif
 endif
 
-.PHONY: sync git-push build push deploy deploy-test check-prod-branch check-test-branch
+.PHONY: sync git-push build push deploy deploy-test check-prod-branch check-test-branch sanitize-lock
+
+sanitize-lock:
+	@echo "🧹 Sanitizando package-lock.json: reemplazando URLs de Fury por registry.npmjs.org..."
+	@perl -pi -e 's|https://npm.artifacts.furycloud.io/repository/all/|https://registry.npmjs.org/|g' package-lock.json
+	@echo "✅ package-lock.json sanitizado correctamente."
 
 git-push:
 	@local_branch=$$(git rev-parse --abbrev-ref HEAD); \
